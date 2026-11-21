@@ -29,6 +29,18 @@ pnpm preview    # 本地预览构建产物
 > 校验 `content/`（schema、slug 唯一、引用完整性、外链格式）并把 Markdown
 > 构建期编译为 HTML（Shiki `blueprint-draft` 主题）。**校验不通过则构建失败**。
 
+## 部署（M2 定案：GitHub Pages）
+
+`main` 分支的每次 push 会触发两条流水线：
+
+1. **CI**（`.github/workflows/ci.yml`）：内容校验 → 类型检查 → SSG 构建冒烟；
+2. **Deploy**（`.github/workflows/deploy.yml`）：构建静态产物 → 发布到 GitHub Pages。
+   线上地址：<https://guhl0427.github.io/cs-study/>
+
+- 项目页 base 由 CI 注入 `VITE_BASE=/cs-study/`（`vite.config.ts`），本地开发不受影响；
+- sitemap.xml 由内容构建按 `--site` 参数生成（gitignore，属构建产物）；
+- 部署即回滚：GitHub Pages 上重新运行上一版 Deploy 工作流，或 revert 后 push。
+
 ## 内容目录规范（即内容模型）
 
 ```

@@ -3,6 +3,7 @@ dist/
 .vite-ssg-temp/
 frontend/src/content/gen/
 frontend/.lighthouse/
+frontend/public/sitemap.xml
 .zcode/
 *.log
 .DS_Store

@@ -475,6 +475,22 @@ write('quizzes.json', quizzesOut)
 write('search-docs.json', searchDocs)
 write('routes-manifest.json', routesManifest)
 
+// ---------------------------------------------------------------- sitemap.xml（传入 --site 时生成，F6/SEO）
+const siteUrl = argOf('--site', '')
+if (siteUrl) {
+  const base = siteUrl.replace(/\/$/, '')
+  const staticPaths = ['/', '/explore', '/guide', '/profile', '/settings', '/search', '/mistakes']
+  const dynamicPaths = Object.values(routesManifest).flat()
+  const urlLines = [...staticPaths, ...dynamicPaths].map(
+    (p) => `  <url><loc>${base}${p === '/' ? '/' : p}</loc></url>`,
+  )
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlLines.join('\n')}\n</urlset>\n`
+  const publicDir = path.resolve(outDir, '../../../public')
+  fs.mkdirSync(publicDir, { recursive: true })
+  fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), sitemap)
+  console.log(`[content] sitemap.xml → ${urlLines.length} 条 URL（${siteUrl}）`)
+}
+
 // ---------------------------------------------------------------- 汇总
 console.log(`[content] 领域 ${domains.length} · 路线 ${paths.length} · 课程 ${courses.length} · 知识点 ${lessons.size} · 测验 ${quizFiles.length}`)
 console.log(`[content] 产出 → ${path.relative(repoRoot, outDir)}`)
