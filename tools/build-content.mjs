@@ -294,15 +294,15 @@ for (const c of courses) {
   }
 }
 
-// 领域：派生课程数与难度跨度
+// 领域：派生课程数与难度跨度（coursesOut.difficultySpan 已按章节内知识点计算）
 const domainsOut = domains.map((d) => {
-  const dc = courses.filter((c) => c.domainSlug === d.slug)
-  const spans = dc.map((c) => c.difficulty).filter(Number.isInteger)
+  const dc = Object.values(coursesOut).filter((c) => c.domainSlug === d.slug)
+  const lessonSpans = dc.flatMap((c) => c.difficultySpan ?? [])
   return {
     ...d,
     courseCount: dc.length,
     hasContent: dc.length > 0,
-    difficultySpan: spans.length ? [Math.min(...spans), Math.max(...spans)] : null,
+    difficultySpan: lessonSpans.length ? [Math.min(...lessonSpans), Math.max(...lessonSpans)] : null,
   }
 })
 
