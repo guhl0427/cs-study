@@ -21,7 +21,10 @@ const lessonSlug = String(route.params.lessonSlug)
 const view = contentApi.getLesson(courseSlug, lessonSlug)
 const course = contentApi.getCourse(courseSlug)
 
-usePageTitle(view?.meta.title ?? '知识点')
+usePageTitle(
+  view?.meta.title ?? '知识点',
+  view ? `${view.meta.summary} · ${view.meta.courseTitle} · 约 ${view.meta.estMinutes} 分钟` : undefined,
+)
 
 const ud = useUserDataStore()
 

@@ -17,7 +17,7 @@ const route = useRoute()
 const slug = String(route.params.slug)
 const course = contentApi.getCourse(slug)
 
-usePageTitle(course?.title ?? '课程')
+usePageTitle(course?.title ?? '课程', course?.summary)
 
 const ud = useUserDataStore()
 const mounted = useClientMounted()

@@ -11,6 +11,9 @@ importers:
       '@tabler/icons-vue':
         specifier: ^3.30.0
         version: 3.52.0(vue@3.5.46(typescript@5.8.3))
+      '@unhead/vue':
+        specifier: ^2.1.18
+        version: 2.1.18(vue@3.5.46(typescript@5.8.3))
       minisearch:
         specifier: ^7.2.0
         version: 7.2.0

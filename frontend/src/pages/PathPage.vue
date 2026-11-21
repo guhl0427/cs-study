@@ -16,7 +16,7 @@ const router = useRouter()
 const slug = String(route.params.slug)
 const path = contentApi.getPath(slug)
 
-usePageTitle(path?.name ?? '学习路线图')
+usePageTitle(path?.name ?? '学习路线图', path?.description)
 
 const ud = useUserDataStore()
 const ui = useUiStore()

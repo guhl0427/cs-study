@@ -11,7 +11,10 @@ import { useUserDataStore } from '@/stores/userData'
 import { useClientMounted } from '@/composables/useClientMounted'
 import { usePageTitle } from '@/composables/usePageTitle'
 
-usePageTitle('打开就能学，进度随身存')
+usePageTitle(
+  '打开就能学，进度随身存',
+  '九大技术领域、完整学习路线、原创知识点讲解。无需注册——你的所有学习记录只保存在自己的浏览器里。',
+)
 
 const domains = contentApi.listDomains()
 const site = contentApi.getSite()

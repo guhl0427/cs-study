@@ -15,7 +15,7 @@ const domain = contentApi.getDomain(slug)
 const courses = contentApi.listCoursesOfDomain(slug)
 const paths = contentApi.listPathsOfDomain(slug)
 
-usePageTitle(domain?.name ?? '领域')
+usePageTitle(domain?.name ?? '领域', domain?.summary)
 
 const Icon = domainIcons[domain?.icon ?? ''] ?? IconCode
 
