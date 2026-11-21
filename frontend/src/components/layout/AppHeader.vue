@@ -57,7 +57,7 @@ const ctaLabel = computed(() => (mounted.value && ud.lastVisit ? '继续学习' 
 
       <!-- 全局搜索：P1 前为目标态占位（F6） -->
       <button
-        class="ml-auto hidden items-center gap-2 rounded-full border border-line bg-inset px-3 py-1.5 text-caption text-ink-3 hover:border-line-strong md:flex"
+        class="ml-auto hidden items-center gap-2 rounded-full border border-line bg-inset px-3 py-1.5 text-caption text-ink-2 hover:border-line-strong md:flex"
         type="button"
         @click="ui.toast('info', '搜索功能即将上线')"
       >

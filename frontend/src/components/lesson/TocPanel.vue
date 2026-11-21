@@ -33,7 +33,7 @@ onBeforeUnmount(() => observer?.disconnect())
       <li v-for="item in toc" :key="item.id" :class="item.level === 3 ? 'pl-3' : ''">
         <a
           :href="`#${item.id}`"
-          class="block text-[13px] leading-snug transition-colors"
+          class="block py-1.5 text-[13px] leading-snug transition-colors"
           :class="active === item.id ? 'font-bold text-accent' : 'text-ink-2 hover:text-ink'"
         >
           {{ item.text }}

@@ -157,7 +157,7 @@ const stageGroups = (stage: PathStage) => groupItems(stage.items)
           </div>
         </div>
       </section>
-      <div v-if="si < path.stages.length - 1" class="flex items-center text-ink-3" aria-hidden="true">→</div>
+      <div v-if="si < path.stages.length - 1" class="flex items-center text-ink-2" aria-hidden="true">→</div>
     </template>
   </div>
 </template>

@@ -34,7 +34,7 @@ const rowSymbol = (l: LessonMeta) =>
 
 const rowCls = (l: LessonMeta) => {
   const s = mounted.value ? lessonState(l.id, ud.progress) : 'todo'
-  return s === 'done' ? 'text-ok' : s === 'learning' ? 'text-teal' : 'text-ink-3'
+  return s === 'done' ? 'text-ok' : s === 'learning' ? 'text-teal' : 'text-ink-2'
 }
 </script>
 

@@ -22,6 +22,7 @@ const stateCls: Record<ProgressState, string> = {
   learning: 'border-teal text-ink',
   done: 'border-ok bg-ok-subtle text-ink',
 }
+
 </script>
 
 <template>
@@ -32,7 +33,7 @@ const stateCls: Record<ProgressState, string> = {
       class="card-plate card-hover flex items-center gap-2.5 px-3 py-2.5"
       :class="[stateCls[state], isCurrent ? 'ring-2 ring-accent ring-offset-2 ring-offset-page' : '']"
     >
-      <span class="w-4 text-center font-bold" :class="state === 'done' ? 'text-ok' : state === 'learning' ? 'text-teal' : 'text-ink-3'" aria-hidden="true">
+      <span class="w-4 text-center font-bold" :class="state === 'done' ? 'text-ok' : state === 'learning' ? 'text-teal' : 'text-ink-2'" aria-hidden="true">
         {{ symbol[state] }}
       </span>
       <span class="min-w-0 flex-1 truncate text-[14px] font-semibold">{{ item.lesson.title }}</span>

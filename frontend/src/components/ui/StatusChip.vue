@@ -12,7 +12,7 @@ const cfg = computed(() => {
     case 'learning':
       return { label: '学习中', cls: 'border-teal bg-surface text-teal' }
     default:
-      return { label: '未开始', cls: 'border-dashed border-line bg-surface text-ink-3' }
+      return { label: '未开始', cls: 'border-dashed border-line bg-surface text-ink-2' }
   }
 })
 </script>
