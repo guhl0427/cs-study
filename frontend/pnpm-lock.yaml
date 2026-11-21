@@ -11,6 +11,9 @@ importers:
       '@tabler/icons-vue':
         specifier: ^3.30.0
         version: 3.52.0(vue@3.5.46(typescript@5.8.3))
+      minisearch:
+        specifier: ^7.2.0
+        version: 7.2.0
       pinia:
         specifier: ^3.0.1
         version: 3.0.4(typescript@5.8.3)(vue@3.5.46(typescript@5.8.3))
@@ -713,6 +716,9 @@ packages:
 
   mdn-data@2.27.1:
     resolution: {integrity: sha512-9Yubnt3e8A0OKwxYSXyhLymGW4sCufcLG6VdiDdUGVkPhpqLxlvP5vl1983gQjJl3tqbrM731mjaZaP68AgosQ==}
+
+  minisearch@7.2.0:
+    resolution: {integrity: sha512-dqT2XBYUOZOiC5t2HRnwADjhNS2cecp9u+TJRiJ1Qp/f5qjkeT5APcGPjHw+bz89Ms8Jp+cG4AlE+QZ/QnDglg==}
 
   mitt@3.0.1:
     resolution: {integrity: sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==}
@@ -1587,6 +1593,8 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.6.0
 
   mdn-data@2.27.1: {}
+
+  minisearch@7.2.0: {}
 
   mitt@3.0.1: {}
 

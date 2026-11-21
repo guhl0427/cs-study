@@ -351,6 +351,49 @@ const routesManifest = {
   ),
 }
 
+// ---------------------------------------------------------------- 搜索文档（F6.1：构建期生成，前端内存检索）
+const searchDocs = [
+  ...domainsOut.map((d) => ({
+    id: `domain:${d.slug}`,
+    type: '领域',
+    title: d.name,
+    summary: d.summary,
+    tags: '',
+    extra: d.audience ?? '',
+    crumb: `领域 · ${d.courseCount} 门课程`,
+    url: `/domain/${d.slug}`,
+    domainSlug: d.slug,
+    difficulty: null,
+    estMinutes: null,
+  })),
+  ...Object.values(coursesOut).map((c) => ({
+    id: `course:${c.slug}`,
+    type: '课程',
+    title: c.title,
+    summary: c.summary,
+    tags: '',
+    extra: `${domainBySlug.get(c.domainSlug)?.name ?? ''} ${c.audience}`,
+    crumb: domainBySlug.get(c.domainSlug)?.name ?? '',
+    url: `/course/${c.slug}`,
+    domainSlug: c.domainSlug,
+    difficulty: c.difficulty,
+    estMinutes: c.estMinutesTotal,
+  })),
+  ...Object.values(lessonsOut).map((l) => ({
+    id: `lesson:${l.meta.id}`,
+    type: '知识点',
+    title: l.meta.title,
+    summary: l.meta.summary,
+    tags: l.meta.tags.join(' '),
+    extra: `${l.meta.domainName ?? ''} ${l.meta.courseTitle ?? ''} ${l.meta.chapterTitle ?? ''}`,
+    crumb: `${l.meta.domainName ?? ''} › ${l.meta.courseTitle ?? ''} › ${l.meta.chapterTitle ?? ''}`,
+    url: `/course/${l.meta.courseSlug}/lesson/${l.meta.slug}`,
+    domainSlug: l.meta.domainSlug ?? '',
+    difficulty: l.meta.difficulty,
+    estMinutes: l.meta.estMinutes,
+  })),
+]
+
 // ---------------------------------------------------------------- 输出
 fs.mkdirSync(outDir, { recursive: true })
 const write = (name, data) => fs.writeFileSync(path.join(outDir, name), JSON.stringify(data, null, 2) + '\n')
@@ -359,6 +402,7 @@ write('site.json', site)
 write('paths.json', pathsOut)
 write('courses.json', coursesOut)
 write('lessons.json', lessonsOut)
+write('search-docs.json', searchDocs)
 write('routes-manifest.json', routesManifest)
 
 // ---------------------------------------------------------------- 汇总

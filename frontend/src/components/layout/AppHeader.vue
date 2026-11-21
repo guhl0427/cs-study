@@ -3,12 +3,10 @@ import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { IconMenu2, IconSearch, IconX } from '@tabler/icons-vue'
 import { useUserDataStore } from '@/stores/userData'
-import { useUiStore } from '@/stores/ui'
 import { useClientMounted } from '@/composables/useClientMounted'
 
 const route = useRoute()
 const ud = useUserDataStore()
-const ui = useUiStore()
 const mounted = useClientMounted()
 const drawerOpen = ref(false)
 
@@ -55,15 +53,23 @@ const ctaLabel = computed(() => (mounted.value && ud.lastVisit ? '继续学习' 
         </RouterLink>
       </nav>
 
-      <!-- 全局搜索：P1 前为目标态占位（F6） -->
-      <button
+      <!-- 全局搜索（F6）：桌面胶囊入口 + ⌘K -->
+      <RouterLink
+        to="/search"
         class="ml-auto hidden items-center gap-2 rounded-full border border-line bg-inset px-3 py-1.5 text-caption text-ink-2 hover:border-line-strong md:flex"
-        type="button"
-        @click="ui.toast('info', '搜索功能即将上线')"
+        aria-label="搜索课程与知识点（快捷键 Ctrl+K）"
       >
         <IconSearch size="14" stroke-width="1.5" />
         搜索课程 / 知识点…
-      </button>
+        <span class="meta-mono ml-1 opacity-80">⌘K</span>
+      </RouterLink>
+      <RouterLink
+        to="/search"
+        class="ml-auto flex h-8 w-8 items-center justify-center rounded-card border border-line text-ink-2 md:hidden"
+        aria-label="搜索"
+      >
+        <IconSearch size="16" stroke-width="1.5" />
+      </RouterLink>
 
       <RouterLink :to="ctaTo" class="btn btn-primary btn-sm ml-auto md:ml-0">
         {{ ctaLabel }}

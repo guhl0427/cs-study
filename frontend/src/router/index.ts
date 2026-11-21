@@ -17,6 +17,7 @@ export const routes: RouteRecordRaw[] = [
   },
   { path: '/profile', name: 'profile', component: () => import('@/pages/ProfilePage.vue') },
   { path: '/settings', name: 'settings', component: () => import('@/pages/SettingsPage.vue') },
+  { path: '/search', name: 'search', component: () => import('@/pages/SearchPage.vue') },
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
