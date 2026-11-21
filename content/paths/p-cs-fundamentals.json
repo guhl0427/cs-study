@@ -1,0 +1,23 @@
+{
+  "id": "p-cs-fundamentals",
+  "slug": "cs-fundamentals-path",
+  "domainSlug": "cs-fundamentals",
+  "name": "计算机基础路线",
+  "description": "网络是后端面试与排错的高频考区，也是前端调优的底层背景。后续阶段（数据结构与算法、操作系统、组成原理）内容筹备中，将按阶段扩充。",
+  "targetAudience": "所有初学者（尤其是 CS 在校生）；建议与前端/后端方向并行",
+  "stages": [
+    {
+      "id": "cf-s1",
+      "name": "计算机网络入门",
+      "description": "从「打开一个网页发生了什么」入手，建立分层模型，再逐层展开。",
+      "suggestDuration": "2–3 周",
+      "items": [
+        { "id": "cf-s1-1", "lessonId": "l-net-layered" },
+        { "id": "cf-s1-2", "lessonId": "l-net-http", "prereqs": ["cf-s1-1"] },
+        { "id": "cf-s1-3", "lessonId": "l-net-dns", "prereqs": ["cf-s1-2"] },
+        { "id": "cf-s1-4", "lessonId": "l-net-tcp-udp", "prereqs": ["cf-s1-2"] },
+        { "id": "cf-s1-5", "lessonId": "l-net-capture", "prereqs": ["cf-s1-4"] }
+      ]
+    }
+  ]
+}

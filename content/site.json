@@ -1,0 +1,36 @@
+{
+  "quickStarts": [
+    {
+      "id": "qs-zero-base",
+      "title": "零基础从这里开始",
+      "desc": "先打地基：计算机基础 → 再选一门语言入门",
+      "pathSlug": "cs-fundamentals-path"
+    },
+    {
+      "id": "qs-cs-student",
+      "title": "CS 学生补强路线",
+      "desc": "专业课之外补工程方向：三件套 → JS → 框架",
+      "pathSlug": "frontend-path"
+    },
+    {
+      "id": "qs-career-switch",
+      "title": "转行求快路线",
+      "desc": "直奔就业：Web 三件套 → 异步 → 框架概览",
+      "pathSlug": "frontend-path"
+    }
+  ],
+  "featured": [
+    {
+      "id": "ft-starter-pack",
+      "title": "零基础起步包",
+      "desc": "计算机网络入门 + Web 三件套，每周 6h · 约 6 周",
+      "pathSlug": "cs-fundamentals-path"
+    },
+    {
+      "id": "ft-frontend-job",
+      "title": "前端求职第一课",
+      "desc": "三件套 → 异步编程 → 框架概览，每周 8h · 约 5 周",
+      "pathSlug": "frontend-path"
+    }
+  ]
+}

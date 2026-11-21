@@ -1,0 +1,27 @@
+{
+  "id": "c-web-frontend-basics",
+  "domainSlug": "frontend",
+  "slug": "web-frontend-basics",
+  "title": "Web 前端入门：三件套",
+  "summary": "从 HTML/CSS/JavaScript 三件套开始，理解网页的结构、表现与行为，做出你的第一个会「动」的页面。",
+  "difficulty": 1,
+  "audience": "零基础学习者；想补齐 Web 基础的转行者",
+  "prereqs": "无（可与「开发工具与环境」并行）",
+  "chapters": [
+    {
+      "id": "ch-html",
+      "title": "HTML5 基础",
+      "lessons": ["l-html-doc-structure", "l-html-forms-media"]
+    },
+    {
+      "id": "ch-css",
+      "title": "CSS3 基础",
+      "lessons": ["l-css-box-selector", "l-css-flex-grid"]
+    },
+    {
+      "id": "ch-js",
+      "title": "JavaScript 初步",
+      "lessons": ["l-js-syntax-dom", "l-js-async"]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "c-framework-overview",
+  "domainSlug": "frontend",
+  "slug": "framework-overview",
+  "title": "前端框架概览：Vue 3 与 React",
+  "summary": "框架解决的是同一个问题——「状态变了，页面怎么跟着变」。本课程用两个概览帮你完成二选一。",
+  "difficulty": 2,
+  "audience": "已掌握 JS 基础与 DOM 操作的学习者",
+  "prereqs": "「Web 前端入门：三件套」的 JavaScript 部分",
+  "chapters": [
+    {
+      "id": "ch-framework-intro",
+      "title": "框架解决什么问题",
+      "lessons": ["l-vue-intro", "l-react-intro"]
+    }
+  ]
+}

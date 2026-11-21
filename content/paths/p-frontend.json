@@ -1,0 +1,42 @@
+{
+  "id": "p-frontend",
+  "slug": "frontend-path",
+  "domainSlug": "frontend",
+  "name": "前端开发路线",
+  "description": "从页面三件套到框架与工程化的完整前端路线。Vue 与 React 二选一深入，另一门了解即可。",
+  "targetAudience": "喜欢可视化反馈、面向 Web 开发就业的学习者",
+  "stages": [
+    {
+      "id": "pf-s1",
+      "name": "前端三件套",
+      "description": "HTML 负责结构，CSS 负责表现。先建立「网页是一棵树」的心智模型。",
+      "suggestDuration": "2–3 周",
+      "items": [
+        { "id": "pf-s1-1", "lessonId": "l-html-doc-structure" },
+        { "id": "pf-s1-2", "lessonId": "l-html-forms-media", "prereqs": ["pf-s1-1"] },
+        { "id": "pf-s1-3", "lessonId": "l-css-box-selector" },
+        { "id": "pf-s1-4", "lessonId": "l-css-flex-grid", "prereqs": ["pf-s1-3"] }
+      ]
+    },
+    {
+      "id": "pf-s2",
+      "name": "JavaScript 与异步",
+      "description": "让页面动起来：语法与 DOM 是地基，异步是前端绕不开的一关。",
+      "suggestDuration": "4–6 周",
+      "items": [
+        { "id": "pf-s2-1", "lessonId": "l-js-syntax-dom", "prereqs": ["pf-s1-4"] },
+        { "id": "pf-s2-2", "lessonId": "l-js-async", "prereqs": ["pf-s2-1"] }
+      ]
+    },
+    {
+      "id": "pf-s3",
+      "name": "框架二选一",
+      "description": "两个框架解决同一个问题。选一个深入，另一个快速过一遍即可。",
+      "suggestDuration": "4–6 周",
+      "items": [
+        { "id": "pf-s3-1", "lessonId": "l-vue-intro", "branch": "framework", "prereqs": ["pf-s2-2"] },
+        { "id": "pf-s3-2", "lessonId": "l-react-intro", "branch": "framework", "prereqs": ["pf-s2-2"] }
+      ]
+    }
+  ]
+}

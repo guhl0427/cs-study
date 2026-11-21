@@ -1,0 +1,16 @@
+{
+  "name": "cs-study",
+  "private": true,
+  "type": "module",
+  "description": "计算机科学技术学习平台（纯前端版）— 内容工程化工具链",
+  "scripts": {
+    "content:build": "node tools/build-content.mjs",
+    "content:scaffold": "node tools/scaffold.mjs"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "gray-matter": "^4.0.3",
+    "markdown-it": "^15.0.3",
+    "shiki": "^1.29.2"
+  }
+}

@@ -1,0 +1,101 @@
+[
+  {
+    "id": "d-cs-fundamentals",
+    "slug": "cs-fundamentals",
+    "name": "计算机基础",
+    "icon": "cpu",
+    "summary": "全领域的地基，决定你后续的天花板，CS 学生必修。",
+    "audience": "所有初学者（尤其是 CS 在校生）；建议与前端/后端方向并行学习",
+    "prereqNote": "无",
+    "advice": "数据结构与算法可以和任何方向并行推进；网络部分建议在前端/后端入门后回头加深理解。",
+    "sortOrder": 1
+  },
+  {
+    "id": "d-languages",
+    "slug": "languages",
+    "name": "编程语言",
+    "icon": "file-code",
+    "summary": "第一门语言的起点。原则：主修 1 门 + 辅修 1 门，忌贪多。",
+    "audience": "零基础新手（从 C 或 Python 起步）、需第二门语言的进阶者",
+    "prereqNote": "计算机基础（可并行）",
+    "advice": "先把第一门语言学扎实，再考虑第二门；语言只是工具，不要在语法层反复横跳。",
+    "sortOrder": 2
+  },
+  {
+    "id": "d-frontend",
+    "slug": "frontend",
+    "name": "前端开发",
+    "icon": "code",
+    "summary": "从页面三件套到框架与工程化的完整路线，就业主流方向之一。",
+    "audience": "喜欢可视化反馈、面向 Web 开发就业的学习者",
+    "prereqNote": "JavaScript / TypeScript（可在本方向内学习）",
+    "advice": "Vue 与 React 二选一深入，另一门了解即可；先把三件套练扎实再碰框架。",
+    "sortOrder": 3
+  },
+  {
+    "id": "d-backend",
+    "slug": "backend",
+    "name": "后端开发",
+    "icon": "server-2",
+    "summary": "以「语言 + Web 框架 + 数据存储 + 中间件」为主线的服务端开发路线。",
+    "audience": "对系统逻辑、数据流转感兴趣，面向服务端开发就业的学习者",
+    "prereqNote": "一门编程语言 + 计算机网络与 SQL 基础（可并行）",
+    "advice": "先用一个语言方向走通 CRUD 项目，再谈缓存、消息队列这些「中间件全家桶」。",
+    "sortOrder": 4
+  },
+  {
+    "id": "d-database",
+    "slug": "database",
+    "name": "数据库",
+    "icon": "database",
+    "summary": "从 SQL 语言到设计与优化，覆盖关系型、缓存型、文档型三类存储。",
+    "audience": "所有后端学习者（必修）；数据方向学习者",
+    "prereqNote": "无硬性前置（与后端方向并行最佳）",
+    "advice": "MySQL 与 PostgreSQL 的 SQL 高度共通：先学一套 SQL，再做两个库的对照差异。",
+    "sortOrder": 5
+  },
+  {
+    "id": "d-tools",
+    "slug": "tools",
+    "name": "开发工具与环境",
+    "icon": "terminal-2",
+    "summary": "全方向通用的生产力基础设施，建议第一周就学 Git 与 IDE 基础。",
+    "audience": "所有学习者",
+    "prereqNote": "无",
+    "advice": "Git 和 IDE 基础越早学越好；Docker 可以等到需要部署项目时再深入。",
+    "sortOrder": 6
+  },
+  {
+    "id": "d-swe",
+    "slug": "swe",
+    "name": "软件工程",
+    "icon": "git-branch",
+    "summary": "从「会写代码」到「会做工程」的桥梁，以项目实战为载体。",
+    "audience": "完成一门语言入门、准备做项目的学习者；求职冲刺期学生",
+    "prereqNote": "Git（开发工具）+ 一门语言基础",
+    "advice": "不要单独「学软件工程」——把它拆进项目实战里：写测试、做 Code Review、配 CI。",
+    "sortOrder": 7
+  },
+  {
+    "id": "d-ai-data",
+    "slug": "ai-data",
+    "name": "AI 与数据",
+    "icon": "binary",
+    "summary": "从数据分析到大模型应用开发，面向未来就业趋势的新兴方向。",
+    "audience": "已掌握 Python 基础的学习者；对 AI 应用开发感兴趣者",
+    "prereqNote": "Python + 数据结构与算法基础 + 概率统计初步",
+    "advice": "机器学习入门别急着推公式，先会用 scikit-learn 完整跑通一个数据集再看原理。",
+    "sortOrder": 8
+  },
+  {
+    "id": "d-electives",
+    "slug": "electives",
+    "name": "选修拓展",
+    "icon": "puzzle",
+    "summary": "Web 安全、移动端等兴趣方向，以概览 + 单点深入的方式组织。",
+    "audience": "兴趣与就业加分项学习者",
+    "prereqNote": "视子方向而定",
+    "advice": "主修方向稳定之后再拓展，避免广度摊薄深度。",
+    "sortOrder": 9
+  }
+]

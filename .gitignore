@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.vite-ssg-temp/
+frontend/src/content/gen/
+.zcode/
+*.log
+.DS_Store
