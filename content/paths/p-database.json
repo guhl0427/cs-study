@@ -1,0 +1,30 @@
+{
+  "id": "p-database",
+  "slug": "database-path",
+  "domainSlug": "database",
+  "name": "数据库路线",
+  "description": "从「会把查询写清楚」到「能设计一套表结构」。MySQL 与 PostgreSQL 语法高度共通，一套 SQL 学完再做对照差异。",
+  "targetAudience": "所有后端学习者（必修）；数据方向学习者",
+  "stages": [
+    {
+      "id": "pd-s1",
+      "name": "SQL 查询",
+      "description": "查询是数据库的第一语言，索引是它的加速器。",
+      "suggestDuration": "2 周",
+      "items": [
+        { "id": "pd-s1-1", "lessonId": "l-sql-select" },
+        { "id": "pd-s1-2", "lessonId": "l-sql-index", "prereqs": ["pd-s1-1"] }
+      ]
+    },
+    {
+      "id": "pd-s2",
+      "name": "设计与事务",
+      "description": "从「能存」到「存得对」：事务保证正确性，范式与权衡决定可维护性。",
+      "suggestDuration": "2 周",
+      "items": [
+        { "id": "pd-s2-1", "lessonId": "l-db-transaction", "prereqs": ["pd-s1-2"] },
+        { "id": "pd-s2-2", "lessonId": "l-db-schema-design", "prereqs": ["pd-s1-2"] }
+      ]
+    }
+  ]
+}

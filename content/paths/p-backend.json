@@ -1,0 +1,30 @@
+{
+  "id": "p-backend",
+  "slug": "backend-path",
+  "domainSlug": "backend",
+  "name": "后端开发路线",
+  "description": "以「语言无关」的主干起步：先把 Web 服务与认证讲通，再进入缓存与消息队列。语言框架分支（Java/Go/Python）内容筹备中。",
+  "targetAudience": "对系统逻辑、数据流转感兴趣，面向服务端开发就业的学习者",
+  "stages": [
+    {
+      "id": "pb-s1",
+      "name": "Web 服务基础",
+      "description": "API 是前后端的契约，认证是请求的第一道关卡。",
+      "suggestDuration": "2–3 周",
+      "items": [
+        { "id": "pb-s1-1", "lessonId": "l-backend-rest" },
+        { "id": "pb-s1-2", "lessonId": "l-backend-auth", "prereqs": ["pb-s1-1"] }
+      ]
+    },
+    {
+      "id": "pb-s2",
+      "name": "缓存与中间件初步",
+      "description": "性能与解耦的两件通用武器。",
+      "suggestDuration": "2 周",
+      "items": [
+        { "id": "pb-s2-1", "lessonId": "l-backend-redis", "prereqs": ["pb-s1-2"] },
+        { "id": "pb-s2-2", "lessonId": "l-backend-mq", "prereqs": ["pb-s2-1"] }
+      ]
+    }
+  ]
+}

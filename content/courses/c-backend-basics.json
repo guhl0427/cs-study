@@ -1,0 +1,22 @@
+{
+  "id": "c-backend-basics",
+  "domainSlug": "backend",
+  "slug": "backend-basics",
+  "title": "后端开发入门：从 HTTP 到第一个 API",
+  "summary": "以「语言无关」的视角讲清后端的主干：RESTful API 设计、认证与授权、缓存与消息队列的入门心智模型。",
+  "difficulty": 1,
+  "audience": "掌握一门编程语言基础的学习者",
+  "prereqs": "一门语言基础 + 「计算机网络入门」的 HTTP 部分",
+  "chapters": [
+    {
+      "id": "ch-backend-web",
+      "title": "Web 服务基础",
+      "lessons": ["l-backend-rest", "l-backend-auth"]
+    },
+    {
+      "id": "ch-backend-middleware",
+      "title": "缓存与中间件初步",
+      "lessons": ["l-backend-redis", "l-backend-mq"]
+    }
+  ]
+}

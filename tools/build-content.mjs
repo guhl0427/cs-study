@@ -207,6 +207,7 @@ const LANG_MAP = {
   js: 'javascript', javascript: 'javascript', mjs: 'javascript', ts: 'typescript', typescript: 'typescript',
   html: 'html', xml: 'html', vue: 'html', css: 'css', scss: 'css', json: 'json',
   bash: 'bash', sh: 'bash', shell: 'bash', zsh: 'bash', python: 'python', py: 'python',
+  sql: 'sql', mysql: 'sql', postgresql: 'sql',
 }
 const LANG_LABEL = { javascript: 'js', typescript: 'ts', html: 'html', css: 'css', json: 'json', bash: 'shell', python: 'py' }
 
@@ -215,7 +216,7 @@ let highlighter
 try {
   highlighter = await createHighlighter({
     themes: [blueprintTheme],
-    langs: ['javascript', 'typescript', 'html', 'css', 'json', 'bash', 'python'],
+    langs: ['javascript', 'typescript', 'html', 'css', 'json', 'bash', 'python', 'sql'],
   })
 } catch (e) {
   errors.push(`Shiki 初始化失败：${e.message}`)

@@ -1,0 +1,22 @@
+{
+  "id": "c-sql-basics",
+  "domainSlug": "database",
+  "slug": "sql-basics",
+  "title": "SQL 入门：从查询到设计",
+  "summary": "一套 SQL 语法贯穿始终：先把查询写清楚，再理解索引为什么快，最后学会事务与表结构设计的权衡。",
+  "difficulty": 1,
+  "audience": "所有需要与数据打交道的学习者（后端必修，前端了解亦有价值）",
+  "prereqs": "无（与后端方向并行最佳）",
+  "chapters": [
+    {
+      "id": "ch-sql-query",
+      "title": "SQL 查询",
+      "lessons": ["l-sql-select", "l-sql-index"]
+    },
+    {
+      "id": "ch-sql-design",
+      "title": "设计与事务",
+      "lessons": ["l-db-transaction", "l-db-schema-design"]
+    }
+  ]
+}

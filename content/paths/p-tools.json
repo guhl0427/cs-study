@@ -1,0 +1,30 @@
+{
+  "id": "p-tools",
+  "slug": "tools-path",
+  "domainSlug": "tools",
+  "name": "开发工具与环境路线",
+  "description": "第一周就学 Git 与命令行——它们与任何语言方向都并行不悖，越早掌握越省时间。",
+  "targetAudience": "所有学习者",
+  "stages": [
+    {
+      "id": "pt-s1",
+      "name": "Git 核心",
+      "description": "提交是代码的存档点，分支是并行开发的时间线。",
+      "suggestDuration": "1–2 周",
+      "items": [
+        { "id": "pt-s1-1", "lessonId": "l-git-basic" },
+        { "id": "pt-s1-2", "lessonId": "l-git-branch", "prereqs": ["pt-s1-1"] }
+      ]
+    },
+    {
+      "id": "pt-s2",
+      "name": "命令行与环境",
+      "description": "Shell 是工程世界的通用语，容器是环境的标准化答案。",
+      "suggestDuration": "1–2 周",
+      "items": [
+        { "id": "pt-s2-1", "lessonId": "l-cli-shell" },
+        { "id": "pt-s2-2", "lessonId": "l-cli-docker", "prereqs": ["pt-s2-1"] }
+      ]
+    }
+  ]
+}
