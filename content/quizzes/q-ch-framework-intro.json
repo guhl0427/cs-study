@@ -1,0 +1,34 @@
+{
+  "id": "q-ch-framework-intro",
+  "scopeType": "chapter",
+  "scopeId": "ch-framework-intro",
+  "title": "第 1 章随堂练习 · 框架解决什么问题",
+  "questions": [
+    {
+      "id": "q-ch-framework-1",
+      "stem": "原生 JS 计数器改完数据后要手动调 render()，而 Vue 不用。Vue 靠什么做到的？",
+      "options": [
+        "Vue 用定时器轮询所有数据的变化",
+        "响应式系统追踪数据依赖，数据一变就自动更新对应 DOM",
+        "Vue 禁止直接修改数据",
+        "Vue 把整个页面每帧全部重绘"
+      ],
+      "answer": 1,
+      "explanation": "Vue 的响应式系统在数据被读取时收集依赖、被修改时精准更新对应视图——这就是「声明式渲染」的机制。",
+      "lessonId": "l-vue-intro"
+    },
+    {
+      "id": "q-ch-framework-2",
+      "stem": "React 组件里直接执行 count += 1，界面不更新。原因是？",
+      "options": [
+        "count 必须声明为全局变量",
+        "React 依赖 setCount 触发重渲染，直接改值不产生新的状态引用",
+        "count += 1 是异步的，需要等待",
+        "界面需要手动调用 render() 强制刷新"
+      ],
+      "answer": 1,
+      "explanation": "React 的世界观是 UI = f(state)：只有 setState 才会让组件函数重跑并 diff 出最小 DOM 更新，直接改值什么都不会发生。",
+      "lessonId": "l-react-intro"
+    }
+  ]
+}

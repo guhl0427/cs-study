@@ -67,7 +67,10 @@ const rowCls = (l: LessonMeta) => {
         <RouterLink v-if="nextLesson" :to="{ name: 'lesson', params: { courseSlug: course.slug, lessonSlug: nextLesson.slug } }" class="btn btn-primary">
           继续学习：{{ nextLesson.title }}
         </RouterLink>
-        <span v-else class="text-body-ui text-ok">✓ 全部完成——可以开始课程自测了（测验模块即将上线）</span>
+        <RouterLink v-else-if="course.quizId" :to="`/quiz/${course.quizId}`" class="btn btn-primary">
+          ✓ 全部完成——开始课程自测
+        </RouterLink>
+        <span v-else class="text-body-ui text-ok">✓ 全部完成</span>
       </section>
 
       <!-- 章节目录（F3.2） -->
@@ -80,6 +83,9 @@ const rowCls = (l: LessonMeta) => {
               {{ chapterStat(ch.lessons.map((l) => l.id)).done }}/{{ ch.lessons.length }} 已完成 ·
               约 {{ formatMinutes(ch.lessons.reduce((s, l) => s + l.estMinutes, 0)) }}
             </span>
+            <RouterLink v-if="ch.quizId" :to="`/quiz/${ch.quizId}`" class="btn btn-ghost btn-sm ml-auto">
+              章节随堂练习
+            </RouterLink>
           </div>
           <ul class="m-0 list-none p-0">
             <li v-for="l in ch.lessons" :key="l.id" class="border-b border-line last:border-b-0">

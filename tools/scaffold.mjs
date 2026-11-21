@@ -91,6 +91,47 @@ resources: []
     }, null, 2)}\n`,
   )
   console.log(`✓ 已生成 courses/${id}.json（chapters.lessons 里填 lesson id）`)
+} else if (type === 'quiz') {
+  // F8.4：题目批量导入——按章/课程生成题目数据模板，填好 options/answer/explanation 即可构建
+  const scopeId = arg('--chapter') ?? arg('--course')
+  const scopeType = arg('--chapter') ? 'chapter' : 'course'
+  if (!scopeId || !title) {
+    console.error('用法：node tools/scaffold.mjs quiz --chapter 章id --title "第 1 章随堂练习"')
+    process.exit(1)
+  }
+  const id = `q-${scopeId}`
+  const file = path.join(contentDir, 'quizzes', `${id}.json`)
+  fs.mkdirSync(path.dirname(file), { recursive: true })
+  const today = new Date().toISOString().slice(0, 10)
+  fs.writeFileSync(
+    file,
+    `${JSON.stringify({
+      id,
+      scopeType,
+      scopeId,
+      title,
+      questions: [
+        {
+          id: `${id}-1`,
+          stem: '题干（改为真实题目）',
+          options: ['选项 A（改为正确选项）', '选项 B', '选项 C', '选项 D'],
+          answer: 0,
+          explanation: '解析：为什么选 A。附知识点链接的 lessonId 见下。',
+          lessonId: 'l-对应知识点-id',
+        },
+        {
+          id: `${id}-2`,
+          stem: '第二题题干',
+          options: ['选项 A', '选项 B（正确）', '选项 C'],
+          answer: 1,
+          explanation: '解析。',
+          lessonId: 'l-对应知识点-id',
+        },
+      ],
+      _meta: { generated: today, note: '删除 _meta 字段后再提交；answer 为正确选项下标（0 起）' },
+    }, null, 2)}\n`,
+  )
+  console.log(`✓ 已生成 quizzes/${id}.json（scopeType=${scopeType}；填写后删除 _meta）`)
 } else if (type === 'path') {
   const domain = arg('--domain')
   if (!title || !domain) { console.error('用法：node tools/scaffold.mjs path --domain 领域slug --title "标题"'); process.exit(1) }

@@ -271,6 +271,7 @@ const activePath = computed(() => {
           <p class="meta-mono mb-2">快捷入口</p>
           <div class="flex flex-col gap-1.5">
             <RouterLink to="/settings" class="btn btn-ghost btn-sm w-full">数据管理（导出 / 导入 / 清空）</RouterLink>
+            <RouterLink to="/mistakes" class="btn btn-ghost btn-sm w-full">错题本</RouterLink>
             <RouterLink to="/explore" class="btn btn-ghost btn-sm w-full">全部领域</RouterLink>
           </div>
         </div>

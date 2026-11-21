@@ -4,12 +4,14 @@ import siteJson from '@/content/gen/site.json'
 import pathsJson from '@/content/gen/paths.json'
 import coursesJson from '@/content/gen/courses.json'
 import lessonsJson from '@/content/gen/lessons.json'
+import quizzesJson from '@/content/gen/quizzes.json'
 import type { ContentApi } from './contracts'
 import type {
   Course,
   Domain,
   LearningPath,
   LessonView,
+  Quiz,
   SiteConfig,
 } from '@/types/content'
 
@@ -18,6 +20,7 @@ const site = siteJson as unknown as SiteConfig
 const paths = pathsJson as unknown as Record<string, LearningPath>
 const courses = coursesJson as unknown as Record<string, Course>
 const lessons = lessonsJson as unknown as Record<string, Omit<LessonView, never>>
+const quizzes = quizzesJson as unknown as Record<string, Quiz>
 
 export const localContentApi: ContentApi = {
   listDomains() {
@@ -64,6 +67,14 @@ export const localContentApi: ContentApi = {
 
   getPath(slug) {
     return paths[slug]
+  },
+
+  getQuiz(id) {
+    return quizzes[id]
+  },
+
+  listQuizzes() {
+    return Object.values(quizzes)
   },
 
   getSite() {

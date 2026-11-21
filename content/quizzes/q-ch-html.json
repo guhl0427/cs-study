@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-html",
+  "scopeType": "chapter",
+  "scopeId": "ch-html",
+  "title": "第 1 章随堂练习 · HTML5 基础",
+  "questions": [
+    {
+      "id": "q-ch-html-1",
+      "stem": "为什么推荐用语义化标签（header/main/section）而不是全用 div？",
+      "options": [
+        "语义化标签渲染速度比 div 快很多",
+        "标签本身就是信息：读屏器、搜索引擎与后来的维护者都靠它理解页面结构",
+        "div 已经被 HTML5 废弃，不再合法",
+        "语义化标签可以自动适配移动端"
+      ],
+      "answer": 1,
+      "explanation": "语义化不改变渲染性能，div 也完全合法；它的价值在于「结构即信息」——可访问性、SEO 和可维护性都依赖标签语义。",
+      "lessonId": "l-html-doc-structure"
+    },
+    {
+      "id": "q-ch-html-2",
+      "stem": "表单里的控件为什么要写 name 属性？",
+      "options": [
+        "没有 name 的控件在页面上不可见",
+        "name 用于关联 label 文字",
+        "提交表单时浏览器按「name=value」打包数据，没有 name 的控件等于不存在",
+        "name 是 CSS 选择器专用的"
+      ],
+      "answer": 2,
+      "explanation": "提交时浏览器把「name=value」成对打包发送。label 关联靠的是 label 的 for 和控件的 id，不是 name。",
+      "lessonId": "l-html-forms-media"
+    },
+    {
+      "id": "q-ch-html-3",
+      "stem": "表单中间有一个「预览」按钮，点击却总是把表单提交了。最可能的原因是？",
+      "options": [
+        "按钮放在 form 外面",
+        "button 在表单里默认 type 是 submit，非提交按钮要显式写 type=\"button\"",
+        "浏览器版本太旧",
+        "form 的 method 写错了"
+      ],
+      "answer": 1,
+      "explanation": "button 元素在表单内默认 type=\"submit\"。任何非提交动作的按钮都应显式声明 type=\"button\"。",
+      "lessonId": "l-html-forms-media"
+    }
+  ]
+}

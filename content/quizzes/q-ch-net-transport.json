@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-net-transport",
+  "scopeType": "chapter",
+  "scopeId": "ch-net-transport",
+  "title": "第 2 章随堂练习 · 传输层与抓包",
+  "questions": [
+    {
+      "id": "q-ch-net-4",
+      "stem": "TCP 三次握手为什么两次不够？",
+      "options": [
+        "两次握手数据包太小，容易被截获",
+        "第二次握手只能让客户端确认双向可用，服务端还无法确认「自己的下行能被客户端收到」",
+        "三次是历史惯例，技术上两次完全等价",
+        "为了多收一次确认费用"
+      ],
+      "answer": 1,
+      "explanation": "第三次握手让服务端确认「客户端能收到我发的包」。缺了这一步，服务端无法区分「历史重复的连接请求」和「新的连接请求」。",
+      "lessonId": "l-net-tcp-udp"
+    },
+    {
+      "id": "q-ch-net-5",
+      "stem": "视频直播选 UDP 而不是 TCP，最合理的解释是？",
+      "options": [
+        "UDP 传输速度的上限更高",
+        "UDP 是免费的，TCP 要付费",
+        "直播宁可丢几帧也不能停顿等待重传；可靠性由应用自己按需处理",
+        "UDP 可以传输视频格式，TCP 不行"
+      ],
+      "answer": 2,
+      "explanation": "TCP 的确认与重传会带来停顿，对实时视频是致命的。UDP「不承诺可靠」换来了低延迟——可靠性是花钱买的，按业务需要购买。",
+      "lessonId": "l-net-tcp-udp"
+    },
+    {
+      "id": "q-ch-net-6",
+      "stem": "Network 面板里某接口的 Timing 显示 Waiting for server response 高达 3 秒，其他阶段都很快。该找谁修？",
+      "options": [
+        "前端：优化 JS 执行",
+        "网络运营商：升级带宽",
+        "后端：TTFB 高说明服务端处理慢",
+        "设计师：减少页面内容"
+      ],
+      "answer": 2,
+      "explanation": "Waiting（TTFB）是等服务器「想」的时间，慢在这一段是服务端的事；慢在 Content Download 才与体积/带宽有关。",
+      "lessonId": "l-net-capture"
+    }
+  ]
+}

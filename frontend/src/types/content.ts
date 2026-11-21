@@ -62,6 +62,30 @@ export interface Chapter {
   id: string
   title: string
   lessons: LessonMeta[]
+  /** 构建脚本注入：该章节的随堂练习（content/quizzes 里 scopeType=chapter 且 scopeId=章 id） */
+  quizId?: string
+}
+
+export interface QuizQuestion {
+  id: string
+  stem: string
+  options: string[]
+  /** 正确选项下标（答案随包下发是既定妥协，F5 说明） */
+  answer: number
+  explanation: string
+  /** 薄弱知识点提示用（完成页「去复习」链接） */
+  lessonId?: string
+}
+
+export interface Quiz {
+  id: string
+  scopeType: 'lesson' | 'chapter' | 'course'
+  scopeId: string
+  title: string
+  questions: QuizQuestion[]
+  /** 构建脚本注入：归属课程（scopeId 反查） */
+  courseSlug?: string
+  courseTitle?: string
 }
 
 export interface Course {
@@ -78,6 +102,8 @@ export interface Course {
   lessonCount: number
   estMinutesTotal: number
   difficultySpan: [number, number] | null
+  /** 课程级综合测验（quizzes 里 scopeType=course 且 scopeId=课程 id） */
+  quizId?: string
 }
 
 export interface PathLessonRef {

@@ -32,6 +32,7 @@ const contentDir = path.resolve(argOf('--content', path.join(repoRoot, 'content'
 const outDir = path.resolve(argOf('--out', path.join(repoRoot, 'frontend/src/content/gen')))
 
 const readJSON = (file) => JSON.parse(fs.readFileSync(file, 'utf8'))
+const QUIZ_SCOPES = new Set(['lesson', 'chapter', 'course'])
 const errors = []
 const warnings = []
 const err = (cond, msg) => { if (!cond) errors.push(msg) }
@@ -341,6 +342,72 @@ for (const [id, lesson] of lessons) {
   lessonsOut[id] = { meta: enrichedMeta.get(id) ?? lesson.meta, html, toc }
 }
 
+// ---------------------------------------------------------------- 校验：测验（F5 / F8.2）
+const quizFiles = fs.existsSync(path.join(contentDir, 'quizzes'))
+  ? fs.readdirSync(path.join(contentDir, 'quizzes')).filter((f) => f.endsWith('.json')).sort()
+  : []
+const quizIds = new Set()
+const quizzesOut = {}
+const quizByChapter = new Map()
+const quizByCourse = new Map()
+for (const file of quizFiles) {
+  const q = readJSON(path.join(contentDir, 'quizzes', file))
+  err(typeof q.id === 'string' && q.id, `quizzes/${file}: 缺少 id`)
+  err(QUIZ_SCOPES.has(q.scopeType), `quizzes/${file}: scopeType 必须是 lesson/chapter/course：${q.id}`)
+  err(Array.isArray(q.questions) && q.questions.length > 0, `quizzes/${file}: 题目为空：${q.id}`)
+  err(!quizIds.has(q.id), `quizzes/${file}: id 重复：${q.id}`)
+  quizIds.add(q.id)
+  err(typeof q.title === 'string' && q.title, `quizzes/${file}: 缺少 title：${q.id}`)
+
+  const qIds = new Set()
+  for (const question of q.questions ?? []) {
+    err(question.id && question.stem && Array.isArray(question.options) && question.options.length >= 2,
+      `quizzes/${file}: 题目缺少 id/stem/options(≥2)：${question.id}`)
+    err(Number.isInteger(question.answer) && question.answer >= 0 && question.answer < (question.options?.length ?? 0),
+      `quizzes/${file}: 题目 answer 下标越界：${question.id}`)
+    err(typeof question.explanation === 'string' && question.explanation, `quizzes/${file}: 题目缺少解析：${question.id}`)
+    err(!qIds.has(question.id), `quizzes/${file}: 题目 id 重复：${question.id}`)
+    qIds.add(question.id)
+    if (question.lessonId) {
+      err(lessons.has(question.lessonId), `quizzes/${file}: 题目 lessonId 不存在：${question.lessonId}`)
+    }
+  }
+
+  // scopeId 反查归属课程（scopeId 一律用实体 id：course id / chapter id / lesson id），
+  // 并把章级/课程级测验挂回课程结构（章节末入口，F5.1）
+  let courseSlug = ''
+  if (q.scopeType === 'course') {
+    const owner = courses.find((c) => c.id === q.scopeId)
+    err(owner !== undefined, `quizzes/${file}: course 级测验 scopeId 不存在：${q.scopeId}`)
+    if (owner) {
+      courseSlug = owner.slug
+      quizByCourse.set(owner.id, q.id)
+    }
+  } else if (q.scopeType === 'chapter') {
+    const owner = courses.find((c) => c.chapters.some((ch) => ch.id === q.scopeId))
+    err(owner !== undefined, `quizzes/${file}: chapter 级测验 scopeId 不存在：${q.scopeId}`)
+    if (owner) {
+      courseSlug = owner.slug
+      quizByChapter.set(q.scopeId, q.id)
+    }
+  } else if (q.scopeType === 'lesson') {
+    err(lessons.has(q.scopeId), `quizzes/${file}: lesson 级测验 scopeId 不存在：${q.scopeId}`)
+    const owner = courses.find((c) => c.chapters.some((ch) => ch.lessonIds.includes(q.scopeId)))
+    courseSlug = owner?.slug ?? ''
+  }
+  quizzesOut[q.id] = { ...q, courseSlug, courseTitle: courseSlug ? courseBySlug.get(courseSlug)?.title ?? '' : '' }
+}
+
+// 章节/课程反挂 quizId（CoursePage 章节末入口）
+for (const c of Object.values(coursesOut)) {
+  for (const ch of c.chapters) {
+    const quizId = quizByChapter.get(ch.id)
+    if (quizId) ch.quizId = quizId
+  }
+  const courseQuiz = quizByCourse.get(c.id)
+  if (courseQuiz) c.quizId = courseQuiz
+}
+
 // ---------------------------------------------------------------- 路由清单（vite-ssg 预渲染）
 const routesManifest = {
   domain: domainsOut.map((d) => `/domain/${d.slug}`),
@@ -349,6 +416,7 @@ const routesManifest = {
   lesson: courses.flatMap((c) =>
     c.chapters.flatMap((ch) => ch.lessonIds.map((id) => `/course/${c.slug}/lesson/${lessons.get(id).meta.slug}`)),
   ),
+  quiz: Object.keys(quizzesOut).map((id) => `/quiz/${id}`),
 }
 
 // ---------------------------------------------------------------- 搜索文档（F6.1：构建期生成，前端内存检索）
@@ -402,11 +470,12 @@ write('site.json', site)
 write('paths.json', pathsOut)
 write('courses.json', coursesOut)
 write('lessons.json', lessonsOut)
+write('quizzes.json', quizzesOut)
 write('search-docs.json', searchDocs)
 write('routes-manifest.json', routesManifest)
 
 // ---------------------------------------------------------------- 汇总
-console.log(`[content] 领域 ${domains.length} · 路线 ${paths.length} · 课程 ${courses.length} · 知识点 ${lessons.size}`)
+console.log(`[content] 领域 ${domains.length} · 路线 ${paths.length} · 课程 ${courses.length} · 知识点 ${lessons.size} · 测验 ${quizFiles.length}`)
 console.log(`[content] 产出 → ${path.relative(repoRoot, outDir)}`)
 for (const w of warnings) console.warn(`[content] ⚠ ${w}`)
 for (const e of errors) console.error(`[content] ✕ ${e}`)

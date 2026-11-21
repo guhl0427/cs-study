@@ -1,0 +1,60 @@
+{
+  "id": "q-c-web-frontend-basics",
+  "scopeType": "course",
+  "scopeId": "c-web-frontend-basics",
+  "title": "课程自测 · Web 前端入门：三件套",
+  "questions": [
+    {
+      "id": "q-c-wfb-1",
+      "stem": "「网页是一棵树」指的是？",
+      "options": [
+        "HTML 文件的目录结构像树",
+        "浏览器把 HTML 解析成 DOM 树，JS 通过操作这棵树来读写页面",
+        "网站的导航栏要做成树形",
+        "CSS 的盒模型是树状的"
+      ],
+      "answer": 1,
+      "explanation": "DOM 是 HTML 在内存中的树形表示，querySelector/addEventListener 都作用在这棵树上——框架做的只是把「手动同步」自动化。",
+      "lessonId": "l-js-syntax-dom"
+    },
+    {
+      "id": "q-c-wfb-2",
+      "stem": "同一条规则，.card .title 和 #title 同时命中一个元素且属性冲突，谁赢？",
+      "options": [
+        "写在后面的赢",
+        "按 HTML 里出现的顺序决定",
+        "#title 的 ID 选择器优先级更高，赢",
+        "两者平级，随机取一"
+      ],
+      "answer": 2,
+      "explanation": "层叠规则：ID > 类 > 标签；同优先级才按书写顺序。这也是「少用 ID 写样式」的原因——优先级太高难覆盖。",
+      "lessonId": "l-css-box-selector"
+    },
+    {
+      "id": "q-c-wfb-3",
+      "stem": "关于 HTTPS 与 HTTP 的关系，正确的是？",
+      "options": [
+        "HTTPS 是全新的应用层协议，报文结构与 HTTP 完全不同",
+        "HTTPS = HTTP 先经过 TLS 加密再传输，报文结构不变",
+        "HTTPS 只对登录请求生效",
+        "HTTPS 速度一定比 HTTP 慢十倍"
+      ],
+      "answer": 1,
+      "explanation": "HTTPS 改变的是传输管道（TLS 加密），HTTP 的方法、状态码、报文语义全部保留——所以 HTTP 知识完全适用于 HTTPS。",
+      "lessonId": "l-net-http"
+    },
+    {
+      "id": "q-c-wfb-4",
+      "stem": "从「学框架」的时机看，下列哪种做法符合本课程的建议？",
+      "options": [
+        "零基础直接学 Vue，跳过原生 JS",
+        "能用原生 JS 独立写完一个小项目（列表增删/表单/本地存储）再学框架",
+        "同时并行学 Vue 和 React",
+        "先精通框架源码再写业务"
+      ],
+      "answer": 1,
+      "explanation": "框架语法只占两成，八成是组件化思维。分不清「框架的功劳」和「JS 本身的能力」，框架只会变成黑盒。",
+      "lessonId": "l-vue-intro"
+    }
+  ]
+}

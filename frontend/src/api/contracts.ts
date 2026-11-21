@@ -5,7 +5,7 @@
  * M1：本地实现（内容为构建期打包的静态数据，因此接口是同步的——零加载态）。
  * M3 若接入后端：新增 api/remote 实现并在此处按环境切换，页面层零改动。
  */
-import type { Course, Domain, LearningPath, LessonView, SiteConfig } from '@/types/content'
+import type { Course, Domain, LearningPath, LessonView, Quiz, SiteConfig } from '@/types/content'
 
 export interface ContentApi {
   listDomains(): Domain[]
@@ -17,5 +17,7 @@ export interface ContentApi {
   listPaths(): LearningPath[]
   listPathsOfDomain(domainSlug: string): LearningPath[]
   getPath(slug: string): LearningPath | undefined
+  getQuiz(id: string): Quiz | undefined
+  listQuizzes(): Quiz[]
   getSite(): SiteConfig
 }
