@@ -122,8 +122,7 @@ column = ORDER_COLUMNS.get(user_input)          # 不在名单内 → 拒绝
 ### 第 0 步：准备实验环境
 
 ```bash
-pip install sqlalchemy fastapi uvicorn python-multipart   # 仅实验 C/D 需要
-mkdir sqli-lab && cd sqli-lab    # 实验目录，结束后可整目录删除
+pip install sqlalchemy fastapi uvicorn python-multipart   # 仅实验 C/D 需要；目录自备，结束可删
 ```
 
 ### 第 1 步：实验 A——拼接版，注入成功（vuln.py）
@@ -131,27 +130,19 @@ mkdir sqli-lab && cd sqli-lab    # 实验目录，结束后可整目录删除
 ```python
 # vuln.py —— ❌ 漏洞版：登录校验用 f-string 拼接
 import sqlite3
-
 conn = sqlite3.connect(":memory:")
 conn.execute("CREATE TABLE users (name TEXT, pwd TEXT)")
-conn.executemany("INSERT INTO users VALUES (?,?)",
-                 [("alice", "pw123"), ("bob", "pw456")])
+conn.executemany("INSERT INTO users VALUES (?,?)", [("alice", "pw123"), ("bob", "pw456")])
 
 def login(name, pwd):
     sql = f"SELECT * FROM users WHERE name='{name}' AND pwd='{pwd}'"
     print("实际执行的 SQL：", sql)
-    rows = conn.execute(sql).fetchall()
-    return len(rows) > 0                    # 查到行 = 登录成功
+    return len(conn.execute(sql).fetchall()) > 0    # 查到行 = 登录成功
 
 print(login("alice", "pw123"))              # True —— 正常登录
-
-# 载荷 1：逃逸 + 恒真条件 + 注释清场（处理 AND 优先级）
-print(login("' OR '1'='1' --", "any"))      # True —— 无需密码，登录绕过！
-
-# 载荷 2：知道用户名，注释掉密码条件
-print(login("alice' --", "wrong-pwd"))      # True —— 密码错了也能登录
-
-# 载荷 3（其实是「正常输入」）：用户名含撇号的真实用户
+print(login("' OR '1'='1' --", "any"))      # 载荷 1：逃逸+恒真+注释清场 → True，绕过！
+print(login("alice' --", "wrong-pwd"))      # 载荷 2：注释掉密码条件 → True
+# 载荷 3（其实是「正常输入」）：用户名含撇号的真实用户——拼接版直接炸
 try:
     login("o'keefe", "pw")
 except Exception as e:
@@ -165,17 +156,13 @@ except Exception as e:
 ```python
 # fixed.py —— ✅ 修复版：骨架与数据分开
 import sqlite3
-
 conn = sqlite3.connect(":memory:")
 conn.execute("CREATE TABLE users (name TEXT, pwd TEXT)")
-conn.executemany("INSERT INTO users VALUES (?,?)",
-                 [("alice", "pw123"), ("bob", "pw456")])
+conn.executemany("INSERT INTO users VALUES (?,?)", [("alice", "pw123"), ("bob", "pw456")])
 
 def login(name, pwd):
     # ? 占位：骨架先定死，数据后到达，永远只是值
-    rows = conn.execute(
-        "SELECT * FROM users WHERE name=? AND pwd=?", (name, pwd)
-    ).fetchall()
+    rows = conn.execute("SELECT * FROM users WHERE name=? AND pwd=?", (name, pwd)).fetchall()
     return len(rows) > 0
 
 print(login("alice", "pw123"))              # True —— 正常登录不受影响
@@ -191,20 +178,16 @@ print(login("o'keefe", "pw"))               # False —— 含撇号输入也不
 ```python
 # orm.py —— SQLAlchemy：默认参数化 vs f-string 混进 text()
 from sqlalchemy import create_engine, text
-
 engine = create_engine("sqlite:///:memory:")
 with engine.begin() as conn:
     conn.execute(text("CREATE TABLE users (name TEXT, pwd TEXT)"))
-    conn.execute(text("INSERT INTO users VALUES ('alice', 'pw123')"))
-    conn.execute(text("INSERT INTO users VALUES ('bob', 'pw456')"))
-
+    conn.execute(text("INSERT INTO users VALUES ('alice','pw123'),('bob','pw456')"))
 attack = "' OR '1'='1' --"
 
 with engine.connect() as conn:
     # ✅ 走 ORM 的参数化 API：绑定参数，载荷只是普通字符串
     stmt = text("SELECT * FROM users WHERE name = :name")
     print(len(conn.execute(stmt, {"name": attack}).fetchall()))   # 0 —— 安全
-
     # ❌ f-string 混进 text()：保护立刻清零，与裸拼无异
     bad = text(f"SELECT * FROM users WHERE name = '{attack}'")
     print(len(conn.execute(bad).fetchall()))                      # 2 —— 注入成功
@@ -218,27 +201,22 @@ with engine.connect() as conn:
 # sort_api.py —— 动态 ORDER BY 的唯一正解：白名单映射
 from fastapi import FastAPI, HTTPException, Query
 from sqlalchemy import create_engine, text
-
 app = FastAPI()
 engine = create_engine("sqlite:///:memory:")
 with engine.begin() as conn:
-    conn.execute(text(
-        "CREATE TABLE articles (title TEXT, view_count INT, created_at TEXT)"))
+    conn.execute(text("CREATE TABLE articles (title TEXT, view_count INT, created_at TEXT)"))
     conn.execute(text("INSERT INTO articles VALUES ('a', 30, '2026-01-01')"))
 
-# 白名单：用户输入 → 真实列名；名单之外的键一律拒绝
+# 白名单：用户输入 → 真实列名；名单之外的键一律拒绝（标识符只能出自固定字典）
 ORDER_COLUMNS = {"views": "view_count", "date": "created_at", "title": "title"}
 ORDER_DIRS = {"asc": "ASC", "desc": "DESC"}       # 排序方向同样白名单
-
 @app.get("/articles")
 def list_articles(sort: str = Query("date"), direction: str = Query("desc")):
     col = ORDER_COLUMNS.get(sort)
     dr = ORDER_DIRS.get(direction.lower())
     if col is None or dr is None:
         raise HTTPException(400, "非法排序参数")    # 不在名单内 → 400，绝不拼进 SQL
-    # 列名出自固定字典（可信），过滤条件仍走参数绑定
-    sql = text(f"SELECT title, view_count, created_at "
-               f"FROM articles ORDER BY {col} {dr} LIMIT :limit")
+    sql = text(f"SELECT title, view_count, created_at FROM articles ORDER BY {col} {dr} LIMIT :limit")
     with engine.connect() as conn:
         rows = conn.execute(sql, {"limit": 20}).fetchall()
     return [{"title": r[0], "views": r[1], "date": r[2]} for r in rows]
@@ -257,14 +235,8 @@ def list_articles(sort: str = Query("date"), direction: str = Query("desc")):
 ### 第 5 步：报错脱敏对照
 
 ```python
-# ❌ 危险：把数据库异常原样返给前端
-# raise HTTPException(500, detail=str(e))
-#   → 表名、列名、SQL 片段全部外泄，攻击者靠报错回显摸清库结构
-
-# ✅ 修复：异常记日志，对外给通用提示
-import logging
-logger = logging.getLogger("app")
-
+# ❌ 危险：HTTPException(500, str(e)) —— 表名/列名/SQL 片段外泄，攻击者靠报错摸清库结构
+# ✅ 修复：异常记服务端日志（logger 为模块级配置），对外只给通用提示
 def safe_query(sql, params):
     try:
         with engine.connect() as conn:

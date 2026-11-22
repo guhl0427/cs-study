@@ -44,7 +44,7 @@ resources:
 
 问题出在浏览器的一条老规矩上：HTML 文档里 `<script>`、`<img onerror>` 这类片段不是普通文字，而是**指令**。程序把用户输入原样嵌进 HTML，用户就能把输入「升级」成指令——**数据与代码的边界被打破，事故发生**。
 
-这与 SQL 注入是同一类事故在不同上下文的变体，对照着记：
+这与 SQL 注入是同一类事故在不同上下文的变体，对照着记——**解法跟着上下文走**：先识别「数据正要进入什么上下文」，再选对应武器，上下文不同、转义规则完全不同：
 
 | | XSS | SQL 注入 |
 | ---- | ---- | ---- |
@@ -53,8 +53,6 @@ resources:
 | 直接受害者 | 浏览页面的**其他用户** | 数据库与后端数据 |
 | 结构性解法 | 输出转义 / 框架插值 | 参数化查询 |
 | 兜底手段 | CSP、HttpOnly | 最小权限、报错脱敏 |
-
-对照表的意义：**解法跟着上下文走**。先识别「数据正要进入什么上下文」，再选对应武器——上下文不同，转义规则完全不同。
 
 ### 三种注入场景：数据走哪条路，事故就在哪发生
 
@@ -147,7 +145,6 @@ npm run dev                                          # 启动，浏览器打开�
 ```vue
 <script setup>
 import { ref } from 'vue'
-
 // 模拟「后端返回的不可信评论」——实际项目里它来自 API/数据库
 const comment = ref('<img src=x onerror="alert(\'XSS！Cookie= \' + document.cookie)">')
 </script>
@@ -183,15 +180,13 @@ const comment = ref('<img src=x onerror="alert(\'XSS！Cookie= \' + document.coo
 <script setup>
 import { ref, computed } from 'vue'
 import DOMPurify from 'dompurify'
-
 const raw = ref(`支持<b>加粗</b>和<a href="https://example.com">链接</a>；
 但 <img src=x onerror="alert(1)"> 会被剥掉，<a href="javascript:alert(2)">伪协议链接</a> 也会被清空`)
 
 // 白名单过滤：默认全部禁止，只放行安全标签/属性，on* 事件一律剥除
 const safe = computed(() => DOMPurify.sanitize(raw.value))
 
-// 检查过滤器到底留下了什么（输出细节随库版本略有差异，以实际打印为准）
-console.log(safe.value)
+console.log(safe.value)   // 检查过滤器留下了什么（输出随库版本略有差异）
 </script>
 
 <template>
@@ -210,7 +205,6 @@ console.log(safe.value)
 ```python
 # server.py —— 本地受控实验：对比普通 Cookie 与 HttpOnly Cookie
 from fastapi import FastAPI, Response
-
 app = FastAPI()
 
 @app.get("/login")
@@ -222,11 +216,7 @@ def login(response: Response):
     return {"msg": "cookies set"}
 ```
 
-```bash
-uvicorn server:app --port 8000    # 另开一个终端启动
-```
-
-浏览器访问 `http://localhost:8000/login`，回到任意页面按 F12 进 Console：
+另开终端跑 `uvicorn server:app --port 8000`，浏览器访问 `http://localhost:8000/login`，回到任意页面按 F12 进 Console：
 
 ```js
 document.cookie
@@ -245,7 +235,6 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
 app = FastAPI()
-
 PAGE = """
   <h3>CSP 兜底实验</h3>
   <div>模拟被注入后的 DOM：</div>
@@ -259,11 +248,7 @@ def index():
     return HTMLResponse(PAGE, headers=headers)
 ```
 
-```bash
-uvicorn csp_demo:app --port 8001   # 访问 http://localhost:8001/，看 Console
-```
-
-预期 Console 出现两类拦截：`Refused to execute inline event handler`（严格 CSP 连内联事件处理器也拦）与 `Refused to load the script ...`（外链脚本被掐）。判读：CSP 是**兜底不是主力**——生产环境常因三方统计/旧代码被迫放宽 inline，策略一松就漏；所以转义与过滤永远是根修，CSP 负责把「万一失守」的爆炸半径压到最小。
+启动 `uvicorn csp_demo:app --port 8001` 后访问 `http://localhost:8001/`，预期 Console 出现两类拦截：`Refused to execute inline event handler`（严格 CSP 连内联事件处理器也拦）与 `Refused to load the script ...`（外链脚本被掐）。判读：CSP 是**兜底不是主力**——生产环境常因三方统计/旧代码被迫放宽 inline，策略一松就漏；所以转义与过滤永远是根修，CSP 负责把「万一失守」的爆炸半径压到最小。
 
 ### 三层修复对照总结
 

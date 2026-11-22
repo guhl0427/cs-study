@@ -113,7 +113,7 @@ bcrypt 成本每 +1，耗时翻倍（2^n 轮）。选型方法不是背数字，
 
 ## 代码示例
 
-主线任务：用 passlib 完整跑通「注册存哈希 → 登录验证 → 成本实测 → 限流退避 → 会话加固」五步，全部代码可直接复制运行。全程约 35 分钟。
+主线任务：用 passlib 完整跑通「注册验证 → 成本实测 → 限流退避 → 会话加固」四步，全部代码可直接复制运行。全程约 35 分钟。
 
 ### 第 0 步：准备实验环境
 
@@ -123,53 +123,33 @@ pip install "passlib[bcrypt]" "bcrypt==4.0.1"
 mkdir pwd-lab && cd pwd-lab       # 实验目录，结束后可整目录删除
 ```
 
-### 第 1 步：注册——存哈希，亲眼看到盐的随机性（register.py）
+### 第 1 步：注册与验证——存哈希，亲眼看盐的随机性（auth_basic.py）
 
 ```python
-# register.py —— 注册：明文密码 → 慢哈希入库
+# auth_basic.py —— 注册存哈希 + 登录验证：verify 是比对，不是解密
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+db: dict[str, str] = {}                        # 模拟 users 表：name → 哈希串
 
 def register(name: str, password: str) -> str:
-    hashed = pwd_context.hash(password)   # 盐自动生成并编进结果串
-    print(f"{name}: {hashed}")
-    return hashed                          # 真实项目：存进 users 表
-
-# 同一密码连续注册两次（模拟两个用户）
-register("alice", "S3cure-Pass!")
-register("bob",   "S3cure-Pass!")
-```
-
-预期输出（每次运行都不同——这就是盐）：
-
-```text
-alice: $2b$12$KIXQe2Zj8kQv7m4Vv8pQeu...（60 字符）
-bob:   $2b$12$9m4Vv8pQe2Zj8kQv7m4Vo...（完全不同的另一串）
-```
-
-判读：两人密码相同，库里却是两串无关的密文——攻击者看不出谁与谁同密码，彩虹表无处下手。**验证时不需要你记盐**，它就在串里。
-
-### 第 2 步：登录——verify 是比对不是解密（login.py）
-
-```python
-# login.py —— 验证：取库里的哈希串，verify 重算比对
-from passlib.context import CryptContext
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-db = {"alice": "$2b$12$KIXQe2Zj8kQv7m4Vv8pQeu9cXoQhYbGnKqF2sT3uVw5xYy6zA7B2C"}  # 模拟库
+    hashed = pwd_context.hash(password)        # 盐自动生成并编进结果串
+    db[name] = hashed                          # 真实项目：INSERT INTO users
+    return hashed
 
 def login(name: str, password: str) -> bool:
     return pwd_context.verify(password, db[name])   # 按串里的盐+成本重算再比对
 
-print(login("alice", "S3cure-Pass!"))   # True
-print(login("alice", "wrong-pwd"))      # False
+# 同一密码注册两次：库里长出两串完全不同的哈希——这就是盐的随机性
+print(register("alice", "S3cure-Pass!"))       # $2b$12$KIXQe2Zj...（60 字符）
+print(register("bob",   "S3cure-Pass!"))       # $2b$12$9m4Vv8pQ...（另一串，互不相关）
+print(login("alice", "S3cure-Pass!"))          # True
+print(login("alice", "wrong-pwd"))             # False —— 哈希不可逆，只能重算比对
 ```
 
-判读：`verify` 不是「解密比对明文」，而是「用串里的盐和成本参数把输入重算一遍哈希，比对结果」。库里从头到尾没有明文，也没有任何可逆的东西。
+判读：两人密码相同，库里却是两串无关的密文——攻击者看不出谁与谁同密码，彩虹表无处下手；`verify` 不是「解密比对明文」，而是「用串里的盐和成本把输入重算一遍再比对」，库里从头到尾没有明文。**验证时不需要你记盐**，它就在串里。
 
-### 第 3 步：成本参数实测——「慢」到底慢多少（cost_bench.py）
+### 第 2 步：成本参数实测——「慢」到底慢多少（cost_bench.py）
 
 ```python
 # cost_bench.py —— bcrypt rounds 4/8/12 的单次耗时对比
@@ -194,7 +174,7 @@ rounds=12: 244.3 ms
 
 判读：每 +1 轮耗时翻倍。rounds=4 时攻击者每秒能试上万条，rounds=12 时每条 0.25 秒——**「用户无感」与「攻击者百万倍成本」的平衡点就在这个参数上**。上线取实测落在 100-350ms 的值。
 
-### 第 4 步：限流退避——在线撞库的成本引擎（throttle.py）
+### 第 3 步：限流退避——在线撞库的成本引擎（throttle.py）
 
 ```python
 # throttle.py —— 登录失败限流 + 指数退避（内存版骨架）
@@ -229,7 +209,7 @@ print("正确密码再试：", login("alice", "S3cure-Pass!"))   # True，失败
 
 判读：连错后每次尝试要等 2s、4s、8s……暴力撞库从「每秒千次」被压到「每几分钟一次」。`dummy_verify` 那一手是细节中的细节：**用户不存在也走一遍慢验证**，让两种失败的响应时间一致，不给枚举留时间侧信道。
 
-### 第 5 步：统一提示 + 登录后轮换会话（session_hard.py 骨架）
+### 第 4 步：统一提示 + 登录后轮换会话（session_hard.py 骨架）
 
 ```python
 # session_hard.py —— FastAPI 骨架：认证侧的会话加固
@@ -280,5 +260,5 @@ def logout(response: Response):
 
 1. 对同一密码 hash 三次，对比三个输出串——解释「为什么每次都不同、但 verify 全部返回 True」，并指出盐分别藏在串里的哪一段。
 2. 把成本参数调到 4 与 16，用 timeit 各测一次，按「每 +1 轮耗时翻倍」验证结果；再估算 rounds=16 时攻击者单卡跑完 100 万条字典要多久。
-3. 给第 4 步的限流加上「按 IP 维度」的第二层计数（同 IP 一分钟最多 20 次尝试），并说明它防的是「单账号退避」防不住的什么攻击（提示：分布式撞库）。
-4. **综合修复任务**：把第 1-5 步组装成完整的 `auth.py`——(a) 注册存 bcrypt 哈希；(b) 登录含限流退避 + 统一提示 + 耗时对齐；(c) 登录成功轮换 Session ID 并下发 HttpOnly Cookie；(d) 用 timeit 记录一次「成本参数选型」的实测结论（3 行以内）。
+3. 给第 3 步的限流加上「按 IP 维度」的第二层计数（同 IP 一分钟最多 20 次尝试），并说明它防的是「单账号退避」防不住的什么攻击（提示：分布式撞库）。
+4. **综合修复任务**：把第 1-4 步组装成完整的 `auth.py`——(a) 注册存 bcrypt 哈希；(b) 登录含限流退避 + 统一提示 + 耗时对齐；(c) 登录成功轮换 Session ID 并下发 HttpOnly Cookie；(d) 用 timeit 记录一次「成本参数选型」的实测结论（3 行以内）。
