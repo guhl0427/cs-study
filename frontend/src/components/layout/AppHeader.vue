@@ -52,7 +52,7 @@ const ctaLabel = computed(() => (mounted.value && ud.lastVisit ? '继续学习' 
           v-for="n in navs"
           :key="n.to"
           :to="n.to"
-          class="border-b-2 pb-1 text-[13px] transition-colors"
+          class="border-b-2 pb-1 pt-1.5 text-[13px] transition-colors"
           :class="
             route.name === n.name
               ? 'border-accent font-bold text-ink'
