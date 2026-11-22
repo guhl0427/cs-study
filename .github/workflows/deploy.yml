@@ -3,6 +3,7 @@ name: Deploy
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -10,12 +11,19 @@ permissions:
   pages: write
   id-token: write
 
+# 不同 ref 之间互不取消（PR 预览与 main 部署并行）
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  SITE_URL: https://guhl0427.github.io/cs-study/
+  PROD_BASE: /cs-study/
 
 jobs:
   deploy:
+    # fork 的 PR 没有 id-token 写权限，跳过预览（同仓库 PR 正常）
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -35,23 +43,65 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: 内容校验 + 构建期编译 + sitemap
-        run: pnpm content:build -- --site https://guhl0427.github.io/cs-study/
+        run: pnpm content:build -- --site ${{ env.SITE_URL }}
 
       - name: 安装前端依赖
         run: pnpm -C frontend install --frozen-lockfile
 
-      - name: SSG 构建（GitHub Pages 项目页 base）
+      # ---------- push / 手动：直接构建生产版并发布 ----------
+      - name: SSG 构建（生产）
+        if: github.event_name != 'pull_request'
         run: pnpm -C frontend build
         env:
-          VITE_BASE: /cs-study/
+          VITE_BASE: ${{ env.PROD_BASE }}
+
+      # ---------- PR：PR 版 + main 生产底座，合并为一个产物 ----------
+      - name: SSG 构建（PR 版，preview base）
+        if: github.event_name == 'pull_request'
+        run: pnpm -C frontend build
+        env:
+          VITE_BASE: /cs-study/preview/pr-${{ github.event.pull_request.number }}/
+
+      - name: 检出 main（预览底座）
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-src
+
+      - name: 构建 main 生产版
+        if: github.event_name == 'pull_request'
+        run: |
+          cd main-src
+          pnpm install --frozen-lockfile
+          pnpm content:build -- --site "$SITE_URL"
+          pnpm -C frontend install --frozen-lockfile
+          pnpm -C frontend build
+        env:
+          VITE_BASE: ${{ env.PROD_BASE }}
+
+      - name: 组装产物（生产站点 + preview/pr-N）
+        if: github.event_name == 'pull_request'
+        run: |
+          PR_NUM="${{ github.event.pull_request.number }}"
+          mkdir -p combined "combined/preview/pr-${PR_NUM}"
+          cp -r main-src/frontend/dist/* combined/
+          cp -r frontend/dist/* "combined/preview/pr-${PR_NUM}/"
+          echo "预览地址：https://guhl0427.github.io${PROD_BASE}preview/pr-${PR_NUM}/"
 
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: 上传产物（生产）
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/dist
+
+      - name: 上传产物（生产 + 预览）
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: combined
 
       - id: deployment
         uses: actions/deploy-pages@v4
