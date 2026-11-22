@@ -6,54 +6,67 @@
   "questions": [
     {
       "id": "q-c-sql-deep-1",
-      "stem": "「先读余额再扣款」在 REPEATABLE READ 下防不住并发扣款，根因与正解是？",
+      "stem": "users 表 email 上有唯一二级索引 uk_email。`SELECT * FROM users WHERE email='a@b.c'` 与 `SELECT id, email FROM users WHERE email='a@b.c'` 的本质差别？",
       "options": [
-        "隔离级别太低，改 SERIALIZABLE 就一定好",
-        "两次普通 SELECT 都是 MVCC 快照读，看不见别人已提交的扣款——用 FOR UPDATE 当前读（或把扣款写成带条件的原子 UPDATE）",
-        "加个 Redis 缓存就不冲突了",
-        "把表换成 InnoDB 以外的引擎"
+        "前者更慢，因为唯一索引比普通索引多一层查找",
+        "两者完全一样，EXPLAIN 不会有任何区别",
+        "前者需要再给 name 单独建索引才能不慢",
+        "前者查到叶子拿到主键后还要回聚簇索引取整行（回表）；后者 SELECT 的列全在叶子里（覆盖索引），免回表"
       ],
-      "answer": 1,
-      "explanation": "快照读的一致性恰恰是问题：「读旧值再改」= 丢失更新。当前读（FOR UPDATE）读最新值并加行锁；或 UPDATE ... SET balance=balance-100 WHERE balance>=100 单语句原子完成。",
-      "lessonId": "l-mysql-txn"
-    },
-    {
-      "id": "q-c-sql-deep-2",
-      "stem": "联合索引 (status, created_at) 让 ORDER BY created_at 的 filesort 消失，利用的是 B+ 树的哪个性质？",
-      "options": [
-        "叶子节点存整行数据",
-        "叶子层是有序双向链表，且树内先按 status 再按 created_at 排序——status 固定后，created_at 天然有序，LIMIT 直接沿链表取前 N 条",
-        "B+ 树的层数只有 3 层",
-        "聚簇索引的顺序写入"
-      ],
-      "answer": 1,
-      "explanation": "「查询条件+排序列共用联合索引」能消除 filesort 的原理是排序键在索引内已有序。这也是联合索引列顺序设计的核心考量：等值条件列在前、排序列在后。",
+      "answer": 3,
+      "explanation": "二级索引叶子只存「email + 主键 id」，要 name 等其他列就必须回主键树。回表判断只看 SELECT 的列是否全落在索引里，Extra 的 Using index 就是覆盖的指纹。",
       "lessonId": "l-mysql-index"
     },
     {
-      "id": "q-c-sql-deep-3",
-      "stem": "关于「文章的标签」用 PG 数组类型还是关联表，课程给出的边界是？",
+      "id": "q-c-sql-deep-2",
+      "stem": "REPEATABLE READ 下：T2 事务 A 读 balance=100；T4 事务 B 更新为 50（未提交）；T5 B ROLLBACK；T6 事务 A 用普通 SELECT 再读同一行。读到什么、为什么？",
       "options": [
-        "永远用关联表，数组类型是错误设计",
-        "数据量小、只需过滤展示用数组+GIN；要计数、外键约束、多对多带属性时用关联表——对应范式与反范式的有意选择",
-        "永远用数组，PG 就是这么设计的",
-        "用 JSONB 塞进文章表最灵活"
+        "100——A 走 MVCC 快照读，且 B 最终回滚，50 从未成为已提交版本，脏读与回滚污染都不存在",
+        "50——读到了 B 的中间值（脏读发生）",
+        "报错——两个事务在同一行上冲突",
+        "NULL——回滚后该行变成空值"
       ],
-      "answer": 1,
-      "explanation": "数组免建关联表但放弃了关系约束与统计能力；关联表多一次 JOIN 但约束完整、可扩展属性。边界判断与表结构设计课的「有意识的选择才叫设计」一脉相承。",
-      "lessonId": "l-pg-advanced"
+      "answer": 0,
+      "explanation": "普通 SELECT 是快照读：沿版本链找「对 A 可见」的已提交版本；B 未提交就被回滚，任何事务都不可能读到 50。这正是 MVCC 同时防住脏读与不可重复读的机制。",
+      "lessonId": "l-mysql-txn"
+    },
+    {
+      "id": "q-c-sql-deep-3",
+      "stem": "EXPLAIN 显示：type=ALL、possible_keys=idx_created、key=NULL、rows≈全表，条件是 `WHERE created_at > '2026-01-01'`，而表的数据全落在 2026 年内。最合理的解释？",
+      "options": [
+        "索引损坏，需要重建",
+        "MySQL 版本太旧不支持该索引",
+        "范围条件几乎命中全表，优化器算过账：走索引 = 大量随机回表，不如全表顺序扫——possible_keys 有值但 key=NULL 就是这个「主动放弃」的指纹",
+        "SQL 里大小写写错了"
+      ],
+      "answer": 2,
+      "explanation": "优化器按「页读取次数」算代价：命中行数接近全表时，索引 + 回表比全表扫描更贵。此时该修的是查询设计（收紧范围/覆盖索引），而不是硬逼优化器用索引。",
+      "lessonId": "l-sql-explain"
     },
     {
       "id": "q-c-sql-deep-4",
-      "stem": "CTE（WITH 查询）相比嵌套子查询的最大收益是？",
+      "stem": "联合索引 (status, created_at) 下，`WHERE status='published' ORDER BY created_at DESC LIMIT 10` 为什么免掉 Using filesort？",
       "options": [
-        "执行速度一定快很多",
-        "把复杂查询命名分层、按步骤读——可读性与可维护性是第一收益（MySQL 8.0 与 PG 均支持，含递归 CTE）",
-        "可以省掉 WHERE 条件",
-        "自动创建临时索引"
+        "ORDER BY 关键词被优化器自动忽略了",
+        "数据量太小，根本不需要排序",
+        "filesort 其实还在，只是 EXPLAIN 显示不出来",
+        "status 等值定位到索引的 published 段，段内叶子链表按 created_at 有序，DESC 就是倒着走链表取 10 条即停"
+      ],
+      "answer": 3,
+      "explanation": "「过滤列 + 排序列」共用联合索引的本质：等值列在前把范围锁定，排序列在后提供段内有序——LIMIT 直接沿叶子双向链表取，排序动作整体消失。",
+      "lessonId": "l-mysql-index"
+    },
+    {
+      "id": "q-c-sql-deep-5",
+      "stem": "电商商品表：颜色/尺码等属性多变且只做展示过滤，但「按品牌统计销量」是核心报表需求。列/JSONB 怎么划分？",
+      "options": [
+        "全部塞进一列 JSONB，最灵活",
+        "品牌等要统计/关联的字段提升为列，多变的展示属性留 JSONB+GIN——统计走列、灵活走 JSONB",
+        "全部建成列，动态属性一个字段一个列",
+        "统计在应用内存里做，数据库只管存"
       ],
       "answer": 1,
-      "explanation": "CTE 先解决「可读性」：月度统计→再过滤 这种两步逻辑不再一层套一层。性能是否更快取决于优化器（PG/新 MySQL 会内联或物化），不能当作必然提速手段。",
+      "explanation": "白名单心法：要约束、要统计、要关联的字段用列；多变、展示用、带内部分层的用 JSONB。某键开始频繁出现在 WHERE/JOIN/GROUP BY，就是它「升级为列」的信号。",
       "lessonId": "l-pg-advanced"
     }
   ]

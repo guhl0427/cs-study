@@ -48,6 +48,10 @@ EXPLAIN 结果每行对应执行计划里访问一个表的方式；初学先盯
 | rows | 预计扫描行数 | 与结果集同量级 | 几十万，而结果只有几十条 |
 | Extra | 隐藏动作 | Using index（覆盖索引） | Using filesort / Using temporary |
 
+### EXPLAIN 的两个升级版
+
+MySQL 8.0 起有两个更好用的形态：`EXPLAIN FORMAT=TREE` 输出缩进的树形计划，谁套谁一目了然；`EXPLAIN ANALYZE`（8.0.18+）**真正执行一遍**并给出 actual time 与 actual rows——估算与实测的差距，就是统计信息是否失真的量尺。本课的实验一律先用传统 EXPLAIN 定位，再用 ANALYZE 验证。
+
 ### type 等级从好到坏：一张体检等级表
 
 | 档 | 名字 | 出现场景 | 页读取量级 |
@@ -60,6 +64,18 @@ EXPLAIN 结果每行对应执行计划里访问一个表的方式；初学先盯
 | 6 | ALL | 全表扫描（聚簇索引全走） | 全表 |
 
 判读口径不是「必须 ref 以上」，而是**「type 档次 × rows」一起算**：range 命中 10 行远好于 ref 命中 50 万行——优化器内部算的也是这笔账（代价 ≈ 页读取次数）。
+
+### Extra 常见值速查
+
+| Extra 值 | 含义 | 好坏 |
+| ---- | ---- | ---- |
+| Using index | 覆盖索引，叶子层直接给答案，不回表 | 好 |
+| Using index condition | 索引条件下推（ICP）：先在索引层过滤再回表 | 中性偏好 |
+| Using where | 取回行后服务层再过滤一遍 | 中性 |
+| Using filesort | 结果集整体进 sort buffer/临时文件排序 | 坏，用联合索引消除 |
+| Using temporary | 建临时表（常见于 GROUP BY/DISTINCT） | 坏，同样可用索引消除 |
+
+记忆锚点：**Extra 在描述「定位到行之后还干了什么活」**——出现「排序」「临时表」字样就是优化候选，出现 Using index 就是拿到了覆盖红利。
 
 ### 两条典型诊断路径
 

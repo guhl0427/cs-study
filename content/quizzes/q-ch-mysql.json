@@ -35,11 +35,11 @@
       "stem": "REPEATABLE READ 下：T2 事务 A 读 balance=100；T4 事务 B 把它改成 50 并提交；T6 事务 A 执行 `SELECT balance FROM accounts WHERE id=1 FOR UPDATE`（注意不是普通 SELECT）。A 读到多少？",
       "options": [
         "100——FOR UPDATE 也是快照读，读事务开始时的版本",
+        "50——FOR UPDATE 是当前读，读版本链最新已提交版本，不受开头快照约束",
         "0——行锁冲突导致返回空",
-        "随机值——取决于锁竞争的结果",
-        "50——FOR UPDATE 是当前读，读版本链最新已提交版本，不受开头快照约束"
+        "随机值——取决于锁竞争的结果"
       ],
-      "answer": 3,
+      "answer": 1,
       "explanation": "快照读走 Read View，当前读（FOR UPDATE/UPDATE/DELETE）读最新已提交版本并加行锁。同一事务里混用两种读可能读到不同的值——这正是「先读后改」必须用当前读的原因。",
       "lessonId": "l-mysql-txn"
     },
@@ -62,10 +62,10 @@
       "options": [
         "没有主键，这条 SQL 会报语法错误",
         "主键能让返回结果更漂亮",
-        "主键索引可以让 stock 字段自动校验正负",
-        "UPDATE 是当前读 + 行锁：WHERE 必须靠索引精确定位那一行，锁才收敛到单行；没有索引 InnoDB 会扫到大量行并加锁，并发全部堵死"
+        "UPDATE 是当前读 + 行锁：WHERE 必须靠索引精确定位那一行，锁才收敛到单行；没有索引 InnoDB 会扫到大量行并加锁，并发全部堵死",
+        "主键索引可以让 stock 字段自动校验正负"
       ],
-      "answer": 3,
+      "answer": 2,
       "explanation": "跨章联动：UPDATE 的当前读加锁依赖索引定位（第 1 篇的 B+ 树），锁粒度才收敛到单行（第 2 篇的并发模型）。没有索引的 UPDATE 是并发事故的标配配方。",
       "lessonId": "l-mysql-txn"
     }

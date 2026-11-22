@@ -6,41 +6,54 @@
   "questions": [
     {
       "id": "q-ch-sql-optimization-1",
-      "stem": "EXPLAIN 显示 type=ALL（全表扫描），检查 WHERE 条件后怀疑索引失效。下列哪种写法最可能让索引失效？",
+      "stem": "EXPLAIN 结果：type=ref、key=idx_status、rows=33333、Extra=Using where，而查询实际只返回 20 行。最准确的诊断是？",
       "options": [
-        "WHERE status = 'published'",
-        "WHERE DATE(created_at) = '2026-11-01'——对列套函数，B+ 树里排好的是原始值，加工后的值用不上有序性",
-        "WHERE id = 42",
-        "WHERE created_at > '2026-11-01'"
+        "计划完美，无需优化",
+        "SQL 语句太长导致的性能问题",
+        "type=ref 已是高档次，rows 数字只是显示问题不用管",
+        "索引选了但过滤不狠：扫 3.3 万行只产出 20 行，回表随 rows 线性放大——应组合更多条件或重设联合索引收紧范围"
       ],
-      "answer": 1,
-      "explanation": "函数包列、隐式类型转换（VARCHAR 列传数字）都会让索引失效。改写成等价的范围条件即可恢复。对应修复思路：让「参与比较的值」和「树上排序的值」一致。",
+      "answer": 3,
+      "explanation": "诊断口径是「扫描行数 vs 结果行数」的比值：type 回答「怎么找」，rows 回答「找多少」。ref 档次 + 巨大 rows 意味着过滤不狠，靠联合索引把更多过滤列装进索引。",
       "lessonId": "l-sql-explain"
     },
     {
       "id": "q-ch-sql-optimization-2",
-      "stem": "「用了索引但依然慢」的可能原因里，最贴合 EXPLAIN 诊断思路的是？",
+      "stem": "`WHERE status='published' ORDER BY created_at DESC LIMIT 10` 的 Extra 显示 Using filesort，消除它的正确做法？",
       "options": [
-        "索引版本太旧需要升级",
-        "type=ref 但 rows 很大——索引选了但区分度差（如 status 只 3 个值命中半表），优化目标是「扫描行数」而不是「用没用索引」",
-        "SQL 写得太长",
-        "数据库版本不兼容"
+        "建联合索引 (status, created_at)：等值列在前、排序列在后——published 段内叶子链表按 created_at 天然有序，DESC 倒着走链表取 10 条即停",
+        "加大 sort_buffer_size 让排序全在内存完成",
+        "把 ORDER BY 从 SQL 里删掉，取回内存再排",
+        "改成 SELECT * 让优化器走 covering index"
       ],
-      "answer": 1,
-      "explanation": "EXPLAIN 的目标是让 type/key/rows/Extra 变好看，核心指标是扫描行数。低区分度列单列索引常被优化器放弃，或命中行数太多照样慢。",
+      "answer": 0,
+      "explanation": "消除 filesort 的唯一正路是让「过滤列 + 排序列」共用一棵联合索引；调大 sort buffer 只是让排序更快，排序本身没有消失。SELECT * 反而阻断覆盖索引。",
       "lessonId": "l-sql-explain"
     },
     {
       "id": "q-ch-sql-optimization-3",
-      "stem": "PG 里查询 `WHERE attrs->>'color' = 'red'` 很慢，attrs 是 JSONB 列。最直接的修复是？",
+      "stem": "PG 里 attrs 是 JSONB 列（值为 {\"color\": \"red\"}），`WHERE attrs->'color' = 'red'` 查不出结果还可能报错。原因与修复？",
       "options": [
-        "换 MySQL 就快了",
-        "给 attrs 建 GIN 索引（CREATE INDEX ... USING GIN (attrs)），并用 @> 包含操作符写条件——JSONB 查询不走 GIN 就是全表扫描",
-        "把 JSONB 换成 TEXT 存储",
-        "加 LIMIT 10"
+        "color 键不存在，要先判断键存在",
+        "-> 返回的是 jsonb 片段（\"red\" 带引号），与文本 'red' 类型不匹配——改用 ->> 取文本再比较",
+        "PG 不支持 JSON 值直接比较，必须建函数索引",
+        "要先 CAST 成 integer 再比较"
       ],
       "answer": 1,
-      "explanation": "JSONB 的二进制结构配 GIN 索引才能高效检索（@> 包含、? 存在等操作符都吃 GIN）。TEXT 存储 JSON 字符串反而失去结构化能力。LIMIT 只能掩盖问题。",
+      "explanation": "-> 取 JSON 片段、->> 取文本，差一对引号就是两种类型。过滤条件用 ->>，嵌套取值才用 ->；这是 JSONB 查询最高频的类型坑。",
+      "lessonId": "l-pg-advanced"
+    },
+    {
+      "id": "q-ch-sql-optimization-4",
+      "stem": "「文章标签」一直用 tags TEXT[] + GIN 过滤展示没问题；现在产品要求「统计每个标签的文章数、标签重命名要联动所有文章、记录打标时间和操作人」。正确的演进？",
+      "options": [
+        "继续用数组，加 unnest 展开就能全部满足",
+        "把 tags 换成 JSONB 存，更灵活",
+        "升级为关联表 article_tags(article_id, tag_id, created_at, operator)——计数、外键约束、带属性的多对多需要关系建模，数组放弃了这些能力",
+        "在应用内存里读全表自己统计"
+      ],
+      "answer": 2,
+      "explanation": "数组适合「数据量小、只读过滤展示」；一旦出现计数、约束、多对多带属性的需求，就是升级为关联表的信号——这正是列/JSONB/关联表白名单心法的边界判断。",
       "lessonId": "l-pg-advanced"
     }
   ]
