@@ -6,55 +6,68 @@
   "questions": [
     {
       "id": "q-c-backend-fastapi-1",
-      "stem": "FastAPI 写 `def list_articles(page: int = 1)`，这个 page 参数对应哪种来源？",
+      "stem": "同一个详情接口（article_id: int）：GET /articles/abc 和 GET /articles/999（库里没有 999）分别返回什么？",
       "options": [
-        "路径参数 /articles/{page}",
-        "查询参数 ?page=2——不在路径里、有默认值的普通参数自动归为查询参数",
-        "请求体 JSON 的 page 字段",
-        "请求头 Header 里的 page"
+        "都返回 404",
+        "abc 返回 404，999 返回 422",
+        "都返回 422",
+        "abc 返回 422（校验层拦截，函数根本没执行）；999 返回 404（函数执行后查无资源，raise HTTPException）"
       ],
-      "answer": 1,
-      "explanation": "FastAPI 按声明位置区分参数来源：URL 模板里的占位符是路径参数；有默认值的普通函数参数是查询参数；Pydantic 模型参数是请求体。三种来源各就各位。",
+      "answer": 3,
+      "explanation": "422 来自函数之前的参数校验（\"abc\" 转不成 int），404 来自函数内部的业务判断。两种错误来源不同，但都走结构化 detail，前端处理方式统一。",
       "lessonId": "l-py-fastapi"
     },
     {
       "id": "q-c-backend-fastapi-2",
-      "stem": "创建接口的入站模型里出现了 id 字段，评审该提什么意见？",
+      "stem": "评审创建文章接口：入站模型 ArticleIn 里声明了 id: int 字段，路由函数直接把用户传的 id 存库。最该提的意见是？",
       "options": [
         "没问题，id 反正会自动生成",
-        "入站模型不该有 id——用户不该传的约束放在 ArticleIn，出站才用带 id 的 ArticleOut，两个模型分开声明",
-        "把 id 设为 Optional 就行",
-        "用同一个模型，加个开关字段控制"
+        "把 id 改成 Optional 就能两全其美",
+        "入站模型不该有 id：id 由服务器生成，出站才用带 id 的 ArticleOut，并配 response_model 做出站过滤",
+        "加一个开关字段控制 id 传不传"
       ],
-      "answer": 1,
-      "explanation": "入站（用户能传什么）和出站（接口返回什么）是两个契约。共用一个模型意味着用户可以伪造 id 字段。response_model 配合出站模型，还能保证不会多泄漏字段。",
+      "answer": 2,
+      "explanation": "入站（用户能传什么）和出站（接口返回什么）是两个契约。共用一个模型意味着用户可以伪造 id；ArticleIn/ArticleOut 分开 + response_model 才能让出入站字段各管各的。",
       "lessonId": "l-py-pydantic"
     },
     {
       "id": "q-c-backend-fastapi-3",
-      "stem": "列表接口越用越慢，日志显示每条 todo 都单独发了一次查询关联数据的 SQL。这是哪个经典问题？",
+      "stem": "代码片段：with Session(engine) as session: 里执行了 a = Article(title=\"x\") 和 session.add(a)，随后 with 块结束、进程退出。数据库里有这行吗？",
       "options": [
-        "事务太长锁住了表",
-        "N+1 查询——1 次列表查询 + N 次逐条关联查询；用 selectinload 预加载关联数据解决",
-        "SQLite 并发上限太低",
-        "Pydantic 序列化太慢"
+        "有，add 就是写入",
+        "没有——add 只是把对象放进 Session 的草稿箱，没有 commit，进程退出数据就蒸发了",
+        "有，但 id 是 None",
+        "程序退出前会抛异常提醒必须 commit"
       ],
       "answer": 1,
-      "explanation": "「循环里逐条查」是 ORM 时代的新手高频性能问题：查询次数 = N+1。ORM 的预加载（selectinload/joinedload）让关联数据一次查齐。",
+      "explanation": "Session 是草稿箱：add 只登记变更，commit 才把事务真正落库。忘 commit 是 ORM 第一大坑，症状就是「程序没报错但库里没数据」。",
       "lessonId": "l-py-sqlalchemy"
     },
     {
       "id": "q-c-backend-fastapi-4",
-      "stem": "`def get_session(): with Session(engine) as s: yield s` 配合 `Depends(get_session)` 的好处是？",
+      "stem": "def get_session(): with Session(engine) as s: yield s 配合 Depends(get_session) 使用。yield 之后的收尾代码（关闭 Session）什么时候执行？",
       "options": [
-        "让所有请求共用一个 Session，省内存",
-        "每个请求获得独立 Session、请求结束自动关闭——资源生命周期交给框架，不用手写 try/finally",
-        "Session 变成了单例模式",
-        "自动开启了事务嵌套"
+        "应用启动时执行一次",
+        "在路由函数开始之前执行",
+        "yield 处暂停后就不再执行",
+        "响应发送完毕后执行——每个请求创建独立 Session、结束后关闭，资源生命周期交给框架，不用手写 try/finally"
       ],
-      "answer": 1,
-      "explanation": "yield 依赖是 FastAPI 管理资源的标准姿势：请求进来创建、yield 处执行业务、请求结束执行 with 的收尾（关 Session）。共享全局 Session 会串状态、锁纠缠。",
+      "answer": 3,
+      "explanation": "yield 依赖的时序：请求进来执行 yield 之前的创建代码，yield 处把资源交给路由函数，响应发送完毕后恢复执行 yield 之后的清理代码。共享全局 Session 会串状态、锁纠缠。",
       "lessonId": "l-py-fastapi-todo"
+    },
+    {
+      "id": "q-c-backend-fastapi-5",
+      "stem": "先注册了 @app.get(\"/items/latest\")，再注册 @app.get(\"/items/{item_id}\")（item_id: int）。访问 /items/latest 和 /items/abc 分别怎样？",
+      "options": [
+        "latest 命中具体路由正常返回；abc 因转不成 int 返回 422——顺序对了，两种失败路径各归其位",
+        "两条都 422",
+        "latest 422，abc 正常返回",
+        "两条都正常返回"
+      ],
+      "answer": 0,
+      "explanation": "具体路径先注册就不会被参数路由吞掉，latest 正常；abc 交给参数路由后 \"abc\" 转不成 int，在进入函数前被 422 拒绝。路由顺序与校验是两个独立的关卡。",
+      "lessonId": "l-py-fastapi"
     }
   ]
 }

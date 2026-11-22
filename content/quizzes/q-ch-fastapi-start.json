@@ -6,42 +6,68 @@
   "questions": [
     {
       "id": "q-ch-fastapi-start-1",
-      "stem": "`def read_article(article_id: int)` 处理 `GET /articles/abc` 请求，结果是什么？",
+      "stem": "代码里先后注册了 @app.get(\"/articles/{article_id}\")（article_id: int）和 @app.get(\"/articles/me\")。访问 GET /articles/me 会怎样？",
       "options": [
-        "article_id 得到字符串 \"abc\"，正常返回",
-        "FastAPI 返回 422 结构化错误——类型注解让框架自动完成校验，一行校验代码都没写",
-        "程序崩溃抛 TypeError",
-        "article_id 自动变成 0"
+        "FastAPI 自动按字面量优先匹配，与注册顺序无关，正常返回 me",
+        "两条路由都执行，返回先完成的那条",
+        "FastAPI 直接报错：两条路径冲突不允许同时注册",
+        "由参数路由先匹配：\"me\" 被当成 article_id 捕获，转不成 int 返回 422——具体路径必须注册在参数路由之前"
       ],
-      "answer": 1,
-      "explanation": "类型注解即校验是 FastAPI 的核心机制：\"abc\" 转不成 int，框架直接用 422 拒绝并在 detail 里说明原因。省掉手写 if 判断，还自动进了文档。",
+      "answer": 3,
+      "explanation": "FastAPI 按注册顺序匹配路由，没有字面量优先。/articles/me 这类具体路径要先注册，否则被参数路由吞掉后 422。",
       "lessonId": "l-py-fastapi"
     },
     {
       "id": "q-ch-fastapi-start-2",
-      "stem": "同时注册了 `@app.get(\"/articles/me\")` 和 `@app.get(\"/articles/{article_id}\"，后者注解为 int。访问 /articles/me 会怎样？",
+      "stem": "同一个路由函数 def list_articles(page: int = 1, keyword: str | None = None, article: ArticleIn)，且路径模板是 /articles。三个参数分别来自哪里？",
       "options": [
-        "正常返回 me 页面",
-        "取决于路由注册顺序：若 {article_id} 先注册，\"me\" 会先被它匹配走，再因转不成 int 返回 422——具体路径要先注册",
-        "FastAPI 自动按字面量优先匹配，与顺序无关",
-        "两个路由都执行"
+        "page 和 keyword 是查询参数（不在路径里、有默认值的普通参数），article 是请求体（类型是 Pydantic 模型）",
+        "三个都是查询参数",
+        "page 是路径参数，其余是查询参数",
+        "三个都来自请求体 JSON"
       ],
-      "answer": 1,
-      "explanation": "FastAPI 按注册顺序匹配路由。/articles/me 的具体路径要放在 /articles/{article_id} 之前注册，否则先被参数路由吞掉。",
+      "answer": 0,
+      "explanation": "判别三问：名字在路径模板里是路径参数；类型是 Pydantic 模型是请求体；其余普通类型带默认值的是查询参数。page/keyword 符合第三问，article 符合第二问。",
       "lessonId": "l-py-fastapi"
     },
     {
       "id": "q-ch-fastapi-start-3",
-      "stem": "POST 创建文章的请求体缺了必填的 title 字段，Pydantic 模型的行为是？",
+      "stem": "POST /articles 的请求体缺了必填的 title，FastAPI 返回 422，detail 里 loc 是 [\"body\", \"title\"]。这个 loc 应该怎么读？",
       "options": [
-        "title 自动为空字符串，正常创建",
-        "请求被 422 拒绝，detail 里精确指出哪个字段、为什么不合格——安检门在数据进门时就拦下",
-        "运行时报 AttributeError，服务器 500",
-        "title 自动取默认值"
+        "loc 是错误的唯一编号，拿它去官方手册查",
+        "第一段 body 表示错在请求体（对应取值还有 path、query），第二段 title 是出错的字段——按 loc 能定位到字段级，前端据此渲染表单提示",
+        "body 是函数名，title 是报错的代码行号",
+        "loc 描述的是服务器内部堆栈路径，与请求无关"
       ],
       "answer": 1,
-      "explanation": "Pydantic 模型 = 数据的安检门：必填缺失、类型不对、范围越界都在进路由函数之前被拦下，返回结构化 422。没有默认值的字段就是必填。",
+      "explanation": "loc 是错误定位路径：第一段是数据来源（body/path/query），后面依次是字段名与嵌套下标。422 的价值就是把错误指到字段级，让校验错误可编程。",
       "lessonId": "l-py-pydantic"
+    },
+    {
+      "id": "q-ch-fastapi-start-4",
+      "stem": "同事在 Pydantic 模型里写了 tags: list[str] = []，评审时最该提的意见是？",
+      "options": [
+        "没问题，列表默认值就该这么写",
+        "改成 tags: str = \"\"，别用列表类型",
+        "改用 tags: list[str] = Field(default_factory=list)——可变默认值应每次新建，语义清晰且不依赖 Pydantic 的深拷贝兜底",
+        "去掉默认值让它变成必填"
+      ],
+      "answer": 2,
+      "explanation": "可变类型做默认值是经典坑：纯 Python 类里所有实例共享同一个列表；Pydantic 虽会深拷贝兜底，官方仍推荐 default_factory 表达「每次新建」的意图。",
+      "lessonId": "l-py-pydantic"
+    },
+    {
+      "id": "q-ch-fastapi-start-5",
+      "stem": "（跨章）前端同学说「接口文档随便写写就行，联调时聊天对齐」。用 FastAPI 的 /docs 机制反驳他，最有力的论点是？",
+      "options": [
+        "写文档主要是为了通过代码评审",
+        "文档是给新人看的，老团队确实不需要",
+        "聊天记录可以随时回溯，比文档更可靠",
+        "FastAPI 的文档从代码注解实时生成、与代码永远同步，openapi.json 是机器可读契约——前端能照它 mock 开发、生成客户端类型，这正是「文档即契约」的工具链红利"
+      ],
+      "answer": 3,
+      "explanation": "手写文档会过期，FastAPI 从类型注解与路由声明实时生成 OpenAPI 规范，契约与代码同源；openapi.json 还能驱动 mock 与类型生成，把「接口调试」一课的契约优先自动化。",
+      "lessonId": "l-py-fastapi"
     }
   ]
 }

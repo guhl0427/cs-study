@@ -6,41 +6,54 @@
   "questions": [
     {
       "id": "q-ch-ai-ml-1",
-      "stem": "电商平台收集了大量用户行为数据，但没有任何人工标注，想「把用户自动分成几群做差异化运营」。这属于什么任务？",
+      "stem": "电商平台收集了大量用户行为数据，但没有任何人工标注，想把用户自动分成几群做差异化运营。这属于什么任务？",
       "options": [
-        "监督学习——分类，因为要给用户分群",
-        "监督学习——回归，因为分群结果是个数字",
-        "无监督学习——聚类，没有标签时让数据自己聚堆",
-        "不是机器学习，必须人工先打标签才能开始"
+        "监督学习——分类，因为最终是要给用户分组",
+        "监督学习——回归，因为分群结果对应数字",
+        "无监督学习——聚类：没有标签，让数据自己聚堆",
+        "不算机器学习，必须先人工给每个用户打好群标签才能开始"
       ],
       "answer": 2,
-      "explanation": "「分群」没有标准答案标签，是无监督学习的聚类任务。分类和回归都是监督学习，前提是有标签。",
+      "explanation": "判断流派只看一个问题：有没有「正确答案」可对照。没有标签、让数据自动分堆的，就是无监督的聚类；分类和回归都是监督学习，前提是有标签。",
       "lessonId": "l-ai-ml-concepts"
     },
     {
       "id": "q-ch-ai-ml-2",
-      "stem": "一个模型训练集准确率 99.5%，测试集只有 62%。最可能的诊断是？",
+      "stem": "同事的模型在训练集上准确率 0.99，换到测试集只剩 0.63。最合理的诊断和药方是？",
       "options": [
-        "欠拟合，模型太简单，应该加大模型容量",
-        "过拟合：把训练数据背下来了，换新题就不会",
-        "测试集太小导致必然低分，不用理会",
-        "准确率的计算方式写错了，模型本身没问题"
+        "过拟合（背题）——降低模型复杂度或加数据，例如限制决策树深度",
+        "欠拟合（没学会）——加大模型容量",
+        "测试集太小导致的偶然现象，扩大测试集即可解决",
+        "正常现象，训练集分数才代表模型真实实力"
       ],
-      "answer": 1,
-      "explanation": "训练分很高、测试分暴跌是过拟合的典型症状——像背题的学生。对症下药是简化模型、加数据或正则化，而不是继续加大容量（那是欠拟合的药方）。",
+      "answer": 0,
+      "explanation": "训练分高、测试分暴跌是过拟合的典型画像——模型把训练数据的噪声也背了下来，换新题就不会。药方是降低复杂度、加数据；加大容量是欠拟合的药方，只会更糟。",
       "lessonId": "l-ai-ml-concepts"
     },
     {
       "id": "q-ch-ai-ml-3",
-      "stem": "用 sklearn 做鸢尾花分类，下列哪组步骤顺序是正确的？",
+      "stem": "用 sklearn 对鸢尾花做分类，下列哪组步骤顺序是正确的？",
       "options": [
-        "model.fit → train_test_split → model.predict → accuracy_score",
-        "model.predict → model.fit → train_test_split → accuracy_score",
-        "train_test_split → model.fit(全量数据) → model.predict(训练集) → accuracy_score(训练集)",
-        "train_test_split → model.fit(训练集) → model.predict(测试集) → accuracy_score(测试集)"
+        "model.fit(X, y) → train_test_split → model.predict(X_test) → accuracy_score",
+        "train_test_split → model.fit(X, y 用全量) → accuracy_score(y_test, ...)",
+        "model.predict(X_test) → model.fit(X_train, y_train) → train_test_split → accuracy_score",
+        "train_test_split → model.fit(X_train, y_train) → model.predict(X_test) → accuracy_score(y_test, y_pred)"
       ],
       "answer": 3,
-      "explanation": "正确顺序是先划分、fit 只碰训练集、predict 与打分都只针对测试集。先 fit 再划分、或拿训练集评估，都是在给模型「提前看考卷」。",
+      "explanation": "正确顺序：先划分，fit 只碰训练集，predict 与打分都只用测试集。先 fit 全量再划分、或拿训练集打分，都是变相让模型「提前看考卷」，成绩必然虚高。",
+      "lessonId": "l-ai-sklearn"
+    },
+    {
+      "id": "q-ch-ai-ml-4",
+      "stem": "用面积预测房价：model.fit(area, price) 报错 Expected 2D array, got 1D array，其中 area 是形状 (7,) 的一维数组。怎么修？",
+      "options": [
+        "area.tolist() 变回 Python 列表再喂给 fit",
+        "area.reshape(-1, 1) 或用 df[[\"area\"]] —— 特征必须是二维",
+        "把模型换成 LinearRegression，就不需要二维了",
+        "把 area 和 price 拼接成一个更大的数组"
+      ],
+      "answer": 1,
+      "explanation": "sklearn 约定特征矩阵必须是二维 (n_samples, n_features)，单特征也要 (7, 1)。reshape(-1, 1) 正是把一维竖过来变一列的写法；换模型改变不了数据形状要求，拼接数组更是张冠李戴。",
       "lessonId": "l-ai-sklearn"
     }
   ]

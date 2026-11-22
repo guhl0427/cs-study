@@ -6,42 +6,55 @@
   "questions": [
     {
       "id": "q-ch-fastapi-data-1",
-      "stem": "session.add(new_article) 执行后不 commit 就退出程序，结果是？",
+      "stem": "端点里执行了 session.add(Todo(...)) 和 session.commit()，但忘了 session.refresh(todo) 就 return todo。POST 的响应最可能出现什么？",
       "options": [
-        "数据自动保存，Session 是持久层",
-        "数据丢失——Session 是「草稿箱」，commit 才真正落库",
-        "抛异常提示必须 commit",
-        "数据保存了但没有 id"
+        "一切正常，refresh 是可有可无的装饰",
+        "服务器直接 500 报错",
+        "id 字段是 null——自增主键由数据库在 commit 时生成，对象不会自动拿到，要 refresh 才能同步回来",
+        "title 字段丢失"
       ],
-      "answer": 1,
-      "explanation": "Session 管理着一次数据库对话的事务边界：add 只是把对象放进草稿箱，commit 才把变更写入数据库。忘 commit 是 ORM 第一大坑。",
-      "lessonId": "l-py-sqlalchemy"
+      "answer": 2,
+      "explanation": "commit 落库后，自增 id 只存在于数据库行里；要把数据库生成的值同步回 Python 对象需要 session.refresh。新建对象的口诀：add → commit → refresh → 再返回。",
+      "lessonId": "l-py-fastapi-todo"
     },
     {
       "id": "q-ch-fastapi-data-2",
-      "stem": "为什么 FastAPI 实战里 models.py（SQLAlchemy）和 schemas.py（Pydantic）要分成两个文件？",
+      "stem": "列表接口越用越慢，echo 日志里同一条 SELECT comments ... WHERE article_id = ? 刷了几十次。诊断与处方是？",
       "options": [
-        "Python 单文件不能同时 import 两个库",
-        "两者职责不同：models 描述「数据怎么存」，schemas 描述「接口契约怎么进出」——混用迟早出现「为改接口去动数据库」的事故",
-        "Pydantic 和 SQLAlchemy 不能写在同一文件里",
-        "只是代码风格偏好，混着写完全等价"
+        "Session 泄漏，应该改成全局单例",
+        "N+1 查询：1 次查列表 + N 次逐条查关联；用 selectinload 预加载，把关联数据一次查齐",
+        "数据库磁盘满了，换更好的硬盘",
+        "SQLAlchemy 版本太旧，升级即可"
       ],
       "answer": 1,
-      "explanation": "表结构和接口契约的生命周期不同：表结构改动少，接口契约是对前端的承诺。ArticleIn/ArticleOut 与 Todo 模型分开，出站字段（id）与入站字段（用户不该传的）才能各管各的。",
-      "lessonId": "l-py-fastapi-todo"
+      "explanation": "懒加载默认「用到才查」，循环里访问关联属性就是每行一条 SQL。列表页慢 + 日志 SQL 成串是 N+1 的典型指纹，selectinload 让它变成固定 2 条。全局单例 Session 反而是坑。",
+      "lessonId": "l-py-sqlalchemy"
     },
     {
       "id": "q-ch-fastapi-data-3",
-      "stem": "toggle 接口里查不到 id 时，正确的响应方式是？",
+      "stem": "评审代码：models.py 里只有 SQLAlchemy 的 Todo 表模型，schemas.py 里放着 TodoIn/TodoPatch/TodoOut 三个 Pydantic 模型。有人建议「结构差不多，合并成一个类省事」。最完整的反驳是？",
       "options": [
-        "return {\"error\": \"不存在\"}——反正前端会处理",
-        "raise HTTPException(status_code=404, detail=\"待办不存在\")——状态码回归本位，前端和监控才能按码分流",
-        "return None，让前端判断",
-        "抛 ValueError 让服务器返回 500"
+        "表结构与接口契约的生命周期和方向都不同：表改动要迁移要谨慎，契约随产品频繁演化；创建/更新/返回至少三个契约一个类表达不了——models 管存、schemas 管进出",
+        "合并后完全等价，只是代码风格偏好",
+        "分开是历史包袱，新项目都应该合并",
+        "因为 Pydantic 和 SQLAlchemy 不允许出现在同一个文件里"
       ],
-      "answer": 1,
-      "explanation": "「所有错误都返回 200 + body 里写错误」是 REST 一课点名的反模式：HTTPException 让 404 真的是 404。500 是服务器自己的异常，用来表达「资源不存在」完全错位。",
+      "answer": 0,
+      "explanation": "存与进出是两个世界：表结构改动少且要走迁移，接口契约随产品演化且入站出站不对称。混用迟早出现「为改接口去动数据库列」的事故。",
       "lessonId": "l-py-fastapi-todo"
+    },
+    {
+      "id": "q-ch-fastapi-data-4",
+      "stem": "给 Todo 模型加了 priority 字段后重启服务，查询报 OperationalError: no such column: todos.priority。正确的处置是？",
+      "options": [
+        "多重启几次，create_all 迟早会把列补上",
+        "把 priority 从模型里删掉，保持兼容",
+        "改表名重新建一张 todos2 表",
+        "create_all 只建新表不改旧表——开发期删库重建；数据不能丢就要上 Alembic 迁移生成 ALTER TABLE"
+      ],
+      "answer": 3,
+      "explanation": "create_all 是幂等建表：已存在的表直接跳过，不会补列。原型期删库重建最快；有真实数据的库必须走 Alembic 迁移。",
+      "lessonId": "l-py-sqlalchemy"
     }
   ]
 }

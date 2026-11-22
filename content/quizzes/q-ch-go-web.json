@@ -6,41 +6,54 @@
   "questions": [
     {
       "id": "q-ch-go-web-1",
-      "stem": "在 r.Group(\"/api\") 分组下注册了 api.GET(\"/users/:id\", ...)，请求 GET /api/users/42?page=3，handler 里取到的是什么？",
+      "stem": "用户请求 GET /api/users/abc，parseID 里 strconv.Atoi(\"abc\") 返回错误。按 REST 的状态码语义，此时该返回什么？",
       "options": [
-        "c.Param(\"id\") 是 \"42\"，c.Query(\"page\") 是 \"3\"",
-        "c.Param(\"id\") 是 \":id\"，42 要用 c.Query(\"id\") 取",
-        "c.Param(\"page\") 是 \"3\"，c.Query(\"id\") 是 \"42\"",
-        "都取不到，:id 路由不匹配带查询参数的请求"
+        "404——路径里有 id，说明资源不存在",
+        "500——转换失败说明服务端代码出了问题",
+        "400——id 不是合法数字是「请求方」的问题，应在查资源之前就拦下",
+        "200——body 里带 {\"error\":\"id 必须是正整数\"} 就够了"
       ],
-      "answer": 0,
-      "explanation": "冒号声明的路径参数归 c.Param，取 URL 路径里对应的那一段；? 后面的查询参数归 c.Query。查询参数不参与路由匹配，所以 42 不会跑到 Query 里。",
+      "answer": 2,
+      "explanation": "400 表示请求本身不合法（参数格式错），404 表示请求合法但资源不存在。/abc 连数字都不是，属于前者；把格式错混进 404 会误导调用方的排查方向。",
       "lessonId": "l-go-gin"
     },
     {
       "id": "q-ch-go-web-2",
-      "stem": "结构体字段写成 Name string `json:\"name\" binding:\"required\"`，客户端 POST 了请求体 {}，ShouldBindJSON 之后会发生什么？",
+      "stem": "字段声明为 Email string `json:\"email\" binding:\"omitempty,email\"`，客户端 POST 了 {\"name\":\"guhl\",\"email\":\"not-an-email\"}。ShouldBindJSON 的结果是？",
       "options": [
-        "绑定成功，Name 是零值空串，handler 照常往下执行",
-        "Gin 自动把字段名 \"required\" 填进 Name",
-        "err 非 nil——binding 标签在绑定阶段校验，应返回 400 并 return",
-        "程序 panic，因为 JSON 里缺少字段"
+        "绑定成功，email 原样保存——omitempty 让所有校验失效",
+        "err 非 nil——omitempty 只对「没填」跳过校验，填了值就按 email 规则查格式，应回 400 并 return",
+        "Gin 自动把 email 修正为空串再继续执行 handler",
+        "程序 panic，因为邮箱格式非法"
       ],
-      "answer": 2,
-      "explanation": "ShouldBindJSON 一次完成「解析 + 按标签校验」，required 字段缺失时返回错误对象，handler 应据此返回 400。Gin 不会 panic，也不会替你填值，更不会静默放行。",
+      "answer": 1,
+      "explanation": "omitempty 的语义是「字段为空才跳过后续校验」；一旦填了值就按 email 规则校验，格式不对返回错误对象。Gin 不会改值也不会 panic，是否回 400 由 handler 决定。",
       "lessonId": "l-go-gin"
     },
     {
       "id": "q-ch-go-web-3",
-      "stem": "db.Model(&u).Updates(User{Age: 0}) 执行后，数据库里 age 还是 25 没变成 0。原因是什么？",
+      "stem": "同一个「按 id 查用户」接口，一个版本用 db.First(&u, id)，另一个用 db.Where(\"id = ?\", id).Find(&us)。查不到时两者的行为差别是？",
       "options": [
-        "&u 的主键是空的，UPDATE 没找到行",
-        "Updates 只能用于 Create 之后的对象",
-        "GORM 不支持把数值列改回 0",
-        "struct 形式的 Updates 会跳过零值字段，Age=0 被当成「没填」；要改零值得用 map 或 Select 指定字段"
+        "完全一样，都返回 nil 错误",
+        "Find 返回 gorm.ErrRecordNotFound，First 拿到零值结构体但不报错",
+        "都会 panic，必须先 Count 确认存在再查",
+        "First 返回 gorm.ErrRecordNotFound（用 errors.Is 识别后转 404），Find 只是得到空切片（200 + 空数组）"
       ],
       "answer": 3,
-      "explanation": "GORM 用「是否为零值」判断字段有没有填写，struct 更新天然跳过 0/空串。想写零值就用 map[string]any 或 Select(\"age\") 显式点名，和主键无关。",
+      "explanation": "First 的语义是「必须有一条」，查不到显式返回 ErrRecordNotFound；Find 的语义是「取一批」，没有结果只是空切片，不算错误。两者配合 errors.Is 和 404/200 的选择各有用处。",
+      "lessonId": "l-go-gorm"
+    },
+    {
+      "id": "q-ch-go-web-4",
+      "stem": "db.Transaction(func(tx *gorm.DB) error { 扣 A 的钱(执行成功); 加 B 的钱 → return errors.New(\"余额不足\") })。最终数据库里 A 的钱？",
+      "options": [
+        "已被扣掉——第一步已经执行成功就落库了",
+        "没变——回调返回 error，事务整体回滚，第一步的写入一并撤销",
+        "变成负数——两步无论如何都会执行",
+        "取决于隔离级别，可能扣也可能不扣"
+      ],
+      "answer": 1,
+      "explanation": "Transaction 的契约就是：回调返回 error 整体回滚、返回 nil 才提交。「要么都成要么都不成」正是转账类操作必须用事务的原因。",
       "lessonId": "l-go-gorm"
     }
   ]

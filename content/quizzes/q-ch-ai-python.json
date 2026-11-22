@@ -6,42 +6,68 @@
   "questions": [
     {
       "id": "q-ch-ai-python-1",
-      "stem": "手上有 100 万行的销售记录 CSV，要算「每个城市的总销量」。哪种写法最合适？",
+      "stem": "同事在 Excel 里用「数据透视表」做每个城市的总销量汇总，你想用 pandas 一行代码等价实现。正确写法是？",
       "options": [
-        "读成 Python list，for 循环逐行累加到字典里",
-        "pd.read_csv 读成 DataFrame，一行 groupby(\"city\")[\"sales\"].sum() 搞定",
-        "逐行打印出来用眼睛数",
-        "把 CSV 拆成 12 个月分别手工汇总"
+        "df[\"sales\"].sum() —— 对全表求一个总数",
+        "df.groupby(\"city\")[\"sales\"].sum() —— 按城市分组求和，正是透视表的等价物",
+        "df.sort_values(\"sales\") —— 只会排序，不会按城市汇总",
+        "df.loc[\"city\", \"sales\"] —— 按标签取数，做不了聚合"
       ],
       "answer": 1,
-      "explanation": "分组聚合正是 pandas groupby 的看家本领，一行出结果且底层是向量化运算。for 循环能做但慢又啰嗦，手工方式在百万行面前完全不现实。",
+      "explanation": "groupby 按城市把行分成组、再对每组求和，正是 Excel 透视表「分组汇总」的 pandas 等价物。sum() 是全表总账，sort_values 只排序，loc 是取数不是聚合。",
       "lessonId": "l-ai-numpy-pandas"
     },
     {
       "id": "q-ch-ai-python-2",
-      "stem": "想弄清「学生的学习时长和考试成绩之间有没有关系」，应该画哪种图？",
+      "stem": "想把 11 月的销量全部清零，执行 df[df[\"month\"] == 11][\"sales\"] = 0 后打印 df，销量纹丝没动。最可能的原因是？",
       "options": [
-        "散点图：每个学生一个点，点云的走向直接暴露两变量的关系",
-        "折线图：看的是单个量随时间的变化趋势",
-        "柱状图：对比的是不同类别之间谁多谁少",
-        "直方图：看的是单个数据的分布形态"
+        "pandas 版本有 bug，升级到最新就能解决",
+        "赋值方向写反了，应该写成 0 = df[df[\"month\"] == 11][\"sales\"]",
+        "month 列里根本没有 11，条件筛出来的是空表",
+        "链式索引先取出了原表的一份副本，赋值改的是副本；应一步到位 df.loc[df[\"month\"] == 11, \"sales\"] = 0"
       ],
-      "answer": 0,
-      "explanation": "「两个数值变量之间有无关系」是散点图的专属场景。折线看趋势、柱状看对比、直方看分布，各有各的活。",
-      "lessonId": "l-ai-visualization"
+      "answer": 3,
+      "explanation": "链式索引 df[...][...] 先执行前一步取出一份副本，赋值只改了副本。安全姿势是 loc 一步到位：df.loc[条件, 列名] = 值，这也是 SettingWithCopyWarning 警告的根源。",
+      "lessonId": "l-ai-numpy-pandas"
     },
     {
       "id": "q-ch-ai-python-3",
-      "stem": "执行以下代码，输出是什么？\nimport numpy as np\na = np.array([10, 20, 30, 40])\nprint(a[a > 15])",
+      "stem": "执行以下代码，输出是什么？\nimport numpy as np\na = np.array([5, 12, 8, 20, 3])\nprint(a[a > 10])",
       "options": [
-        "[False False  True  True]，布尔索引返回的是掩码本身",
-        "报错 TypeError，数组不能用数组做下标",
-        "[ 0  0 30 40]，不满足的位置被替换成 0",
-        "[20 30 40]，布尔索引返回满足条件的元素组成的新数组"
+        "[12 20] —— 布尔掩码筛选出满足条件的元素，组成新数组",
+        "[False  True False  True False] —— 打印出比较产生的布尔掩码本身",
+        "[ 0 12  0 20  0] —— 不满足的位置被替换成 0",
+        "报错 TypeError，数组不能用布尔数组做下标"
       ],
-      "answer": 3,
-      "explanation": "a > 15 生成布尔掩码 [False False True True]，用它做下标得到的是筛选后的新数组 [20 30 40]——这是向量化筛选的标准写法。",
+      "answer": 0,
+      "explanation": "a > 10 生成布尔掩码 [False True False True False]，用它做下标只保留 True 位置的元素，得到新数组 [12 20]。这是向量化筛选的标准写法，等价于 list 里「循环 + if + append」。",
       "lessonId": "l-ai-numpy-pandas"
+    },
+    {
+      "id": "q-ch-ai-python-4",
+      "stem": "老板想看 10-12 月总销量是升是降、增长动力有没有放缓（斜率变化）。选哪种图最贴切？",
+      "options": [
+        "柱状图：三个月画三根柱，比谁高",
+        "直方图：把销量数值分桶，看分布形态",
+        "折线图：月份为横轴连线，走向和斜率变化一眼可见",
+        "散点图：月份对销量画点，看两个变量的相关"
+      ],
+      "answer": 2,
+      "explanation": "「随时间怎么变、何时放缓」是折线图的专属场景——斜率就是增长动力。柱状只见高低难见斜率，直方图看分布，散点图看两变量关系，都不回答「趋势」。",
+      "lessonId": "l-ai-visualization"
+    },
+    {
+      "id": "q-ch-ai-python-5",
+      "stem": "订单额直方图：大部分订单挤在 685-1050 区间，左侧 320-480 拖着一条尾巴；均值 716、中位数 765。汇报口径怎么定最合理？",
+      "options": [
+        "报平均 716 元，均值永远是标准口径",
+        "报「典型订单约 765 元」：分布偏态时中位数比均值诚实",
+        "直方图画错了，订单数据不该有尾巴",
+        "说明 685-1050 区间的订单最少，应该按它做主推方向"
+      ],
+      "answer": 1,
+      "explanation": "尾巴在左的偏态分布里，均值会被少数低值拖低（716 < 中位数 765），此时中位数更能代表典型水平。直方图有尾巴是常态不是画错；685-1050 恰是订单最多的区间。",
+      "lessonId": "l-ai-visualization"
     }
   ]
 }

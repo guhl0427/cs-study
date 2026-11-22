@@ -6,41 +6,67 @@
   "questions": [
     {
       "id": "q-ch-go-start-1",
-      "stem": "同一个函数里先写 x := 1，下一行又写 x := 2，编译报错 no new variables on left side of :=。原因是什么？",
+      "stem": "函数里已有 name := \"outer\"，随后写了 if name := \"inner\"; len(name) > 0 { fmt.Println(name) }。if 块内打印什么？if 块外的 name 是什么？",
       "options": [
-        "Go 不允许变量被赋值两次",
-        ":= 只能声明整型，x 已被推断成别的类型",
-        ":= 是「声明并赋值」，左边必须出现至少一个新变量，给旧变量赋值要用 =",
-        "跨行赋值必须改写成 var x = 2"
+        "块内打印 inner；块外 name 变成 inner——:= 覆盖了外层变量",
+        "编译错误：name 已经声明过，不能在 if 里再用 :=",
+        "块内打印 inner；块外 name 仍是 outer——if 初始化语句里的 := 新建了同名变量，作用域只在这个 if 块",
+        "块内打印 outer；块外 name 是 inner——执行顺序和你想的相反"
       ],
       "answer": 2,
-      "explanation": ":= 的左边必须至少有一个「新」变量，x 已经声明过，再写 := 就是重复声明；赋值用 = 即可，Go 并不禁止重复赋值，var 也不是必需的。",
+      "explanation": "if/for 的初始化语句会新建同名变量（遮蔽外层），出了这个语句块就消失；外层 name 仍是 outer。想真正修改外层变量，得在外层声明、块内用 =。",
       "lessonId": "l-go-syntax"
     },
     {
       "id": "q-ch-go-start-2",
-      "stem": "main 函数里只有三行：ch := make(chan int)、ch <- 1、fmt.Println(<-ch)。运行结果是什么？",
+      "stem": "s := []int{1, 2, 3} 之后执行 t := s[:2] 和 t[0] = 99。此时 s[0] 的值是？",
       "options": [
-        "打印 1 后正常退出",
-        "编译错误：channel 不能在同一个函数里又发又收",
-        "打印 1，然后 panic: send on closed channel",
-        "fatal error: all goroutines are asleep - deadlock!——无缓冲 channel 发送会卡到有接收者，而再没有别的 goroutine 能接收"
+        "1——切片操作会完整复制底层数组，t 与 s 互不影响",
+        "编译错误：t 和 s 长度不同，不能共享内存",
+        "未定义，可能是 1 也可能是 99，取决于垃圾回收时机",
+        "99——s 和 t 指向同一个底层数组，切片只是「窗口」，改 t[0] 就是改 s[0]"
       ],
       "answer": 3,
-      "explanation": "无缓冲 channel 的发送会阻塞到有人接收为止；发送和接收在同一个 goroutine 里先后执行，发送先卡住、永远轮不到下一行接收，运行时判定为全局死锁。",
-      "lessonId": "l-go-goroutine"
+      "explanation": "切片底层是「指针 + len + cap」，s[:2] 与 s 指向同一个底层数组，写入立即互相可见。要独立副本必须用 copy 换一块新数组。",
+      "lessonId": "l-go-syntax"
     },
     {
       "id": "q-ch-go-start-3",
-      "stem": "var wg sync.WaitGroup 之后直接 go func() { fmt.Println(\"worker\") }()，再 wg.Wait()，为什么常常什么都不打印就退出？",
+      "stem": "wg.Add(3) 之后只开了 2 个协程且各自 defer wg.Done()，随后 main 里 wg.Wait() 会发生什么？",
       "options": [
-        "忘了调用 wg.Add(1)，计数本来就是 0，Wait 直接放行，main 先于协程退出",
-        "sync.WaitGroup 必须配合 channel 才能生效",
-        "匿名函数用 go 启动会有编译警告，协程没真正运行",
-        "WaitGroup 的 Wait 会自动等所有 goroutine，代码没有问题"
+        "计数停在 1 归不了零，Wait 永久阻塞；其余协程都结束后运行时报 all goroutines are asleep - deadlock",
+        "Wait 等到 2 次 Done 后正常放行，程序退出",
+        "Wait 立即返回——只要调过 Done 就算数",
+        "编译错误：Add 与 Done 的调用次数必须严格相等"
       ],
       "answer": 0,
-      "explanation": "Add/Done/Wait 必须配套：Add(1) 把计数加一，Wait 才有得等。这段代码计数恒为 0，Wait 立即返回，main 一退出整个进程就结束了，协程还没来得及跑。",
+      "explanation": "Add/Done/Wait 操作同一个计数器：Add(3) 但只有 2 次 Done，计数停在 1，Wait 等不到归零。没有别的协程在干活时，运行时直接判定全员沉睡死锁。",
+      "lessonId": "l-go-goroutine"
+    },
+    {
+      "id": "q-ch-go-start-4",
+      "stem": "ch := make(chan int, 2) 里已经放了 2 个元素且无人取走，此时执行 ch <- 3 会怎样？",
+      "options": [
+        "立即成功——缓冲区不够会自动扩容",
+        "第 3 个元素被静默丢弃，发送方继续往下跑",
+        "阻塞，直到有接收者取走一个元素腾出空间",
+        "立即 panic: send on closed channel"
+      ],
+      "answer": 2,
+      "explanation": "有缓冲 channel 的发送只在缓冲满时阻塞：容量 2 已满，第 3 个发送就卡住等人取。channel 不会自动扩容、不丢数据，也没被 close。",
+      "lessonId": "l-go-goroutine"
+    },
+    {
+      "id": "q-ch-go-start-5",
+      "stem": "countWords(path) 返回 (map[string]int, error)。想在协程里并发统计，为什么不能写 m, err := go countWords(path)？",
+      "options": [
+        "可以这么写，只是 err 会被丢掉",
+        "go 语句的返回值没有接收者、直接丢弃；必须用 channel（或加锁的共享结构）把 (结果, 错误) 传回主协程",
+        "应该写成 m, err := (go countWords(path))，加括号就行",
+        "需要先 var m, err 声明好，go 会自动把返回值填进去"
+      ],
+      "answer": 1,
+      "explanation": "go 启动的函数返回值无人接收、直接丢弃——多返回值签名只在本协程内有意义。跨协程交接数据要靠 channel 传消息，这正是「通过通信来共享内存」。",
       "lessonId": "l-go-goroutine"
     }
   ]
