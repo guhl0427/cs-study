@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-backend-web",
+  "scopeType": "chapter",
+  "scopeId": "ch-backend-web",
+  "title": "第 1 章随堂练习 · Web 服务基础",
+  "questions": [
+    {
+      "id": "q-ch-backend-web-1",
+      "stem": "`GET /api/like?id=42` 用 GET 做点赞，违反了什么？为什么危险？",
+      "options": [
+        "GET 不能带查询参数",
+        "GET 应该只读、无副作用——预取、爬虫、浏览器刷新都会触发它，点赞被意外执行；改数据必须用 POST/PUT/DELETE",
+        "URL 太短了，应该更详细",
+        "GET 请求速度太慢"
+      ],
+      "answer": 1,
+      "explanation": "HTTP 方法有语义：GET 读、POST 建、PUT/PATCH 改、DELETE 删。搜索引擎 prefetch、爬虫都会「顺手」发 GET，把改数据的动作挂在 GET 上会被意外触发。",
+      "lessonId": "l-backend-rest"
+    },
+    {
+      "id": "q-ch-backend-web-2",
+      "stem": "JWT 的 payload 部分只是 Base64 编码，不是加密。这意味着？",
+      "options": [
+        "JWT 不安全，应该全面弃用",
+        "任何人都能解开看 payload 内容——里面绝不能放敏感信息；防伪造靠的是第三段签名（保证没被改过）",
+        "payload 无法被客户端读取",
+        "Base64 也是一种加密算法"
+      ],
+      "answer": 1,
+      "explanation": "Base64 只是编码不是加密，拿到 token 就能读出用户 ID、角色等字段。签名的作用是「防篡改」：改了 payload 验签就会失败。保密与防伪造是两件事。",
+      "lessonId": "l-backend-auth"
+    },
+    {
+      "id": "q-ch-backend-web-3",
+      "stem": "前端把「管理面板」入口隐藏了，普通用户看不到按钮。这算完成权限控制了吗？",
+      "options": [
+        "算，用户看不到了就安全了",
+        "不算——直接 curl 接口的人绕过前端，后端接口必须再做权限校验；前端隐藏只是体验优化",
+        "算，只要按钮用 display:none 就行",
+        "算，前提是用了 HTTPS"
+      ],
+      "answer": 1,
+      "explanation": "认证（你是谁）与授权（你能干什么）都在服务端把关。前端隐藏入口只防「手滑」不防「坏人」：攻击者直接调 API 时根本没有你的前端代码。",
+      "lessonId": "l-backend-auth"
+    }
+  ]
+}

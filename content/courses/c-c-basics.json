@@ -1,0 +1,22 @@
+{
+  "id": "c-c-basics",
+  "domainSlug": "languages",
+  "slug": "c-basics",
+  "title": "C 语言入门：理解内存与底层",
+  "summary": "作为第二门语言补底层视角：指针与内存、数组与字符串、结构体与文件——理解了 C，Python/Java 里那些「自动」就都不神秘了。",
+  "difficulty": 2,
+  "audience": "已有一门语言基础的学习者；CS 学生（与组成原理联动）",
+  "prereqs": "任一门语言入门（建议先学完 Python 入门）；无 C 环境可先用在线编译器",
+  "chapters": [
+    {
+      "id": "ch-c-start",
+      "title": "起步与指针",
+      "lessons": ["l-c-syntax", "l-c-pointer"]
+    },
+    {
+      "id": "ch-c-struct",
+      "title": "数组、字符串与结构体",
+      "lessons": ["l-c-array-string", "l-c-struct-io"]
+    }
+  ]
+}

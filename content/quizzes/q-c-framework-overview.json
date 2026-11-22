@@ -1,0 +1,60 @@
+{
+  "id": "q-c-framework-overview",
+  "scopeType": "course",
+  "scopeId": "c-framework-overview",
+  "title": "课程自测 · 前端框架概览：Vue 3 与 React",
+  "questions": [
+    {
+      "id": "q-c-framework-overview-1",
+      "stem": "原生 JS 改数据后要手动调 render() 更新 DOM，Vue 用什么机制省掉这一步？",
+      "options": [
+        "Vue 内置了一个定时器轮询数据变化",
+        "响应式——数据放进 ref() 后被「追踪」，一变 Vue 自动更新依赖它的页面位置",
+        "Vue 禁止直接修改数据",
+        "浏览器自动完成了同步"
+      ],
+      "answer": 1,
+      "explanation": "响应式是 Vue 的核心：你只改数据，框架负责找出「哪些 DOM 依赖了这块数据」并精准更新。这就是「数据驱动视图」和手动同步的本质区别。",
+      "lessonId": "l-vue-intro"
+    },
+    {
+      "id": "q-c-framework-overview-2",
+      "stem": "React 组件里 `const [count, setCount] = useState(0)`，直接写 `count += 1` 界面会更新吗？",
+      "options": [
+        "会，变量值变了界面就变",
+        "不会——React 靠「整个函数重跑」更新界面，只有调用 setCount 触发重渲染，且必须创建新值（引用不同）",
+        "会，但只更新一半",
+        "会抛出运行时错误"
+      ],
+      "answer": 1,
+      "explanation": "React 的机制是 setState → 组件函数重新执行 → diff 前后结果 → 最小 DOM 更新。直接改普通变量不触发重跑；即使对数组，push 也不行（引用没变），要 setArr([...arr, x])。",
+      "lessonId": "l-react-intro"
+    },
+    {
+      "id": "q-c-framework-overview-3",
+      "stem": "Vue 的 SFC（单文件组件）一个 .vue 文件由哪三部分组成？",
+      "options": [
+        "html、css、js 三个独立文件",
+        "<template>（结构）+ <script setup>（逻辑）+ <style scoped>（样式）",
+        "header、body、footer",
+        "props、state、methods"
+      ],
+      "answer": 1,
+      "explanation": "SFC 把一个组件的结构、逻辑、样式装进一个文件，style 的 scoped 让样式只作用于本组件，不用担心类名冲突。「一个组件管自己那一块页面」的载体。",
+      "lessonId": "l-vue-intro"
+    },
+    {
+      "id": "q-c-framework-overview-4",
+      "stem": "还没用原生 JS 独立写过小项目（列表增删、表单、本地存储），就直接学框架，课程里说最大的问题是？",
+      "options": [
+        "框架太难，学不会",
+        "分不清「框架的功劳」和「JS 本身的能力」——不知道框架替你做了什么，出了问题也不会排查",
+        "学框架需要先学 TypeScript",
+        "框架更新太快，学了就过时"
+      ],
+      "answer": 1,
+      "explanation": "框架语法只占 20%，组件化思维占 80%，而思维的地基是原生能力。先能用原生 JS 写完小项目，才知道框架省掉的每一步是什么——这也是「三件套学扎实再碰框架」的原因。",
+      "lessonId": "l-react-intro"
+    }
+  ]
+}

@@ -3,7 +3,7 @@
   "slug": "languages-path",
   "domainSlug": "languages",
   "name": "编程语言路线",
-  "description": "第一门语言选 Python：反馈快、语法轻。原则是主修 1 门 + 辅修 1 门——第一门学扎实后，再按方向选第二门（前端补 JS/TS，后端补 Java/Go）。",
+  "description": "第一门语言选 Python：反馈快、语法轻。原则是主修 1 门 + 辅修 1 门——第一门学扎实后，再选第二门：CS 学生建议 C（理解内存与底层），前端补 JS/TS，后端补 Java/Go。",
   "targetAudience": "零基础新手；需要第二门语言的进阶者",
   "stages": [
     {
@@ -16,6 +16,18 @@
         { "id": "pl-s1-2", "lessonId": "l-py-collections", "prereqs": ["pl-s1-1"] },
         { "id": "pl-s1-3", "lessonId": "l-py-errors", "prereqs": ["pl-s1-2"] },
         { "id": "pl-s1-4", "lessonId": "l-py-modules", "prereqs": ["pl-s1-3"] }
+      ]
+    },
+    {
+      "id": "pl-s2",
+      "name": "第二门语言：C（理解底层）",
+      "description": "CS 学生建议的第二门语言：指针与内存、数组与字符串、结构体与文件——学完再回头看 Python，那些「自动」都不神秘了。与组成原理联动。",
+      "suggestDuration": "3–4 周",
+      "items": [
+        { "id": "pl-s2-1", "lessonId": "l-c-syntax" },
+        { "id": "pl-s2-2", "lessonId": "l-c-pointer", "prereqs": ["pl-s2-1"] },
+        { "id": "pl-s2-3", "lessonId": "l-c-array-string", "prereqs": ["pl-s2-2"] },
+        { "id": "pl-s2-4", "lessonId": "l-c-struct-io", "prereqs": ["pl-s2-3"] }
       ]
     }
   ]

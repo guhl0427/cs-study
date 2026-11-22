@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-dsa-algo",
+  "scopeType": "chapter",
+  "scopeId": "ch-dsa-algo",
+  "title": "第 4 章随堂练习 · 经典算法：排序与查找",
+  "questions": [
+    {
+      "id": "q-ch-dsa-algo-1",
+      "stem": "要给员工列表排序，要求：数据量大（10 万条），且工资相同的员工必须保持原有顺序。哪个选择最合适？",
+      "options": [
+        "快速排序：平均最快，任何场景都该用它",
+        "冒泡排序：稳定，而且代码最好写",
+        "归并排序或 Python 内置 sorted：O(n log n) 且稳定",
+        "插入排序：O(n²)，但稳定性最好"
+      ],
+      "answer": 2,
+      "explanation": "「稳定 + O(n log n)」的典型选择是归并（Python 的 Timsort 也稳定）。快排平均快但不稳定；冒泡稳定却 O(n²)，10 万条数据跑不动。",
+      "lessonId": "l-dsa-sorting"
+    },
+    {
+      "id": "q-ch-dsa-algo-2",
+      "stem": "nums = [3, 1, 2]，执行 result = nums.sort() 后 print(result) 输出什么？",
+      "options": [
+        "[1, 2, 3]",
+        "None：sort() 原地修改列表，返回值是 None",
+        "[3, 1, 2]：sort 返回新列表，原列表不变",
+        "报错：sort 的返回值不能赋给变量"
+      ],
+      "answer": 1,
+      "explanation": "list.sort() 原地排序并返回 None；要拿返回值应该用 sorted(nums)。「返回新列表」是 sorted 的行为。",
+      "lessonId": "l-dsa-sorting"
+    },
+    {
+      "id": "q-ch-dsa-algo-3",
+      "stem": "在 100 万条有序 ID 里查一个值：线性查找最多 100 万步，二分查找最多约多少步？",
+      "options": [
+        "50 万步：每次砍一半，先快一半",
+        "约 1000 步：快了三个数量级",
+        "约 100 步：按 10 倍折半",
+        "约 20 步：每比较一次砍掉一半，2 的 20 次方已超过 100 万"
+      ],
+      "answer": 3,
+      "explanation": "log₂(100 万) ≈ 20。二分的威力在指数收缩；「50 万步」只是砍了一半的误解，1000 步和 100 步都远大于实际。",
+      "lessonId": "l-dsa-binary-search"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-sql-query",
+  "scopeType": "chapter",
+  "scopeId": "ch-sql-query",
+  "title": "第 1 章随堂练习 · SQL 查询",
+  "questions": [
+    {
+      "id": "q-ch-sql-query-1",
+      "stem": "「查出发文 ≥5 篇的作者」需要按作者分组计数再过滤。过滤条件应该写在哪个子句里？",
+      "options": [
+        "WHERE COUNT(*) >= 5",
+        "HAVING COUNT(*) >= 5——WHERE 在分组前逐行过滤，碰不到聚合值",
+        "ORDER BY COUNT(*) >= 5",
+        "LIMIT 5"
+      ],
+      "answer": 1,
+      "explanation": "执行顺序是 FROM→WHERE→GROUP BY→HAVING：WHERE 先于分组执行，那时还没有 COUNT 可用；对聚合结果的过滤必须用 HAVING。写 WHERE COUNT(*) 会直接报错。",
+      "lessonId": "l-sql-select"
+    },
+    {
+      "id": "q-ch-sql-query-2",
+      "stem": "建了联合索引 `(status, created_at)`，只按 `created_at > '2026-11-01'` 查询，索引的表现是？",
+      "options": [
+        "正常使用整条索引",
+        "走不了——联合索引遵循最左前缀原则，跳过最左列就用不上",
+        "自动创建一个新索引",
+        "和单列索引一样快"
+      ],
+      "answer": 1,
+      "explanation": "联合索引像电话簿先按姓再按名排序：只知道名（created_at）没法利用排序结构。查询条件必须包含最左列 status 才能吃到这条索引。",
+      "lessonId": "l-sql-index"
+    },
+    {
+      "id": "q-ch-sql-query-3",
+      "stem": "`WHERE DATE(created_at) = '2026-11-01'` 让索引失效，正确的改写是？",
+      "options": [
+        "给 created_at 再建一个索引",
+        "改用范围条件：`created_at >= '2026-11-01' AND created_at < '2026-11-02'`",
+        "把 DATE 换成 YEAR 函数",
+        "加 ORDER BY 强制优化器走索引"
+      ],
+      "answer": 1,
+      "explanation": "对列套函数等于改变了参与比较的值，B+ 树里排好序的是原始值，优化器无法使用。把「函数包列」改写成等价的范围条件，索引就能正常工作。",
+      "lessonId": "l-sql-index"
+    }
+  ]
+}

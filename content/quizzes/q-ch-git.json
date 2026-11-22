@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-git",
+  "scopeType": "chapter",
+  "scopeId": "ch-git",
+  "title": "第 1 章随堂练习 · Git 核心",
+  "questions": [
+    {
+      "id": "q-ch-git-1",
+      "stem": "改了 5 个文件但这次提交只想包含其中 2 个，Git 里正确的做法是？",
+      "options": [
+        "改完这 2 个文件再 commit，Git 自动识别",
+        "git add 只挑这 2 个文件，再 commit——暂存区就是「挑选」这次存档的内容",
+        "删掉另外 3 个文件的改动，commit 后再恢复",
+        "做不到，commit 只能包含全部改动"
+      ],
+      "answer": 1,
+      "explanation": "工作区 →（add）→ 暂存区 →（commit）→ 本地仓库。add 是在挑选要存档的改动，让每个 commit 语义完整（「修好了 X」而不是「一堆乱改」）。",
+      "lessonId": "l-git-basic"
+    },
+    {
+      "id": "q-ch-git-2",
+      "stem": "合并时出现冲突标记 `<<<<<<< HEAD ... ======= ... >>>>>>> fix-bug`，正确处理流程是？",
+      "options": [
+        "删掉整个文件重新写",
+        "手动编辑保留正确内容、删掉三行标记，git add 后继续完成合并",
+        "git push -f 强推远程覆盖掉",
+        "回滚 main 分支，重写代码"
+      ],
+      "answer": 1,
+      "explanation": "冲突只是 Git 在问「这两版留哪版」：编辑文件决定最终内容（可以两版融合），删掉标记行，add 表示冲突已解决，再 commit 完成合并。强推是团队协作红线。",
+      "lessonId": "l-git-branch"
+    },
+    {
+      "id": "q-ch-git-3",
+      "stem": "experiment 分支已经挂了两周没合并，主干这段时间大改。现在合并会发生什么、该怎么预防？",
+      "options": [
+        "Git 自动把 experiment 的所有改动合并进来，无事发生",
+        "大概率冲突爆炸——分支生命周期要以天计，小步快合并",
+        "experiment 上的改动会被自动丢弃",
+        "先把主干回滚两周再合并"
+      ],
+      "answer": 1,
+      "explanation": "两边改同一区域时冲突量随时间暴涨。分支是轻量指针，正确姿势是小步多开、勤合并；长期挂起的分支是冲突制造机。",
+      "lessonId": "l-git-branch"
+    }
+  ]
+}

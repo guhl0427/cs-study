@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-dsa-tree",
+  "scopeType": "chapter",
+  "scopeId": "ch-dsa-tree",
+  "title": "第 3 章随堂练习 · 递归与树",
+  "questions": [
+    {
+      "id": "q-ch-dsa-tree-1",
+      "stem": "def f(n): print(n); f(n - 1)，调用 f(3) 会发生什么？",
+      "options": [
+        "打印 3 2 1 0 后正常结束",
+        "打印 3 2 1 0 -1 后结束",
+        "n 一直递减地调用下去，压栈超限后抛 RecursionError",
+        "抛 TypeError：参数不能是负数"
+      ],
+      "answer": 2,
+      "explanation": "函数没有基线条件，n 无限递减；调用栈超过 Python 默认深度（约 1000 层）就抛 RecursionError。负数在 Python 里是完全合法的参数。",
+      "lessonId": "l-dsa-recursion"
+    },
+    {
+      "id": "q-ch-dsa-tree-2",
+      "stem": "裸递归 fib(n)（每次调用自己两次）算 fib(35) 要十几秒，加上 @lru_cache 后瞬间完成。根本原因是？",
+      "options": [
+        "lru_cache 用 C 语言实现递归，本身比 Python 快",
+        "记忆化把算过的子问题存表复用，指数级的重复计算变成每个 fib(k) 只算一次",
+        "缓存悄悄改变了递归的数学含义，少算了一半",
+        "装饰器让 Python 编译器做了额外优化"
+      ],
+      "answer": 1,
+      "explanation": "裸递归 O(2^n)，同一子问题被反复重算；记忆化让每个子问题只算一次，整体降到 O(n)，数学含义不变。",
+      "lessonId": "l-dsa-recursion"
+    },
+    {
+      "id": "q-ch-dsa-tree-3",
+      "stem": "对二叉搜索树（任一节点满足「左子树 < 根 < 右子树」）做中序遍历（左 → 根 → 右），得到的序列是？",
+      "options": [
+        "按层排列的序列",
+        "叶子在前、根在后的序列",
+        "与节点插入顺序相同的序列",
+        "升序序列"
+      ],
+      "answer": 3,
+      "explanation": "中序遍历先访问全部较小的左子树，再访问根，再访问较大的右子树，天然升序。「按层排列」是 BFS 层序的输出。",
+      "lessonId": "l-dsa-binary-tree"
+    }
+  ]
+}

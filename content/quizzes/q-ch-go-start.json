@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-go-start",
+  "scopeType": "chapter",
+  "scopeId": "ch-go-start",
+  "title": "第 1 章随堂练习 · 起步与并发",
+  "questions": [
+    {
+      "id": "q-ch-go-start-1",
+      "stem": "同一个函数里先写 x := 1，下一行又写 x := 2，编译报错 no new variables on left side of :=。原因是什么？",
+      "options": [
+        "Go 不允许变量被赋值两次",
+        ":= 只能声明整型，x 已被推断成别的类型",
+        ":= 是「声明并赋值」，左边必须出现至少一个新变量，给旧变量赋值要用 =",
+        "跨行赋值必须改写成 var x = 2"
+      ],
+      "answer": 2,
+      "explanation": ":= 的左边必须至少有一个「新」变量，x 已经声明过，再写 := 就是重复声明；赋值用 = 即可，Go 并不禁止重复赋值，var 也不是必需的。",
+      "lessonId": "l-go-syntax"
+    },
+    {
+      "id": "q-ch-go-start-2",
+      "stem": "main 函数里只有三行：ch := make(chan int)、ch <- 1、fmt.Println(<-ch)。运行结果是什么？",
+      "options": [
+        "打印 1 后正常退出",
+        "编译错误：channel 不能在同一个函数里又发又收",
+        "打印 1，然后 panic: send on closed channel",
+        "fatal error: all goroutines are asleep - deadlock!——无缓冲 channel 发送会卡到有接收者，而再没有别的 goroutine 能接收"
+      ],
+      "answer": 3,
+      "explanation": "无缓冲 channel 的发送会阻塞到有人接收为止；发送和接收在同一个 goroutine 里先后执行，发送先卡住、永远轮不到下一行接收，运行时判定为全局死锁。",
+      "lessonId": "l-go-goroutine"
+    },
+    {
+      "id": "q-ch-go-start-3",
+      "stem": "var wg sync.WaitGroup 之后直接 go func() { fmt.Println(\"worker\") }()，再 wg.Wait()，为什么常常什么都不打印就退出？",
+      "options": [
+        "忘了调用 wg.Add(1)，计数本来就是 0，Wait 直接放行，main 先于协程退出",
+        "sync.WaitGroup 必须配合 channel 才能生效",
+        "匿名函数用 go 启动会有编译警告，协程没真正运行",
+        "WaitGroup 的 Wait 会自动等所有 goroutine，代码没有问题"
+      ],
+      "answer": 0,
+      "explanation": "Add/Done/Wait 必须配套：Add(1) 把计数加一，Wait 才有得等。这段代码计数恒为 0，Wait 立即返回，main 一退出整个进程就结束了，协程还没来得及跑。",
+      "lessonId": "l-go-goroutine"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-sec-frontend",
+  "scopeType": "chapter",
+  "scopeId": "ch-sec-frontend",
+  "title": "第 1 章随堂练习 · 前端侧漏洞",
+  "questions": [
+    {
+      "id": "q-ch-sec-frontend-1",
+      "stem": "Vue 项目里把用户评论用 `{{ comment }}` 插值渲染，换成 `v-html=\"comment\"` 后评论里的 `<img src=x onerror=...>` 会被执行。根本原因是？",
+      "options": [
+        "Vue 的插值功能有 bug",
+        "v-html 把字符串当 HTML 渲染，数据与代码的边界被打破；默认插值会自动转义所以永远安全",
+        "onerror 事件太特殊，任何写法都拦不住",
+        "浏览器版本问题"
+      ],
+      "answer": 1,
+      "explanation": "XSS 的本质是「数据混成了代码」。框架默认插值自动转义（安全），v-html/innerHTML 是显式把不可信数据当 HTML 执行的后门。要渲染富文本必须先过 DOMPurify 这类白名单过滤。",
+      "lessonId": "l-sec-xss"
+    },
+    {
+      "id": "q-ch-sec-frontend-2",
+      "stem": "为什么防御 XSS 不推荐「自己写正则过滤 <script>」，而推荐白名单过滤（如 DOMPurify）？",
+      "options": [
+        "正则写起来太麻烦",
+        "黑名单拦不住变体：<img onerror>、大小写、编码绕过都能绕过正则；白名单「只允许什么」在结构上更可靠",
+        "正则性能太差",
+        "白名单是浏览器内置的"
+      ],
+      "answer": 1,
+      "explanation": "攻击者的绕过手段无穷（属性事件、编码变体、嵌套标签），黑名单永远是打地鼠。白名单把问题反过来：默认全部禁止，只放行明确允许的标签和属性。",
+      "lessonId": "l-sec-xss"
+    },
+    {
+      "id": "q-ch-sec-frontend-3",
+      "stem": "CSRF 攻击里，evil.com 伪造表单向 bank.com 发 POST，为什么请求会带着用户的登录 Cookie？",
+      "options": [
+        "evil.com 用 JS 读取了 bank.com 的 Cookie",
+        "浏览器对发往 bank.com 的请求自动附带该站的 Cookie，不管请求由谁发起——攻击者全程不需要知道凭证内容",
+        "用户误点了同意授权",
+        "bank.com 的 Cookie 设置了 domain=evil.com"
+      ],
+      "answer": 1,
+      "explanation": "Cookie 的自动附带机制是 CSRF 成立的必要条件：跨站伪造的请求同样会被浏览器带上目标站点的凭证。SameSite=Lax/Strict 正是掐断这个机制——跨站请求不带 Cookie。",
+      "lessonId": "l-sec-csrf"
+    }
+  ]
+}

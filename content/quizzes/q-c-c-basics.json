@@ -1,0 +1,60 @@
+{
+  "id": "q-c-c-basics",
+  "scopeType": "course",
+  "scopeId": "c-c-basics",
+  "title": "课程自测 · C 语言入门：理解内存与底层",
+  "questions": [
+    {
+      "id": "q-c-c-basics-1",
+      "stem": "和 Python 相比，C 程序通常更快，最主要的原因是？",
+      "options": [
+        "C 的语法更简洁，解析起来更省事",
+        "C 源码在运行前就被编译成机器码，运行时不再需要翻译",
+        "C 没有 for 循环，执行步骤更少",
+        "C 程序文件更小，加载更快"
+      ],
+      "answer": 1,
+      "explanation": "编译执行 vs 解释执行是根本差异：Python 运行时由解释器逐行翻译，C 在编译期就翻译成 CPU 直接执行的机器码。语法简洁与否和速度无关。",
+      "lessonId": "l-c-syntax"
+    },
+    {
+      "id": "q-c-c-basics-2",
+      "stem": "`int age = 18; int *p = &age;` 之后执行 `*p = 20;`，下列说法正确的是？",
+      "options": [
+        "age 变成 20——*p 顺着 p 存的地址写入了 age 本体的内存",
+        "age 还是 18，p 指向了一个新的副本",
+        "编译报错，指针不能这样赋值",
+        "age 和 p 都变成 20"
+      ],
+      "answer": 0,
+      "explanation": "p 存的是 age 的地址，*p 解引用「沿地址找到房间」，写入的就是 age 本体——这正是指针的用途：跨过变量名直接操作内存。p 本身（地址值）不变。",
+      "lessonId": "l-c-pointer"
+    },
+    {
+      "id": "q-c-c-basics-3",
+      "stem": "把数组传给函数：`void f(int arr[5])`，函数内 `sizeof(arr)` 的结果通常是？",
+      "options": [
+        "20——sizeof 能算出数组总大小",
+        "8——数组传参退化为指针，sizeof 得到的是指针大小（64 位机）",
+        "5——编译器会记录数组长度",
+        "40——每个 int 占 8 字节"
+      ],
+      "answer": 1,
+      "explanation": "数组作为参数传的是首元素地址，函数内 arr 就是个 int* 指针，sizeof 给出指针大小（64 位系统 8 字节）。所以数组长度必须作为额外参数传进去——这也是 C 函数签名里常见 int len 的原因。",
+      "lessonId": "l-c-array-string"
+    },
+    {
+      "id": "q-c-c-basics-4",
+      "stem": "想每次运行都在日志文件末尾追加一行，而不是覆盖旧日志，fopen 应该用哪个模式？",
+      "options": [
+        "\"w\"——write，写文件就该用它",
+        "\"r\"——先读出旧内容再写回",
+        "\"a\"——append 追加模式，新内容接在文件末尾",
+        "\"rw\"——同时读写就够了"
+      ],
+      "answer": 2,
+      "explanation": "\"w\" 每次打开都清空旧内容，正是「日志只剩最后一次数据」这个经典坑的来源；追加用 \"a\"。C 的 fopen 没有双字母 \"rw\" 模式，读写用 \"r+\"。",
+      "lessonId": "l-c-struct-io"
+    }
+  ]
+}

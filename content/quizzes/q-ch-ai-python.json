@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-ai-python",
+  "scopeType": "chapter",
+  "scopeId": "ch-ai-python",
+  "title": "第 1 章随堂练习 · 数据分析三件套",
+  "questions": [
+    {
+      "id": "q-ch-ai-python-1",
+      "stem": "手上有 100 万行的销售记录 CSV，要算「每个城市的总销量」。哪种写法最合适？",
+      "options": [
+        "读成 Python list，for 循环逐行累加到字典里",
+        "pd.read_csv 读成 DataFrame，一行 groupby(\"city\")[\"sales\"].sum() 搞定",
+        "逐行打印出来用眼睛数",
+        "把 CSV 拆成 12 个月分别手工汇总"
+      ],
+      "answer": 1,
+      "explanation": "分组聚合正是 pandas groupby 的看家本领，一行出结果且底层是向量化运算。for 循环能做但慢又啰嗦，手工方式在百万行面前完全不现实。",
+      "lessonId": "l-ai-numpy-pandas"
+    },
+    {
+      "id": "q-ch-ai-python-2",
+      "stem": "想弄清「学生的学习时长和考试成绩之间有没有关系」，应该画哪种图？",
+      "options": [
+        "散点图：每个学生一个点，点云的走向直接暴露两变量的关系",
+        "折线图：看的是单个量随时间的变化趋势",
+        "柱状图：对比的是不同类别之间谁多谁少",
+        "直方图：看的是单个数据的分布形态"
+      ],
+      "answer": 0,
+      "explanation": "「两个数值变量之间有无关系」是散点图的专属场景。折线看趋势、柱状看对比、直方看分布，各有各的活。",
+      "lessonId": "l-ai-visualization"
+    },
+    {
+      "id": "q-ch-ai-python-3",
+      "stem": "执行以下代码，输出是什么？\nimport numpy as np\na = np.array([10, 20, 30, 40])\nprint(a[a > 15])",
+      "options": [
+        "[False False  True  True]，布尔索引返回的是掩码本身",
+        "报错 TypeError，数组不能用数组做下标",
+        "[ 0  0 30 40]，不满足的位置被替换成 0",
+        "[20 30 40]，布尔索引返回满足条件的元素组成的新数组"
+      ],
+      "answer": 3,
+      "explanation": "a > 15 生成布尔掩码 [False False True True]，用它做下标得到的是筛选后的新数组 [20 30 40]——这是向量化筛选的标准写法。",
+      "lessonId": "l-ai-numpy-pandas"
+    }
+  ]
+}

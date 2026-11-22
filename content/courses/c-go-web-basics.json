@@ -1,0 +1,22 @@
+{
+  "id": "c-go-web-basics",
+  "domainSlug": "backend",
+  "slug": "go-web-basics",
+  "title": "Go 方向入门：语法到 Web 服务",
+  "summary": "后端 Go 分支：从精简的语法与 goroutine 并发模型，到 Gin 写接口、GORM 连数据库——上手快、部署简单的一个语言包。",
+  "difficulty": 2,
+  "audience": "想进入后端/云原生方向、已有任一门语言基础的学习者",
+  "prereqs": "任一门编程语言入门；建议先修「后端开发入门」理解 Web 服务概念",
+  "chapters": [
+    {
+      "id": "ch-go-start",
+      "title": "起步与并发",
+      "lessons": ["l-go-syntax", "l-go-goroutine"]
+    },
+    {
+      "id": "ch-go-web",
+      "title": "Web 开发两件套",
+      "lessons": ["l-go-gin", "l-go-gorm"]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-dsa-foundations",
+  "scopeType": "chapter",
+  "scopeId": "ch-dsa-foundations",
+  "title": "第 1 章随堂练习 · 地基：如何描述效率",
+  "questions": [
+    {
+      "id": "q-ch-dsa-foundations-1",
+      "stem": "一段代码用两层嵌套循环处理 n 个元素（内层只做一次加法）。n 从 1000 增大到 2000 时，总操作次数大约变成原来的几倍？",
+      "options": [
+        "2 倍：数据翻倍，操作次数跟着翻倍",
+        "4 倍：双重循环是 O(n²)，n 翻倍次数约 ×4",
+        "8 倍：翻倍后再平方一次",
+        "不变：操作次数由写法决定，与 n 无关"
+      ],
+      "answer": 1,
+      "explanation": "O(n²) 意味着次数与 n² 成正比，n 翻倍则次数约 4 倍。「2 倍」是 O(n) 的表现，「8 倍」对应 O(n³)。",
+      "lessonId": "l-dsa-big-o"
+    },
+    {
+      "id": "q-ch-dsa-foundations-2",
+      "stem": "某函数的实现是：for x in nums: total += max(nums)，其中 max(nums) 会把整个列表扫一遍。整个函数的复杂度是？",
+      "options": [
+        "O(1)：只有一层函数调用",
+        "O(n)：由外层 for 循环决定",
+        "O(n log n)：和一次排序差不多",
+        "O(n²)：循环 n 次，每次 max(nums) 又要扫 n 个元素"
+      ],
+      "answer": 3,
+      "explanation": "外层 n 次、每次内部的 max 又扫 n 个，n × n = O(n²)。这是典型坑：函数调用里藏着循环。",
+      "lessonId": "l-dsa-big-o"
+    },
+    {
+      "id": "q-ch-dsa-foundations-3",
+      "stem": "要维护一个待办清单：主要操作是在末尾添加任务、按序号查看任务，偶尔在开头插入紧急任务。用 Python 的 list 合适吗？",
+      "options": [
+        "合适：append 和按下标访问都是 O(1)，偶发的开头插入可以接受",
+        "不合适：list 按下标访问是 O(n)，必须换链表",
+        "合适，但前提是先把 list 转成 tuple 才能存数据",
+        "不合适：list 的 append 是 O(n)，任务多了会越来越卡"
+      ],
+      "answer": 0,
+      "explanation": "动态数组正是「尾部追加 + 随机读」的强项；insert(0, x) 虽是 O(n)，但只是偶发操作就不构成瓶颈。",
+      "lessonId": "l-dsa-array-list"
+    }
+  ]
+}

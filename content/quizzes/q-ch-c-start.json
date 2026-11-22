@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-c-start",
+  "scopeType": "chapter",
+  "scopeId": "ch-c-start",
+  "title": "第 1 章随堂练习 · 起步与指针",
+  "questions": [
+    {
+      "id": "q-ch-c-start-1",
+      "stem": "改了 demo.c 里的代码但 ./demo 运行结果没变，最可能的原因是？",
+      "options": [
+        "C 代码不能修改，只能重写",
+        "改完源码忘了重新 gcc 编译，运行的还是旧的机器码文件",
+        "代码写错导致编译器静默忽略了修改",
+        "printf 有缓存，重启电脑就好"
+      ],
+      "answer": 1,
+      "explanation": "C 是编译执行：./demo 跑的是上次编译出的可执行文件，源码改动必须重新编译才会生效。其他选项都不成立——C 源码当然可以随时修改。",
+      "lessonId": "l-c-syntax"
+    },
+    {
+      "id": "q-ch-c-start-2",
+      "stem": "代码 `int x = 5; if (x = 0) printf(\"zero\"); else printf(\"nonzero\");` 输出什么？",
+      "options": [
+        "nonzero——因为 x 的值还是 5",
+        "zero——`x = 0` 是赋值表达式，值为 0 被当成假，且 x 被改成了 0",
+        "编译错误，if 里不能赋值",
+        "zero——因为 = 和 == 等价"
+      ],
+      "answer": 1,
+      "explanation": "`=` 是赋值，表达式值是被赋的值 0，C 里 0 为假走 else；同时 x 被静默改成 0。编译器不报错但 -Wall 会给警告——这类「编译能过但逻辑错」的代码是 C 的经典陷阱。",
+      "lessonId": "l-c-syntax"
+    },
+    {
+      "id": "q-ch-c-start-3",
+      "stem": "`swap_wrong(int a, int b)` 交换失败而 `swap(int *a, int *b)` 成功，根本原因是？",
+      "options": [
+        "swap_wrong 少写了 return",
+        "值传递只改了参数的副本；传地址才能顺着地址改到调用者的原变量",
+        "swap_wrong 里没用临时变量 tmp",
+        "指针比 int 更快，所以 swap 能成功"
+      ],
+      "answer": 1,
+      "explanation": "C 函数参数按值拷贝：swap_wrong 拿到的是复印件，怎么改都不影响原件。swap 接收的是变量地址，*a = *b 直接写原变量的内存。和速度无关。",
+      "lessonId": "l-c-pointer"
+    }
+  ]
+}

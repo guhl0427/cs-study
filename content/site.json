@@ -17,6 +17,12 @@
       "title": "转行求快路线",
       "desc": "直奔就业：Web 三件套 → 异步 → 框架概览",
       "pathSlug": "frontend-path"
+    },
+    {
+      "id": "qs-ai",
+      "title": "AI 方向入门",
+      "desc": "数据分析 → 机器学习 → 大模型应用，Python 基础即可开始",
+      "pathSlug": "ai-data-path"
     }
   ],
   "featured": [
@@ -31,6 +37,12 @@
       "title": "前端求职第一课",
       "desc": "三件套 → 异步编程 → 框架概览，每周 8h · 约 5 周",
       "pathSlug": "frontend-path"
+    },
+    {
+      "id": "ft-ai-app",
+      "title": "大模型应用第一课",
+      "desc": "Prompt 工程 → LLM API → RAG 概念，每周 6h · 约 2 周",
+      "pathSlug": "ai-data-path"
     }
   ]
 }

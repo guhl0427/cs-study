@@ -1,0 +1,60 @@
+{
+  "id": "q-c-backend-fastapi",
+  "scopeType": "course",
+  "scopeId": "c-backend-fastapi",
+  "title": "课程自测 · FastAPI 实战：Python 后端分支",
+  "questions": [
+    {
+      "id": "q-c-backend-fastapi-1",
+      "stem": "FastAPI 写 `def list_articles(page: int = 1)`，这个 page 参数对应哪种来源？",
+      "options": [
+        "路径参数 /articles/{page}",
+        "查询参数 ?page=2——不在路径里、有默认值的普通参数自动归为查询参数",
+        "请求体 JSON 的 page 字段",
+        "请求头 Header 里的 page"
+      ],
+      "answer": 1,
+      "explanation": "FastAPI 按声明位置区分参数来源：URL 模板里的占位符是路径参数；有默认值的普通函数参数是查询参数；Pydantic 模型参数是请求体。三种来源各就各位。",
+      "lessonId": "l-py-fastapi"
+    },
+    {
+      "id": "q-c-backend-fastapi-2",
+      "stem": "创建接口的入站模型里出现了 id 字段，评审该提什么意见？",
+      "options": [
+        "没问题，id 反正会自动生成",
+        "入站模型不该有 id——用户不该传的约束放在 ArticleIn，出站才用带 id 的 ArticleOut，两个模型分开声明",
+        "把 id 设为 Optional 就行",
+        "用同一个模型，加个开关字段控制"
+      ],
+      "answer": 1,
+      "explanation": "入站（用户能传什么）和出站（接口返回什么）是两个契约。共用一个模型意味着用户可以伪造 id 字段。response_model 配合出站模型，还能保证不会多泄漏字段。",
+      "lessonId": "l-py-pydantic"
+    },
+    {
+      "id": "q-c-backend-fastapi-3",
+      "stem": "列表接口越用越慢，日志显示每条 todo 都单独发了一次查询关联数据的 SQL。这是哪个经典问题？",
+      "options": [
+        "事务太长锁住了表",
+        "N+1 查询——1 次列表查询 + N 次逐条关联查询；用 selectinload 预加载关联数据解决",
+        "SQLite 并发上限太低",
+        "Pydantic 序列化太慢"
+      ],
+      "answer": 1,
+      "explanation": "「循环里逐条查」是 ORM 时代的新手高频性能问题：查询次数 = N+1。ORM 的预加载（selectinload/joinedload）让关联数据一次查齐。",
+      "lessonId": "l-py-sqlalchemy"
+    },
+    {
+      "id": "q-c-backend-fastapi-4",
+      "stem": "`def get_session(): with Session(engine) as s: yield s` 配合 `Depends(get_session)` 的好处是？",
+      "options": [
+        "让所有请求共用一个 Session，省内存",
+        "每个请求获得独立 Session、请求结束自动关闭——资源生命周期交给框架，不用手写 try/finally",
+        "Session 变成了单例模式",
+        "自动开启了事务嵌套"
+      ],
+      "answer": 1,
+      "explanation": "yield 依赖是 FastAPI 管理资源的标准姿势：请求进来创建、yield 处执行业务、请求结束执行 with 的收尾（关 Session）。共享全局 Session 会串状态、锁纠缠。",
+      "lessonId": "l-py-fastapi-todo"
+    }
+  ]
+}

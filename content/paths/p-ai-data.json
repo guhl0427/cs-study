@@ -1,0 +1,40 @@
+{
+  "id": "p-ai-data",
+  "slug": "ai-data-path",
+  "domainSlug": "ai-data",
+  "name": "AI 与数据路线",
+  "description": "从「会用 Python 处理数据」到「跑通第一个机器学习模型」，再到「做出能用的大模型应用」。原则：别急着推公式，先跑通完整闭环再看原理。深度学习（选修）后续扩充。",
+  "targetAudience": "已掌握 Python 基础的学习者；对 AI 应用开发感兴趣者",
+  "stages": [
+    {
+      "id": "ad-s1",
+      "name": "数据分析三件套",
+      "description": "NumPy 管数值数组、pandas 管表格数据、Matplotlib 管可视化——AI 的一切起点是把数据收拾明白。",
+      "suggestDuration": "2–3 周",
+      "items": [
+        { "id": "ad-s1-1", "lessonId": "l-ai-numpy-pandas" },
+        { "id": "ad-s1-2", "lessonId": "l-ai-visualization", "prereqs": ["ad-s1-1"] }
+      ]
+    },
+    {
+      "id": "ad-s2",
+      "name": "机器学习入门",
+      "description": "先建立「从数据中学规律」的心智模型，再用 scikit-learn 完整跑通一个真实数据集。",
+      "suggestDuration": "3–4 周",
+      "items": [
+        { "id": "ad-s2-1", "lessonId": "l-ai-ml-concepts" },
+        { "id": "ad-s2-2", "lessonId": "l-ai-sklearn", "prereqs": ["ad-s2-1"] }
+      ]
+    },
+    {
+      "id": "ad-s3",
+      "name": "大模型应用开发",
+      "description": "Prompt 工程与 LLM API 是今天就能上手的应用层技能，RAG 是把「大模型 + 你的数据」组合起来的标准答案。",
+      "suggestDuration": "2–3 周",
+      "items": [
+        { "id": "ad-s3-1", "lessonId": "l-ai-prompt" },
+        { "id": "ad-s3-2", "lessonId": "l-ai-llm-rag", "prereqs": ["ad-s3-1"] }
+      ]
+    }
+  ]
+}

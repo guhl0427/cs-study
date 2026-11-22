@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-eng",
+  "scopeType": "chapter",
+  "scopeId": "ch-eng",
+  "title": "第 2 章随堂练习 · 工程化基础设施",
+  "questions": [
+    {
+      "id": "q-ch-eng-1",
+      "stem": "同事 clone 了仓库，node_modules 没提交（也不该提交），他怎么把依赖装回来？",
+      "options": [
+        "从网盘下载你的 node_modules 压缩包",
+        "pnpm install——package-lock/pnpm-lock.yaml 锁定了精确版本，一条命令还原出一模一样的依赖树",
+        "对照 package.json 手动逐个安装",
+        "无法还原，必须重新写依赖清单"
+      ],
+      "answer": 1,
+      "explanation": "package.json 声明依赖范围（^1.2.3），lock 文件锁定精确版本。pnpm install 按 lock 文件还原——这也是 lock 文件必须进 Git 的原因：保证任何人任何时间装到的版本一致。",
+      "lessonId": "l-eng-node-pnpm"
+    },
+    {
+      "id": "q-ch-eng-2",
+      "stem": "dayjs（运行时要用）和 typescript（只在构建时用），分别该怎么装？",
+      "options": [
+        "都装生产依赖，反正都是依赖",
+        "dayjs 进 dependencies，typescript 用 pnpm add -D 进 devDependencies——判据是「只在构建期用就 -D」",
+        "都装 devDependencies，构建工具本来就该 dev",
+        "全局安装最省事"
+      ],
+      "answer": 1,
+      "explanation": "devDependencies 是构建/开发期的工具（TS、ESLint、Vite），dependencies 是运行时必需的库（dayjs）。装错位置会导致部署后缺包。项目依赖永远装项目里，-g 是给 pnpm/node 这类全局工具的。",
+      "lessonId": "l-eng-node-pnpm"
+    },
+    {
+      "id": "q-ch-eng-3",
+      "stem": "ESLint 报了 `Expected '===' and instead saw '=='`，这个错误 Prettier 能修吗？",
+      "options": [
+        "能，Prettier 负责所有代码问题",
+        "不能——这是质量规则问题（ESLint 的 eqeqeq），Prettier 只管格式（缩进/引号/换行）；分工：格式归 Prettier，质量归 ESLint，类型归 TS",
+        "能，但要加 --fix 参数",
+        "要装 @types/prettier 才能修"
+      ],
+      "answer": 1,
+      "explanation": "三个工具各司其职：Prettier 管格式（外观），ESLint 管质量规则（== 换 ===、未使用变量），TypeScript 管类型。eslint-config-prettier 的作用正是关掉 ESLint 里和 Prettier 重复的格式规则，让两者不打架。",
+      "lessonId": "l-eng-vite-lint"
+    }
+  ]
+}

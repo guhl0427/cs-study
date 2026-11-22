@@ -1,0 +1,22 @@
+{
+  "id": "c-frontend-engineering",
+  "domainSlug": "frontend",
+  "slug": "frontend-engineering",
+  "title": "TypeScript 与前端工程化",
+  "summary": "从三件套迈向工程化：TypeScript 的类型系统与泛型、Node.js 与包管理、Vite 构建与 ESLint/Prettier 代码质量流水线——框架项目的地基。",
+  "difficulty": 2,
+  "audience": "学完三件套、准备进入框架与真实项目的前端学习者",
+  "prereqs": "JavaScript（「Web 前端入门」课程，尤其是异步与模块化）",
+  "chapters": [
+    {
+      "id": "ch-ts",
+      "title": "TypeScript",
+      "lessons": ["l-ts-basics", "l-ts-generics"]
+    },
+    {
+      "id": "ch-eng",
+      "title": "工程化基础设施",
+      "lessons": ["l-eng-node-pnpm", "l-eng-vite-lint"]
+    }
+  ]
+}

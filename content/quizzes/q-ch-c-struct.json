@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-c-struct",
+  "scopeType": "chapter",
+  "scopeId": "ch-c-struct",
+  "title": "第 2 章随堂练习 · 数组、字符串与结构体",
+  "questions": [
+    {
+      "id": "q-ch-c-struct-1",
+      "stem": "`int arr[5] = {1,2,3,4,5}; printf(\"%d\", arr[10]);` 这行代码会发生什么？",
+      "options": [
+        "编译报错：下标 10 超出数组范围",
+        "运行时抛出越界异常，程序终止",
+        "不保证任何行为——越界是未定义行为，可能不报错但读到垃圾值",
+        "自动返回 0"
+      ],
+      "answer": 2,
+      "explanation": "C 不做数组边界检查，越界读写是未定义行为：可能崩溃、可能读到别的变量的值、也可能什么都没发生——「没炸」不代表安全。Python/Java 的下标越界才一定会报错。",
+      "lessonId": "l-c-array-string"
+    },
+    {
+      "id": "q-ch-c-struct-2",
+      "stem": "`char name[16] = \"Alice\";` 关于 strlen(name) 和 sizeof(name)，正确的是？",
+      "options": [
+        "都是 5，两个函数等价",
+        "strlen 是 5（不含 \\0），sizeof 是 16（整个数组的格子数）",
+        "strlen 是 6（含 \\0），sizeof 是 5",
+        "strlen 是 16，sizeof 是 5"
+      ],
+      "answer": 1,
+      "explanation": "strlen 运行时从开头数到 \\0，得到有效字符数 5；sizeof 编译期给出数组总大小 16 字节。二者含义完全不同：一个是「用了几格」，一个是「一共几格」。",
+      "lessonId": "l-c-array-string"
+    },
+    {
+      "id": "q-ch-c-struct-3",
+      "stem": "程序用 `FILE *fp = fopen(\"data.txt\", \"r\");` 后立刻 fprintf(fp, ...)，最应该先做的是？",
+      "options": [
+        "先把 fp 指针 free 掉",
+        "检查 fp 是否为 NULL——文件不存在时 fopen 返回 NULL，直接用会段错误",
+        "调用 fseek 把光标移到文件头",
+        "什么都不用做，fopen 一定成功"
+      ],
+      "answer": 1,
+      "explanation": "文件不存在、无权限时 fopen 返回 NULL，不检查就对 NULL 读写会崩溃。这和模式也有关：\"r\" 打开不存在的文件就是失败，而 \"w\" 会创建新文件。",
+      "lessonId": "l-c-struct-io"
+    }
+  ]
+}

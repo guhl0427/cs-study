@@ -1,0 +1,60 @@
+{
+  "id": "q-c-frontend-engineering",
+  "scopeType": "course",
+  "scopeId": "c-frontend-engineering",
+  "title": "课程自测 · TypeScript 与前端工程化",
+  "questions": [
+    {
+      "id": "q-c-frontend-engineering-1",
+      "stem": "TS 和 JS 的关系，下列说法正确的是？",
+      "options": [
+        "TS 是一门全新语言，要重新学语法",
+        "TS 是 JS 的超集：所有合法 JS 都是合法 TS，TS 加的是类型标注与编译期检查，最终编译回 JS 运行",
+        "TS 运行更快，因为类型检查在运行时优化了",
+        "TS 只能用于 React 项目"
+      ],
+      "answer": 1,
+      "explanation": "TS 不是新语言而是 JS + 静态类型，现有 JS 知识全部有效。它编译成纯 JS 运行，运行时没有任何类型信息——快慢与 TS 无关。",
+      "lessonId": "l-ts-basics"
+    },
+    {
+      "id": "q-c-frontend-engineering-2",
+      "stem": "`interface Result<T> { code: number; data: T }` 这样的泛型接口解决什么问题？",
+      "options": [
+        "让接口的 data 字段可以是任意类型不用管",
+        "复用同一个响应外壳：Result<User> 和 Result<Todo[]> 共用结构，data 字段的类型各自精确——「泛型之于类型，如参数之于值」",
+        "让编译器忽略 data 的类型错误",
+        "替代 interface，TS 推荐写法"
+      ],
+      "answer": 1,
+      "explanation": "没有泛型就得为每种 data 类型复制一份接口，或用 any 关掉检查。泛型把类型参数化：一个 Result<T> 适配所有响应，且每处调用的 data 类型都精确可查。",
+      "lessonId": "l-ts-generics"
+    },
+    {
+      "id": "q-c-frontend-engineering-3",
+      "stem": "新项目配 tsconfig，「以后再收紧类型」为什么不推荐？",
+      "options": [
+        "strict 配置编译太慢",
+        "宽松模式下写的代码会堆满 any 和隐式错误——回头收紧的成本远高于一开始就 strict；新项目直接 strict: true，旧项目渐进收紧",
+        "strict 需要付费版编译器",
+        "strict 会禁止使用第三方库"
+      ],
+      "answer": 1,
+      "explanation": "类型债和代码债一样只会越滚越大：宽松写法的每个 any 都在关闭检查。strict 模式只是打开 null 检查、禁隐式 any 等编译期约束，与第三方库兼容性无关。",
+      "lessonId": "l-ts-generics"
+    },
+    {
+      "id": "q-c-frontend-engineering-4",
+      "stem": "CI workflow 里 `pnpm lint && pnpm typecheck && pnpm test` 三步的分工与顺序，正确的是？",
+      "options": [
+        "顺序随意，反正都要跑",
+        "lint 先抓低级错误与风格（最快失败），typecheck 抓类型错误，test 最后验证行为——越靠前的步骤越便宜、失败越早",
+        "test 要放最前面，行为最重要",
+        "三步重复劳动，留 test 一步就够"
+      ],
+      "answer": 1,
+      "explanation": "守门员的顺序按「成本与失败速度」排：lint 毫秒级抓低级错误，typecheck 编译期验证，test 慢但验证真实行为。lint 放前面能在几秒内拦住明显问题，省下后面更贵的检查。",
+      "lessonId": "l-eng-vite-lint"
+    }
+  ]
+}

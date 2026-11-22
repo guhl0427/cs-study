@@ -130,15 +130,15 @@ const result = computed<Recommendation | null>(() => {
       note: '零基础先修「Python 入门」或「计算机基础」，再进入本路线。',
     }
   }
-  // ai：AI 与数据方向内容筹备中，共同起点是 Python 与计算机基础
+  // ai：AI 与数据方向，起点是数据分析三件套
   return {
     domainName: 'AI 与数据',
-    pathSlug: 'languages-path',
-    pathName: contentApi.getPath('languages-path')?.name ?? '编程语言路线',
-    startLabel: 'Python 语法速览：变量、控制流与函数',
-    startTo: startOf('py-syntax'),
+    pathSlug: 'ai-data-path',
+    pathName: contentApi.getPath('ai-data-path')?.name ?? 'AI 与数据路线',
+    startLabel: 'NumPy 与 pandas：数据的左膀右臂',
+    startTo: startOf('numpy-pandas'),
     timeAdvice,
-    note: 'AI 与数据方向的内容筹备中——它的前置是 Python，先从这里起步。',
+    note: 'AI 与数据方向的前置是 Python 基础——零基础先走「编程语言路线」。',
   }
 })
 

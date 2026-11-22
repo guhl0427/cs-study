@@ -1,0 +1,22 @@
+{
+  "id": "c-backend-fastapi",
+  "domainSlug": "backend",
+  "slug": "backend-fastapi",
+  "title": "FastAPI 实战：Python 后端分支",
+  "summary": "后端 Python 分支：用 FastAPI 把「Python 入门」的技能接上 Web——类型注解即校验、自动生成接口文档，配 SQLAlchemy 完成一个真实可跑的 CRUD 服务。",
+  "difficulty": 2,
+  "audience": "学完 Python 入门、想走 Python 后端方向的学习者",
+  "prereqs": "Python 入门 + 「后端开发入门」（REST 概念）+ SQL 基础",
+  "chapters": [
+    {
+      "id": "ch-fastapi-start",
+      "title": "FastAPI 起步",
+      "lessons": ["l-py-fastapi", "l-py-pydantic"]
+    },
+    {
+      "id": "ch-fastapi-data",
+      "title": "接上数据层",
+      "lessons": ["l-py-sqlalchemy", "l-py-fastapi-todo"]
+    }
+  ]
+}

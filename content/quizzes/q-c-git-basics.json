@@ -1,0 +1,60 @@
+{
+  "id": "q-c-git-basics",
+  "scopeType": "course",
+  "scopeId": "c-git-basics",
+  "title": "课程自测 · Git 与命令行起步",
+  "questions": [
+    {
+      "id": "q-c-git-basics-1",
+      "stem": "同事在 main 上做了新提交，你本地也有未推送的提交，push 被拒绝。正确处理是？",
+      "options": [
+        "git push -f 强推覆盖远程",
+        "先 git pull 拉取并整合远程的新提交（必要时解决冲突），再 push",
+        "删除自己本地的提交重新写",
+        "让同事撤掉他们的提交"
+      ],
+      "answer": 1,
+      "explanation": "push 被拒说明远程有你没有的历史。pull（fetch+merge）把两边历史整合后再推。git push -f 会抹掉别人的提交，是协作红线——主干只许前进。",
+      "lessonId": "l-git-basic"
+    },
+    {
+      "id": "q-c-git-basics-2",
+      "stem": "动手改了一堆代码，才发现还停在 main 分支上没切分支。怎么补救最省事？",
+      "options": [
+        "先 commit 到 main，再想办法",
+        "git switch -c 新分支名——未提交的改动会跟着你到新分支",
+        "删掉所有改动重新开始",
+        "用 git push 把改动推到远程再说"
+      ],
+      "answer": 1,
+      "explanation": "未提交的工作区改动在切换分支时会跟随（只要不冲突），switch -c 直接把改动带到新分支继续。预防手段是动手前 git branch --show-current 看一眼。",
+      "lessonId": "l-git-branch"
+    },
+    {
+      "id": "q-c-git-basics-3",
+      "stem": "写 Shell 脚本时加 `set -e` 的作用是？",
+      "options": [
+        "开启脚本加密，防止别人读懂",
+        "任何一条命令失败（退出码非 0）脚本立即停止——CI 和部署脚本的安全带",
+        "把错误输出重定向到日志文件",
+        "自动重试失败的命令三次"
+      ],
+      "answer": 1,
+      "explanation": "命令成功退出码为 0、失败非 0。set -e 让脚本在第一个失败点就停，避免「半途而废却继续往下跑」造成更大破坏。CI 全靠退出码判断成败。",
+      "lessonId": "l-cli-shell"
+    },
+    {
+      "id": "q-c-git-basics-4",
+      "stem": "容器和虚拟机的核心差异是？",
+      "options": [
+        "容器更贵，性能更差",
+        "VM 模拟整套操作系统（GB 级、分钟级启动），容器只隔离进程和文件系统、共享宿主机内核（MB 级、秒级启动）",
+        "容器只能跑 Linux 软件，VM 什么都能跑",
+        "没有本质区别，只是名字不同"
+      ],
+      "answer": 1,
+      "explanation": "VM 每个都要装一个完整操作系统；容器共享宿主机内核、只隔离应用层，所以轻到秒级启停。「一次构建，处处一致」靠的是镜像把环境整体打包。",
+      "lessonId": "l-cli-docker"
+    }
+  ]
+}

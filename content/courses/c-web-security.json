@@ -1,0 +1,22 @@
+{
+  "id": "c-web-security",
+  "domainSlug": "electives",
+  "slug": "web-security",
+  "title": "Web 安全入门：漏洞与防御",
+  "summary": "以攻者的视角学防：XSS、CSRF、SQL 注入三大经典漏洞的原理与修复，加上密码存储与鉴权安全——写过的每一行代码都该知道这些。",
+  "difficulty": 3,
+  "audience": "写过 Web 前后端代码、想让代码更安全的学习者",
+  "prereqs": "前端三件套 + 后端基础（HTTP 与 SQL 概念）",
+  "chapters": [
+    {
+      "id": "ch-sec-frontend",
+      "title": "前端侧漏洞",
+      "lessons": ["l-sec-xss", "l-sec-csrf"]
+    },
+    {
+      "id": "ch-sec-backend",
+      "title": "后端侧漏洞",
+      "lessons": ["l-sec-sql-injection", "l-sec-password"]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-swe-collab",
+  "scopeType": "chapter",
+  "scopeId": "ch-swe-collab",
+  "title": "第 2 章随堂练习 · 协作与交付",
+  "questions": [
+    {
+      "id": "q-ch-swe-collab-1",
+      "stem": "同事的 PR 改了 47 个文件：修了两个 bug、顺带升级了依赖、还重构了三个模块。按「好 PR 三标准」，最该给他的建议是？",
+      "options": [
+        "拆成多个单一目的的小 PR（修 bug、升级依赖、重构各一个），逐个评审合并",
+        "在描述里把所有改动列清楚就够了，体量大不是问题",
+        "让评审人一次看完，省得来回切换",
+        "直接合并，反正 CI 是绿的"
+      ],
+      "answer": 0,
+      "explanation": "好 PR 要小、单一目的、描述清楚；巨型 PR 评审质量骤降，只能秒批。CI 绿只代表自动化检查通过，不代表逻辑被人认真看过。",
+      "lessonId": "l-swe-collab"
+    },
+    {
+      "id": "q-ch-swe-collab-2",
+      "stem": "看这个 GitHub Actions 片段：steps 里有 actions/setup-node@v4、npm ci、npm test，npm ci 一步报错「no such file or directory, open package.json」。最可能的原因是？",
+      "options": [
+        "node-version 20 太新了",
+        "npm ci 的拼写有误",
+        "GitHub 不支持 Node 项目，要换成 Python",
+        "少了 actions/checkout 这一步——虚拟机是全新的空机器，仓库代码根本没拉下来"
+      ],
+      "answer": 3,
+      "explanation": "每个 job 都跑在一台全新虚拟机上，第一步必须 checkout 拉代码；找不到 package.json 正是代码不在的证据。Node 版本和拼写都不是这个报错的成因。",
+      "lessonId": "l-swe-cicd"
+    },
+    {
+      "id": "q-ch-swe-collab-3",
+      "stem": "评审时你发现同事代码逻辑正确，但 API key 明文写在配置文件里提交了。最合适的处理是？",
+      "options": [
+        "功能没问题就通过，别耽误上线",
+        "只发个表情包暗示一下",
+        "评论指出必须改用 secrets 管理，并提醒立刻作废这个 key——泄露的密钥就算删掉提交记录也可能已被爬走",
+        "自己悄悄改掉再合并，不惊动作者"
+      ],
+      "answer": 2,
+      "explanation": "密钥泄露是安全问题，不能因「功能正常」放行；也不能只默默改掉——作者必须知道 key 已泄露、需要作废。评论对事不对人，但该拦就要拦。",
+      "lessonId": "l-swe-cicd"
+    }
+  ]
+}

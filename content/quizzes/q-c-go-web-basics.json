@@ -1,0 +1,60 @@
+{
+  "id": "q-c-go-web-basics",
+  "scopeType": "course",
+  "scopeId": "c-go-web-basics",
+  "title": "课程自测 · Go 方向入门：语法到 Web 服务",
+  "questions": [
+    {
+      "id": "q-c-go-web-basics-1",
+      "stem": "刚从 Python 转 Go，下列说法正确的是？",
+      "options": [
+        "Go 只有 for 一个循环关键字，while 的语义写成 for 条件 { }",
+        "Go 有 for 和 while 两种循环关键字",
+        "Go 的 if 条件必须像 C 一样加圆括号",
+        "Go 用 try/except 捕获 error"
+      ],
+      "answer": 0,
+      "explanation": "Go 把循环收敛成 for 一种形态，错误靠返回的 error 值用 if err != nil 当面检查——没有异常机制，if 条件也不写括号但必须有大括号。",
+      "lessonId": "l-go-syntax"
+    },
+    {
+      "id": "q-c-go-web-basics-2",
+      "stem": "「不要通过共享内存来通信，而要通过通信来共享内存」落到代码上，最贴近的做法是？",
+      "options": [
+        "两个 goroutine 共享一个全局 map，一个写一个读",
+        "共享变量外加 sync.Mutex，谁改谁先加锁",
+        "把数据用 channel 从一个 goroutine 传给另一个，同一时刻数据只有一个所有者",
+        "每个协程把结果写进共享 slice，最后合并去重"
+      ],
+      "answer": 2,
+      "explanation": "这句名言主张用「传数据」代替「抢内存」：channel 交接让数据所有权随消息转移，省掉锁的竞态心智负担。其余选项本质都还是在共享内存上加同步。",
+      "lessonId": "l-go-goroutine"
+    },
+    {
+      "id": "q-c-go-web-basics-3",
+      "stem": "关于 Gin 的中间件，下列说法正确的是？",
+      "options": [
+        "中间件在 handler 响应完之后才执行，做不了请求日志",
+        "中间件就是一个 func(*gin.Context)，在 handler 之前执行，调 c.Next() 把控制权交给下一层",
+        "每条路由都必须手动挂 Logger，否则没有日志",
+        "中间件只能写在 main 函数内部，无法复用"
+      ],
+      "answer": 1,
+      "explanation": "中间件是包在 handler 外面的一层函数，c.Next() 之前处理「进」、之后还能处理「出」；gin.Default() 已默认挂好 Logger 和 Recovery，不用每条路由手动接。",
+      "lessonId": "l-go-gin"
+    },
+    {
+      "id": "q-c-go-web-basics-4",
+      "stem": "GORM 查询写 db.Where(\"age > ?\", 18) 而不是字符串拼接 \"age > \" + input，主要是为了？",
+      "options": [
+        "让生成的 SQL 更短",
+        "让 GORM 缓存这条 SQL 提升速度",
+        "兼容不同数据库的方言差异",
+        "防止 SQL 注入——参数由驱动转义，用户输入永远不会被当成 SQL 代码执行"
+      ],
+      "answer": 3,
+      "explanation": "占位符让参数走驱动单独传输和转义，输入只能是「值」而变不成 SQL 语法；拼接字符串正好把用户输入混进 SQL 代码里，是注入的大门。",
+      "lessonId": "l-go-gorm"
+    }
+  ]
+}

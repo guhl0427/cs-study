@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-fastapi-start",
+  "scopeType": "chapter",
+  "scopeId": "ch-fastapi-start",
+  "title": "第 1 章随堂练习 · FastAPI 起步",
+  "questions": [
+    {
+      "id": "q-ch-fastapi-start-1",
+      "stem": "`def read_article(article_id: int)` 处理 `GET /articles/abc` 请求，结果是什么？",
+      "options": [
+        "article_id 得到字符串 \"abc\"，正常返回",
+        "FastAPI 返回 422 结构化错误——类型注解让框架自动完成校验，一行校验代码都没写",
+        "程序崩溃抛 TypeError",
+        "article_id 自动变成 0"
+      ],
+      "answer": 1,
+      "explanation": "类型注解即校验是 FastAPI 的核心机制：\"abc\" 转不成 int，框架直接用 422 拒绝并在 detail 里说明原因。省掉手写 if 判断，还自动进了文档。",
+      "lessonId": "l-py-fastapi"
+    },
+    {
+      "id": "q-ch-fastapi-start-2",
+      "stem": "同时注册了 `@app.get(\"/articles/me\")` 和 `@app.get(\"/articles/{article_id}\"，后者注解为 int。访问 /articles/me 会怎样？",
+      "options": [
+        "正常返回 me 页面",
+        "取决于路由注册顺序：若 {article_id} 先注册，\"me\" 会先被它匹配走，再因转不成 int 返回 422——具体路径要先注册",
+        "FastAPI 自动按字面量优先匹配，与顺序无关",
+        "两个路由都执行"
+      ],
+      "answer": 1,
+      "explanation": "FastAPI 按注册顺序匹配路由。/articles/me 的具体路径要放在 /articles/{article_id} 之前注册，否则先被参数路由吞掉。",
+      "lessonId": "l-py-fastapi"
+    },
+    {
+      "id": "q-ch-fastapi-start-3",
+      "stem": "POST 创建文章的请求体缺了必填的 title 字段，Pydantic 模型的行为是？",
+      "options": [
+        "title 自动为空字符串，正常创建",
+        "请求被 422 拒绝，detail 里精确指出哪个字段、为什么不合格——安检门在数据进门时就拦下",
+        "运行时报 AttributeError，服务器 500",
+        "title 自动取默认值"
+      ],
+      "answer": 1,
+      "explanation": "Pydantic 模型 = 数据的安检门：必填缺失、类型不对、范围越界都在进路由函数之前被拦下，返回结构化 422。没有默认值的字段就是必填。",
+      "lessonId": "l-py-pydantic"
+    }
+  ]
+}

@@ -37,6 +37,18 @@
         { "id": "pf-s3-1", "lessonId": "l-vue-intro", "branch": "framework", "prereqs": ["pf-s2-2"] },
         { "id": "pf-s3-2", "lessonId": "l-react-intro", "branch": "framework", "prereqs": ["pf-s2-2"] }
       ]
+    },
+    {
+      "id": "pf-s4",
+      "name": "TypeScript 与工程化",
+      "description": "框架项目的地基：类型系统防住低级错误，Node/包管理、Vite 与 ESLint 是真实工程的标准底座。",
+      "suggestDuration": "3–4 周",
+      "items": [
+        { "id": "pf-s4-1", "lessonId": "l-ts-basics", "prereqs": ["pf-s2-2"] },
+        { "id": "pf-s4-2", "lessonId": "l-ts-generics", "prereqs": ["pf-s4-1"] },
+        { "id": "pf-s4-3", "lessonId": "l-eng-node-pnpm", "prereqs": ["pf-s2-1"] },
+        { "id": "pf-s4-4", "lessonId": "l-eng-vite-lint", "prereqs": ["pf-s4-3"] }
+      ]
     }
   ]
 }

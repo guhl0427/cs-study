@@ -3,7 +3,7 @@
   "slug": "backend-path",
   "domainSlug": "backend",
   "name": "后端开发路线",
-  "description": "以「语言无关」的主干起步：先把 Web 服务与认证讲通，再进入缓存与消息队列。语言框架分支（Java/Go/Python）内容筹备中。",
+  "description": "以「语言无关」的主干起步：先把 Web 服务与认证讲通，再进入缓存与消息队列；之后按方向选一条语言分支深入（Python/FastAPI 或 Go/Gin，Java/Spring 筹备中）。",
   "targetAudience": "对系统逻辑、数据流转感兴趣，面向服务端开发就业的学习者",
   "stages": [
     {
@@ -24,6 +24,30 @@
       "items": [
         { "id": "pb-s2-1", "lessonId": "l-backend-redis", "prereqs": ["pb-s1-2"] },
         { "id": "pb-s2-2", "lessonId": "l-backend-mq", "prereqs": ["pb-s2-1"] }
+      ]
+    },
+    {
+      "id": "pb-s3",
+      "name": "语言分支：Python / FastAPI",
+      "description": "把 Python 基础接上 Web：类型即校验的 FastAPI + SQLAlchemy 数据层，走完一个真实的 CRUD 服务。",
+      "suggestDuration": "3–4 周",
+      "items": [
+        { "id": "pb-s3-1", "lessonId": "l-py-fastapi", "prereqs": ["pb-s1-1"] },
+        { "id": "pb-s3-2", "lessonId": "l-py-pydantic", "prereqs": ["pb-s3-1"] },
+        { "id": "pb-s3-3", "lessonId": "l-py-sqlalchemy", "prereqs": ["pb-s3-2"] },
+        { "id": "pb-s3-4", "lessonId": "l-py-fastapi-todo", "prereqs": ["pb-s3-3"] }
+      ]
+    },
+    {
+      "id": "pb-s4",
+      "name": "语言分支：Go / Gin",
+      "description": "语法精简、并发原生、部署即二进制：goroutine 并发模型 + Gin 接口 + GORM 数据层。",
+      "suggestDuration": "3–4 周",
+      "items": [
+        { "id": "pb-s4-1", "lessonId": "l-go-syntax", "prereqs": ["pb-s1-1"] },
+        { "id": "pb-s4-2", "lessonId": "l-go-goroutine", "prereqs": ["pb-s4-1"] },
+        { "id": "pb-s4-3", "lessonId": "l-go-gin", "prereqs": ["pb-s4-2"] },
+        { "id": "pb-s4-4", "lessonId": "l-go-gorm", "prereqs": ["pb-s4-3"] }
       ]
     }
   ]

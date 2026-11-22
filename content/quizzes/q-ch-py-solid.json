@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-py-solid",
+  "scopeType": "chapter",
+  "scopeId": "ch-py-solid",
+  "title": "第 2 章随堂练习 · 写得稳：异常与工程",
+  "questions": [
+    {
+      "id": "q-ch-py-solid-1",
+      "stem": "程序崩溃打印了一串红色 Traceback，最该先看哪里？",
+      "options": [
+        "第一行——Traceback 从头读起",
+        "最后一行——异常类型和说明在那里，九成问题答案已写明",
+        "文件名最长的那一行",
+        "不用看，直接重写整个程序"
+      ],
+      "answer": 1,
+      "explanation": "Traceback 的读法是从最后一行往上：最后一行是异常类型+说明（如 KeyError: '小丽'），往上依次是出错的调用链（文件、行号、语句）。",
+      "lessonId": "l-py-errors"
+    },
+    {
+      "id": "q-ch-py-solid-2",
+      "stem": "裸 `except:`（后面不写异常类型）最大的问题是什么？",
+      "options": [
+        "运行速度比带类型的 except 慢很多",
+        "它会把所有异常都吞掉——包括拼写错误和 Ctrl+C，bug 从此隐身",
+        "Python 3 已经废弃这个语法，会直接报错",
+        "它只能捕获 ValueError 一种异常"
+      ],
+      "answer": 1,
+      "explanation": "裸 except 捕获一切异常，连程序员的拼写错误 NameError 和用户按 Ctrl+C 的 KeyboardInterrupt 都被吞掉，错误静默消失。必须写具体类型，兜底才用 except Exception as e 并把 e 打出来。",
+      "lessonId": "l-py-errors"
+    },
+    {
+      "id": "q-ch-py-solid-3",
+      "stem": "项目 A 需要 requests 2.x、项目 B 需要 requests 3.x，只装一个全局 Python 会打架。标准解法是？",
+      "options": [
+        "每次切项目时手动 pip install 对应版本",
+        "把两个项目合并到一个目录里",
+        "给每个项目建虚拟环境（python -m venv .venv），依赖互不污染",
+        "不用 requests，改用标准库重写"
+      ],
+      "answer": 2,
+      "explanation": "venv 给每个项目一个独立的小 Python，pip install 只装进当前激活的虚拟环境；依赖清单再用 pip freeze > requirements.txt 存档，别人 pip install -r 一条命令还原。",
+      "lessonId": "l-py-modules"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-ai-ml",
+  "scopeType": "chapter",
+  "scopeId": "ch-ai-ml",
+  "title": "第 2 章随堂练习 · 机器学习入门",
+  "questions": [
+    {
+      "id": "q-ch-ai-ml-1",
+      "stem": "电商平台收集了大量用户行为数据，但没有任何人工标注，想「把用户自动分成几群做差异化运营」。这属于什么任务？",
+      "options": [
+        "监督学习——分类，因为要给用户分群",
+        "监督学习——回归，因为分群结果是个数字",
+        "无监督学习——聚类，没有标签时让数据自己聚堆",
+        "不是机器学习，必须人工先打标签才能开始"
+      ],
+      "answer": 2,
+      "explanation": "「分群」没有标准答案标签，是无监督学习的聚类任务。分类和回归都是监督学习，前提是有标签。",
+      "lessonId": "l-ai-ml-concepts"
+    },
+    {
+      "id": "q-ch-ai-ml-2",
+      "stem": "一个模型训练集准确率 99.5%，测试集只有 62%。最可能的诊断是？",
+      "options": [
+        "欠拟合，模型太简单，应该加大模型容量",
+        "过拟合：把训练数据背下来了，换新题就不会",
+        "测试集太小导致必然低分，不用理会",
+        "准确率的计算方式写错了，模型本身没问题"
+      ],
+      "answer": 1,
+      "explanation": "训练分很高、测试分暴跌是过拟合的典型症状——像背题的学生。对症下药是简化模型、加数据或正则化，而不是继续加大容量（那是欠拟合的药方）。",
+      "lessonId": "l-ai-ml-concepts"
+    },
+    {
+      "id": "q-ch-ai-ml-3",
+      "stem": "用 sklearn 做鸢尾花分类，下列哪组步骤顺序是正确的？",
+      "options": [
+        "model.fit → train_test_split → model.predict → accuracy_score",
+        "model.predict → model.fit → train_test_split → accuracy_score",
+        "train_test_split → model.fit(全量数据) → model.predict(训练集) → accuracy_score(训练集)",
+        "train_test_split → model.fit(训练集) → model.predict(测试集) → accuracy_score(测试集)"
+      ],
+      "answer": 3,
+      "explanation": "正确顺序是先划分、fit 只碰训练集、predict 与打分都只针对测试集。先 fit 再划分、或拿训练集评估，都是在给模型「提前看考卷」。",
+      "lessonId": "l-ai-sklearn"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-cli",
+  "scopeType": "chapter",
+  "scopeId": "ch-cli",
+  "title": "第 2 章随堂练习 · 命令行与环境",
+  "questions": [
+    {
+      "id": "q-ch-cli-1",
+      "stem": "想统计 app.log 里有多少行包含 ERROR，管道写法是？",
+      "options": [
+        "grep ERROR app.log && wc -l",
+        "grep ERROR app.log | wc -l——把 grep 的输出作为 wc 的输入",
+        "wc -l > grep ERROR app.log",
+        "grep -c app.log ERROR"
+      ],
+      "answer": 1,
+      "explanation": "管道 | 把前一条命令的输出接到下一条的输入：「一切皆文本」是 Shell 的核心思想。&& 是「前一条成功才执行后一条」，不是传数据。",
+      "lessonId": "l-cli-shell"
+    },
+    {
+      "id": "q-ch-cli-2",
+      "stem": "脚本要删一批 .tmp 文件，写 `rm -rf \"$DIR/\"` 前最该做的防护是？",
+      "options": [
+        "加 sudo 保证权限足够",
+        "变量判空 + 先用 echo 演习（把 rm 换成 echo 看会删什么）——DIR 为空时这条命令等于删根",
+        "把 -rf 换成 -r 就安全了",
+        "在 Windows 上跑就没风险"
+      ],
+      "answer": 1,
+      "explanation": "DIR 为空时 `rm -rf /` 灾难级误删。「演习」习惯（echo 替换危险命令先看输出）+ 变量判空是 Shell 脚本的安全底线。sudo 只会让误删更彻底。",
+      "lessonId": "l-cli-shell"
+    },
+    {
+      "id": "q-ch-cli-3",
+      "stem": "容器被 docker rm 删除后，里面的 MySQL 数据也消失了。正确的解法是？",
+      "options": [
+        "永远不删除容器",
+        "把数据目录挂载成卷（如 -v dbdata:/var/lib/mysql），数据存在容器外",
+        "删除前先 docker commit 保存",
+        "在容器里定期备份数据到 U 盘"
+      ],
+      "answer": 1,
+      "explanation": "容器的文件系统随容器销毁——这是容器「一次性」设计的一部分。有状态数据必须挂载卷存到容器外。镜像（Image）才是可持久复用的部分。",
+      "lessonId": "l-cli-docker"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "c-swe-practices",
+  "domainSlug": "swe",
+  "slug": "swe-practices",
+  "title": "软件工程实践：从会写到会做工程",
+  "summary": "以项目实战为载体的工程化必修课：测试、代码规范、协作流程、CI/CD、接口调试与需求拆解——团队协作与求职作品集的分水岭。",
+  "difficulty": 2,
+  "audience": "完成一门语言入门、准备做项目的学习者；求职冲刺期学生",
+  "prereqs": "Git（「Git 与命令行起步」课程）+ 一门语言基础",
+  "chapters": [
+    {
+      "id": "ch-swe-quality",
+      "title": "质量与规范",
+      "lessons": ["l-swe-testing", "l-swe-code-style"]
+    },
+    {
+      "id": "ch-swe-collab",
+      "title": "协作与交付",
+      "lessons": ["l-swe-collab", "l-swe-cicd"]
+    },
+    {
+      "id": "ch-swe-delivery",
+      "title": "接口与需求",
+      "lessons": ["l-swe-api-debug", "l-swe-agile"]
+    }
+  ]
+}

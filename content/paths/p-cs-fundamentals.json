@@ -3,7 +3,7 @@
   "slug": "cs-fundamentals-path",
   "domainSlug": "cs-fundamentals",
   "name": "计算机基础路线",
-  "description": "网络是后端面试与排错的高频考区，也是前端调优的底层背景。后续阶段（数据结构与算法、操作系统、组成原理）内容筹备中，将按阶段扩充。",
+  "description": "全领域的地基：先学网络（面试与排错的高频考区），再推数据结构与算法（刷题与面试共用地基）。操作系统、组成原理后续按阶段扩充。",
   "targetAudience": "所有初学者（尤其是 CS 在校生）；建议与前端/后端方向并行",
   "stages": [
     {
@@ -17,6 +17,22 @@
         { "id": "cf-s1-3", "lessonId": "l-net-dns", "prereqs": ["cf-s1-2"] },
         { "id": "cf-s1-4", "lessonId": "l-net-tcp-udp", "prereqs": ["cf-s1-2"] },
         { "id": "cf-s1-5", "lessonId": "l-net-capture", "prereqs": ["cf-s1-4"] }
+      ]
+    },
+    {
+      "id": "cf-s2",
+      "name": "数据结构与算法入门",
+      "description": "先学会「怎么描述效率」（大 O），再逐个上手线性结构、哈希、递归与树、排序与查找——刷题和面试共用的地基。",
+      "suggestDuration": "4–6 周",
+      "items": [
+        { "id": "cf-s2-1", "lessonId": "l-dsa-big-o" },
+        { "id": "cf-s2-2", "lessonId": "l-dsa-array-list", "prereqs": ["cf-s2-1"] },
+        { "id": "cf-s2-3", "lessonId": "l-dsa-stack-queue", "prereqs": ["cf-s2-2"] },
+        { "id": "cf-s2-4", "lessonId": "l-dsa-hash-table", "prereqs": ["cf-s2-3"] },
+        { "id": "cf-s2-5", "lessonId": "l-dsa-recursion", "prereqs": ["cf-s2-1"] },
+        { "id": "cf-s2-6", "lessonId": "l-dsa-binary-tree", "prereqs": ["cf-s2-5"] },
+        { "id": "cf-s2-7", "lessonId": "l-dsa-sorting", "prereqs": ["cf-s2-6"] },
+        { "id": "cf-s2-8", "lessonId": "l-dsa-binary-search", "prereqs": ["cf-s2-7"] }
       ]
     }
   ]

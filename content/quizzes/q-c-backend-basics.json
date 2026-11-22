@@ -1,0 +1,60 @@
+{
+  "id": "q-c-backend-basics",
+  "scopeType": "course",
+  "scopeId": "c-backend-basics",
+  "title": "课程自测 · 后端开发入门：从 HTTP 到第一个 API",
+  "questions": [
+    {
+      "id": "q-c-backend-basics-1",
+      "stem": "设计文章收藏接口，下列哪组 URL 最符合 REST 约定？",
+      "options": [
+        "GET /api/addFavorite?userId=7&articleId=42 和 GET /api/removeFavorite?id=1",
+        "PUT /api/articles/42/favorite 和 DELETE /api/articles/42/favorite——资源名词 + 方法表达动作",
+        "POST /api/favorite/add 和 POST /api/favorite/delete",
+        "GET /api/articles/42?favorite=true"
+      ],
+      "answer": 1,
+      "explanation": "REST 的表达方式 = 资源（URL 名词）+ 方法（动作语义）+ 状态码。URL 里塞动词（addFavorite）是把 RPC 习惯带进 REST；收藏是幂等动作，PUT/DELETE 正好表达。",
+      "lessonId": "l-backend-rest"
+    },
+    {
+      "id": "q-c-backend-basics-2",
+      "stem": "产品要求「管理员封禁用户后立即踢下线」。Cookie+Session 和 JWT 应该选哪个？",
+      "options": [
+        "JWT——签发后服务端随时可作废",
+        "Cookie+Session——删掉服务端 session 立即生效；JWT 签发后只能等过期，无法主动作废",
+        "两个都做不到",
+        "选哪个都一样，没有区别"
+      ],
+      "answer": 1,
+      "explanation": "Session 在服务端，删了就认不了人；JWT 是「客户端持有、服务端验签」，签发后在有效期内无法撤回。需要即时踢人就得选服务端有状态的方案，或给 JWT 配黑名单。",
+      "lessonId": "l-backend-auth"
+    },
+    {
+      "id": "q-c-backend-basics-3",
+      "stem": "课程热度榜每次请求都查 MySQL，读多改少。把它放进 Redis 时最不该忘的是？",
+      "options": [
+        "把 Redis 持久化改成 RDB 模式",
+        "给缓存键设置过期时间（或明确的失效机制），数据更新时同步删缓存",
+        "用 List 类型而不是 String",
+        "把整个数据库都搬进 Redis"
+      ],
+      "answer": 1,
+      "explanation": "缓存永不失效 = 数据改了页面还是旧值。任何缓存都必须有 TTL 或失效机制；配合 Cache Aside 的「更新库后删缓存」，才能既快又对。",
+      "lessonId": "l-backend-redis"
+    },
+    {
+      "id": "q-c-backend-basics-4",
+      "stem": "秒杀瞬间 1 万 QPS 直接打到数据库会把它压垮。消息队列在这里扮演的角色是？",
+      "options": [
+        "加密流量，防止恶意请求",
+        "削峰——队列挡在前面，数据库按自己的处理能力匀速消费，多余请求排队而不是压垮系统",
+        "替代数据库存储订单",
+        "把 QPS 放大三倍"
+      ],
+      "answer": 1,
+      "explanation": "队列是「蓄水池」：瞬时洪峰先排队，下游按自身能力消费。代价是处理从实时变成最终一致（用户可能稍等）。异步、解耦、削峰是 MQ 的三大经典用途。",
+      "lessonId": "l-backend-mq"
+    }
+  ]
+}

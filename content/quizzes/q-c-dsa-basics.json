@@ -1,0 +1,60 @@
+{
+  "id": "q-c-dsa-basics",
+  "scopeType": "course",
+  "scopeId": "c-dsa-basics",
+  "title": "课程自测 · 数据结构与算法入门",
+  "questions": [
+    {
+      "id": "q-c-dsa-basics-1",
+      "stem": "一个函数先对 n 个元素的列表排序，再把列表从头到尾遍历一遍求和。整个函数的复杂度是？",
+      "options": [
+        "O(n)：最后只遍历了一遍",
+        "O(n log n)：排序是大头，遍历的低阶项可以忽略",
+        "O(n²)：两个步骤相乘",
+        "O(n + n log n)：没法再化简了"
+      ],
+      "answer": 1,
+      "explanation": "大 O 取增长最快的主导项：n log n 压倒 n，记作 O(n log n)。「相乘」只发生在嵌套循环，顺序执行的步骤是相加再取主导项。",
+      "lessonId": "l-dsa-big-o"
+    },
+    {
+      "id": "q-c-dsa-basics-2",
+      "stem": "同样是「找出列表里有没有重复元素」：甲用双重循环两两比较，乙先把元素倒进 set，再比较 set 和列表的长度。10 万条数据时谁先跑完、为什么？",
+      "options": [
+        "甲更快：双重循环不占额外内存",
+        "差不多：两者都要把数据看一遍",
+        "乙：set 的成员判断平均 O(1)，整体 O(n)；甲是 O(n²) 的两两比较",
+        "乙：因为 set 会自动把数据排序"
+      ],
+      "answer": 2,
+      "explanation": "哈希表把「查某个值出现过没」降到平均 O(1)，整体 O(n) 对比 O(n²)，10 万条数据下差几个数量级。set 快靠的是哈希直达，不是排序。",
+      "lessonId": "l-dsa-hash-table"
+    },
+    {
+      "id": "q-c-dsa-basics-3",
+      "stem": "用递归遍历一棵「每个节点只有左孩子」的链状树，共 100 万个节点。会发生什么？",
+      "options": [
+        "抛 RecursionError：每层递归压一层调用栈，Python 默认深度约 1000 层",
+        "正常遍历完：Python 会自动把递归转换成循环",
+        "只是慢，不会崩：栈会自动扩容到 100 万层",
+        "抛 TypeError：树结构不能用递归处理"
+      ],
+      "answer": 0,
+      "explanation": "递归深度等于树的深度，100 万层远超 Python 默认上限（约 1000），抛 RecursionError。Python 不会自动把递归转循环，栈也不会无限扩。",
+      "lessonId": "l-dsa-recursion"
+    },
+    {
+      "id": "q-c-dsa-basics-4",
+      "stem": "编辑器的「撤销」按钮：每按一次撤掉最近一次操作。它的行为最贴合哪种数据结构？",
+      "options": [
+        "队列：先做的操作先撤销",
+        "哈希表：按操作名直达对应状态",
+        "二叉树：操作按层级组织",
+        "栈：最近做的操作最先被撤销（后进先出）"
+      ],
+      "answer": 3,
+      "explanation": "「撤销最近一步」就是后进先出，函数调用栈同理。队列是先进先出，对应的是排队类场景。",
+      "lessonId": "l-dsa-stack-queue"
+    }
+  ]
+}

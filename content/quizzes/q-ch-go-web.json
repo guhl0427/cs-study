@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-go-web",
+  "scopeType": "chapter",
+  "scopeId": "ch-go-web",
+  "title": "第 2 章随堂练习 · Web 开发两件套",
+  "questions": [
+    {
+      "id": "q-ch-go-web-1",
+      "stem": "在 r.Group(\"/api\") 分组下注册了 api.GET(\"/users/:id\", ...)，请求 GET /api/users/42?page=3，handler 里取到的是什么？",
+      "options": [
+        "c.Param(\"id\") 是 \"42\"，c.Query(\"page\") 是 \"3\"",
+        "c.Param(\"id\") 是 \":id\"，42 要用 c.Query(\"id\") 取",
+        "c.Param(\"page\") 是 \"3\"，c.Query(\"id\") 是 \"42\"",
+        "都取不到，:id 路由不匹配带查询参数的请求"
+      ],
+      "answer": 0,
+      "explanation": "冒号声明的路径参数归 c.Param，取 URL 路径里对应的那一段；? 后面的查询参数归 c.Query。查询参数不参与路由匹配，所以 42 不会跑到 Query 里。",
+      "lessonId": "l-go-gin"
+    },
+    {
+      "id": "q-ch-go-web-2",
+      "stem": "结构体字段写成 Name string `json:\"name\" binding:\"required\"`，客户端 POST 了请求体 {}，ShouldBindJSON 之后会发生什么？",
+      "options": [
+        "绑定成功，Name 是零值空串，handler 照常往下执行",
+        "Gin 自动把字段名 \"required\" 填进 Name",
+        "err 非 nil——binding 标签在绑定阶段校验，应返回 400 并 return",
+        "程序 panic，因为 JSON 里缺少字段"
+      ],
+      "answer": 2,
+      "explanation": "ShouldBindJSON 一次完成「解析 + 按标签校验」，required 字段缺失时返回错误对象，handler 应据此返回 400。Gin 不会 panic，也不会替你填值，更不会静默放行。",
+      "lessonId": "l-go-gin"
+    },
+    {
+      "id": "q-ch-go-web-3",
+      "stem": "db.Model(&u).Updates(User{Age: 0}) 执行后，数据库里 age 还是 25 没变成 0。原因是什么？",
+      "options": [
+        "&u 的主键是空的，UPDATE 没找到行",
+        "Updates 只能用于 Create 之后的对象",
+        "GORM 不支持把数值列改回 0",
+        "struct 形式的 Updates 会跳过零值字段，Age=0 被当成「没填」；要改零值得用 map 或 Select 指定字段"
+      ],
+      "answer": 3,
+      "explanation": "GORM 用「是否为零值」判断字段有没有填写，struct 更新天然跳过 0/空串。想写零值就用 map[string]any 或 Select(\"age\") 显式点名，和主键无关。",
+      "lessonId": "l-go-gorm"
+    }
+  ]
+}

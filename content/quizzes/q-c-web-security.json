@@ -1,0 +1,60 @@
+{
+  "id": "q-c-web-security",
+  "scopeType": "course",
+  "scopeId": "c-web-security",
+  "title": "课程自测 · Web 安全入门：漏洞与防御",
+  "questions": [
+    {
+      "id": "q-c-web-security-1",
+      "stem": "XSS、SQL 注入、命令注入三类漏洞的共同根因是？",
+      "options": [
+        "程序员忘记写注释",
+        "把「不可信数据」混进了「代码上下文」——数据被当代码执行；对应解法：输出转义 / 参数化 / 参数白名单，按上下文选择",
+        "HTTP 协议本身不安全",
+        "浏览器和数据库有 bug"
+      ],
+      "answer": 1,
+      "explanation": "三者是同一类边界混淆在不同上下文的变体：HTML 上下文（XSS→转义/框架插值）、SQL 上下文（注入→参数化）、Shell 上下文（命令注入→不拼字符串+参数数组）。识别上下文是防御的第一步。",
+      "lessonId": "l-sec-sql-injection"
+    },
+    {
+      "id": "q-c-web-security-2",
+      "stem": "防御 CSRF 的两道标准防线是什么？为什么必须叠加？",
+      "options": [
+        "HTTPS + 强密码",
+        "SameSite Cookie（掐断跨站自动带凭证）+ CSRF Token（证明请求来自本站表单）——任何单道都有边界情况，纵深防御",
+        "验证码 + 短信确认",
+        "JWT + OAuth2"
+      ],
+      "answer": 1,
+      "explanation": "SameSite 是浏览器默认行为（旧浏览器或特定导航场景可能放行），Token 是应用层强校验——两层叠加覆盖彼此的盲区。HTTPS/强密码防的是窃取凭证，与「借用凭证」的 CSRF 是不同问题。",
+      "lessonId": "l-sec-csrf"
+    },
+    {
+      "id": "q-c-web-security-3",
+      "stem": "关于密码在数据库里的存储，哪组措施是正确的？",
+      "options": [
+        "MD5 + 固定盐，速度快省 CPU",
+        "bcrypt/argon2 慢哈希（自动加盐）+ 登录失败次数限制 + 统一错误提示「用户名或密码错误」",
+        "AES 加密后存储，密钥写在配置文件里",
+        "哈希后存储，另存一份明文备份以便找回"
+      ],
+      "answer": 1,
+      "explanation": "慢哈希加盐让撞库成本爆炸；限速与退避防在线暴力尝试；统一提示防账号枚举。MD5 快=可被 GPU 低价爆破；加密可逆=密钥泄露全泄；存明文备份=一次性把所有防线清零。",
+      "lessonId": "l-sec-password"
+    },
+    {
+      "id": "q-c-web-security-4",
+      "stem": "评论功能允许用户写富文本（加粗、标题），正确做法是？",
+      "options": [
+        "v-html 直接渲染，让用户自由发挥",
+        "先用 DOMPurify 等白名单过滤器清洗，只保留允许的标签和属性，再渲染",
+        "正则删除所有 <script> 标签",
+        "评论功能一律禁止任何格式"
+      ],
+      "answer": 1,
+      "explanation": "需求上要保留富文本格式，安全上不能把不可信数据当 HTML 直接执行——白名单过滤是两者兼得的正解。正则黑名单（删 script）拦不住 img onerror 等变体；一刀切禁格式则牺牲了产品需求。",
+      "lessonId": "l-sec-xss"
+    }
+  ]
+}

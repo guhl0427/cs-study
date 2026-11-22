@@ -1,0 +1,27 @@
+{
+  "id": "c-ai-data-foundations",
+  "domainSlug": "ai-data",
+  "slug": "ai-data-foundations",
+  "title": "AI 与数据入门：从数据分析到大模型应用",
+  "summary": "沿「数据 → 机器学习 → 大模型」的主线走一遍完整闭环：NumPy/pandas 处理数据、scikit-learn 跑通第一个模型、Prompt 与 RAG 做出能用的大模型应用。",
+  "difficulty": 2,
+  "audience": "已掌握 Python 基础的学习者；对 AI 应用开发感兴趣者",
+  "prereqs": "Python 入门（函数、字典、异常处理）；机器学习部分建议搭配概率统计基础",
+  "chapters": [
+    {
+      "id": "ch-ai-python",
+      "title": "数据分析三件套",
+      "lessons": ["l-ai-numpy-pandas", "l-ai-visualization"]
+    },
+    {
+      "id": "ch-ai-ml",
+      "title": "机器学习入门",
+      "lessons": ["l-ai-ml-concepts", "l-ai-sklearn"]
+    },
+    {
+      "id": "ch-ai-llm",
+      "title": "大模型应用开发",
+      "lessons": ["l-ai-prompt", "l-ai-llm-rag"]
+    }
+  ]
+}

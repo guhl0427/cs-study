@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-py-start",
+  "scopeType": "chapter",
+  "scopeId": "ch-py-start",
+  "title": "第 1 章随堂练习 · 起步：语法与数据",
+  "questions": [
+    {
+      "id": "q-ch-py-start-1",
+      "stem": "`print(10 // 3)` 和 `print(10 / 3)` 分别输出什么？",
+      "options": [
+        "3.33 和 3",
+        "3 和 3.333...（前者是整除，后者是真除法）",
+        "3 和 3（Python 里两个除法结果一样）",
+        "4 和 3.33（// 是向上取整）"
+      ],
+      "answer": 1,
+      "explanation": "`//` 是整除直接舍掉小数得 3；`/` 是真除法返回浮点 3.333...。求余用 %。这一组运算符的区别是 Python 第一周就必须分清的。",
+      "lessonId": "l-py-syntax"
+    },
+    {
+      "id": "q-ch-py-start-2",
+      "stem": "`a = [1, 2, 3]`，然后 `b = a; b.append(4)`，此时 `print(a)` 输出什么？",
+      "options": [
+        "[1, 2, 3]——b 是 a 的独立拷贝",
+        "[1, 2, 3, 4]——b = a 只是让两个名字指向同一个列表",
+        "报错：列表不能 append",
+        "[1, 2, 3, 4, 4]"
+      ],
+      "answer": 1,
+      "explanation": "`b = a` 复制的是引用不是数据，两个名字指向同一个列表，所以 b.append 后 a 也「变长」了。真拷贝要写 b = a.copy()。这是 Python 新手第一大坑。",
+      "lessonId": "l-py-collections"
+    },
+    {
+      "id": "q-ch-py-start-3",
+      "stem": "想把成绩字典里「可能不存在的键」安全地查一次、查不到就当 0，标准写法是？",
+      "options": [
+        "scores[\"小丽\"]，包在 try 里",
+        "scores.get(\"小丽\", 0)",
+        "scores(\"小丽\", 0)",
+        "scores.keys(\"小丽\")"
+      ],
+      "answer": 1,
+      "explanation": "dict.get(键, 默认值) 查不到返回默认值而不抛 KeyError，是「安全查」的标准写法。scores[\"小丽\"] 直接查不到会 KeyError；try/except 是给真意外的，不是给正常分支的。",
+      "lessonId": "l-py-collections"
+    }
+  ]
+}

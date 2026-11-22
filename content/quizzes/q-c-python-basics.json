@@ -1,0 +1,60 @@
+{
+  "id": "q-c-python-basics",
+  "scopeType": "course",
+  "scopeId": "c-python-basics",
+  "title": "课程自测 · Python 入门：第一门编程语言",
+  "questions": [
+    {
+      "id": "q-c-python-basics-1",
+      "stem": "用字典统计词频时，为什么用 `counts.get(word, 0) + 1` 而不是 `counts[word] + 1`？",
+      "options": [
+        "get 更快，性能差一个数量级",
+        "键第一次出现时 counts[word] 会 KeyError，get 兜底返回默认值 0",
+        "get 会自动把结果排序",
+        "两者完全等价，只是写法风格不同"
+      ],
+      "answer": 1,
+      "explanation": "第一次遇到新词时字典里没有这个键，counts[word] 直接 KeyError 崩溃；counts.get(word, 0) 查不到返回 0，正好作为初始计数。这是 word count 的核心一招。",
+      "lessonId": "l-py-collections"
+    },
+    {
+      "id": "q-c-python-basics-2",
+      "stem": "`if __name__ == \"__main__\":` 这行代码的作用是？",
+      "options": [
+        "声明这个文件是整个项目的主入口，别的文件不能导入它",
+        "被别人 import 时不执行、直接运行本文件时才执行——脚本与模块两用",
+        "让代码跑得更快，跳过不必要的检查",
+        "Python 3 的强制要求，每个 .py 文件都必须有"
+      ],
+      "answer": 1,
+      "explanation": "import 时 __name__ 是模块名（不等于 __main__），直接运行时才等于 __main__。所以这行下面的代码只在「当脚本跑」时执行，被导入时不打扰对方。",
+      "lessonId": "l-py-modules"
+    },
+    {
+      "id": "q-c-python-basics-3",
+      "stem": "函数里检测到分数超出 0–100，按照课程讲的工程习惯应该怎么做？",
+      "options": [
+        "静默把分数截断到 0–100，别打扰调用者",
+        "print 一句警告然后照常继续运行",
+        "用 raise 抛出 ValueError——非法输入就该喊出来，别让 bug 藏深",
+        "返回 -1 当错误码，调用者自己猜"
+      ],
+      "answer": 2,
+      "explanation": "raise 让错误在发生处立刻暴露并附带清晰信息；静默截断和返回错误码都会让 bug 藏得更深、更晚爆发。print 警告则没人看——程序继续带着错误状态跑。",
+      "lessonId": "l-py-errors"
+    },
+    {
+      "id": "q-c-python-basics-4",
+      "stem": "在项目目录里写了一个 random.py，之后 `import random` 开始报奇怪的错，最可能的原因是？",
+      "options": [
+        "random 标准库被官方移除了",
+        "当前目录的文件优先被导入，自己的 random.py 覆盖了标准库",
+        "Python 版本太旧，需要升级",
+        "import 语句写错了"
+      ],
+      "answer": 1,
+      "explanation": "import 的搜索路径包含当前目录且优先级高，自己的 random.py 会顶掉标准库 random——所以别给自己的文件起标准库的名字。这解释了「没改什么却突然崩」的一类灵异事件。",
+      "lessonId": "l-py-modules"
+    }
+  ]
+}

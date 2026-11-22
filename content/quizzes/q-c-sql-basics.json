@@ -1,0 +1,60 @@
+{
+  "id": "q-c-sql-basics",
+  "scopeType": "course",
+  "scopeId": "c-sql-basics",
+  "title": "课程自测 · SQL 入门：从查询到设计",
+  "questions": [
+    {
+      "id": "q-c-sql-basics-1",
+      "stem": "LEFT JOIN 之后又写了 `WHERE a.status = 'published'`（a 是右表），「没有文章的用户」从结果里消失了。为什么？",
+      "options": [
+        "LEFT JOIN 本身写错了，应该用 INNER JOIN",
+        "WHERE 在 JOIN 之后执行，NULL ≠ 'published' 把整行过滤掉了；右表条件应放进 ON 里",
+        "数据库 bug，换 PostgreSQL 就正常",
+        "需要加 DISTINCT 才能保留"
+      ],
+      "answer": 1,
+      "explanation": "LEFT JOIN 保留的「没有文章的用户」右表列全是 NULL，WHERE 一过滤这些行全被丢弃，LEFT JOIN 白写了。想让「没文章的用户」留在结果里，右表的过滤条件要写进 ON 子句。",
+      "lessonId": "l-sql-select"
+    },
+    {
+      "id": "q-c-sql-basics-2",
+      "stem": "LEFT JOIN 数文章数时，`COUNT(*)` 会把「没有文章的用户」也数成 1，正确写法是？",
+      "options": [
+        "COUNT(u.id)",
+        "COUNT(a.id)——数右表的主键，NULL 行不会被计入",
+        "COUNT(*) - 1",
+        "SUM(1)"
+      ],
+      "answer": 1,
+      "explanation": "COUNT(列) 只数该列非 NULL 的行：没有文章的用户 a.id 为 NULL 不计入，得到 0；COUNT(*) 数的是行数，NULL 行也算。一对差异背后是「数行还是数非空值」。",
+      "lessonId": "l-sql-select"
+    },
+    {
+      "id": "q-c-sql-basics-3",
+      "stem": "设计「文章可以有多个标签」的表结构，为什么不该把标签塞进文章表一列（如 `tags VARCHAR` 存 'css,js'）？",
+      "options": [
+        "VARCHAR 太短装不下",
+        "没法按标签高效查询、没法做唯一性约束——一对多关系应该拆成关联表",
+        "会导致 JOIN 变慢",
+        "数据库不允许一列存多个值"
+      ],
+      "answer": 1,
+      "explanation": "把列表塞进一个字段（违反第一范式），查询「所有带 css 标签的文章」只能全表扫描字符串匹配，也无法在数据库层面约束重复。正确做法是 tags 表 + article_tags 关联表。",
+      "lessonId": "l-db-schema-design"
+    },
+    {
+      "id": "q-c-sql-basics-4",
+      "stem": "关于索引的代价，下列说法正确的是？",
+      "options": [
+        "索引只占磁盘空间，不影响任何操作速度",
+        "每个索引都会拖慢写入——插入/更新时要多维护一棵树，所以只给高频查询条件列建",
+        "索引会让 SELECT 也变慢",
+        "索引建得越多，优化器一定选得越准"
+      ],
+      "answer": 1,
+      "explanation": "索引是「查询加速、写入减速」的权衡：每次写入都要同步维护索引树。同时更多索引也让优化器的选择空间变大。给低频查询列建索引是纯亏。",
+      "lessonId": "l-sql-index"
+    }
+  ]
+}
