@@ -75,7 +75,7 @@ const continueView = computed(() => {
         </div>
         <div class="bg-surface px-3.5 py-2">
           <span class="block text-[11px] text-ink-2">版本 / 日期</span>
-          <b class="mt-0.5 block font-mono text-[13px] font-medium text-ink">v0.1 · 2026-11</b>
+          <b class="mt-0.5 block font-mono text-[13px] font-medium text-ink">v0.3.0 · 2026-11</b>
         </div>
       </div>
     </section>
