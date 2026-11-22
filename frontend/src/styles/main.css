@@ -40,6 +40,10 @@
   --color-heat-2: #4e8fbf;
   --color-heat-3: #1b62a6;
 
+  /* ---- 色彩：实底上的文字色（深色主题下反转为近黑） ---- */
+  --color-on-accent: #ffffff;
+  --color-on-ok: #ffffff;
+
   /* ---- 圆角（直角纪律）---- */
   --radius-node: 2px;
   --radius-card: 3px;
@@ -128,6 +132,52 @@
       transition-duration: 0.01ms !important;
     }
   }
+
+  /* ================================================================
+     深色主题：仅覆盖语义令牌（蓝图制图·夜航版），工具类零改动
+     由 index.html 的内联脚本在首帧前设置 <html data-theme>
+     ================================================================ */
+  :root[data-theme='dark'] {
+    --grid-line: rgba(120, 160, 210, 0.1);
+    --grid-line-zone: rgba(120, 160, 210, 0.16);
+    color-scheme: dark;
+
+    --color-page: #0d1420;
+    --color-surface: #131c2b;
+    --color-surface-muted: #1a2434;
+    --color-inset: #0f1826;
+
+    --color-ink: #e3e9f2;
+    --color-ink-2: #9aa8bc;
+    --color-ink-3: #6b7a90;
+
+    --color-line: #2a3850;
+    --color-line-strong: #455b77;
+
+    --color-accent: #6fa3e8;
+    --color-accent-strong: #8cb6f0;
+    --color-accent-subtle: #1a2c44;
+    --color-teal: #4fb3bf;
+    --color-ok: #58b380;
+    --color-ok-subtle: #16301f;
+    --color-warn: #e0b35c;
+    --color-warn-subtle: #33290f;
+    --color-danger: #e06a50;
+    --color-danger-text: #f08c74;
+    --color-danger-subtle: #3a1d16;
+
+    --color-heat-0: #16202f;
+    --color-heat-1: #24466b;
+    --color-heat-2: #35659e;
+    --color-heat-3: #6fa3e8;
+
+    --color-on-accent: #0d1420;
+    --color-on-ok: #0d1420;
+
+    --shadow-plate: 3px 3px 0 0 rgba(0, 0, 0, 0.5);
+    --shadow-plate-hover: 4px 4px 0 0 rgba(0, 0, 0, 0.55);
+    --shadow-overlay: 0 12px 32px rgba(0, 0, 0, 0.6);
+  }
 }
 
 /* ================================================================ 组件层 */
@@ -165,7 +215,7 @@
   }
   .btn-primary {
     background: var(--color-accent);
-    color: #fff;
+    color: var(--color-on-accent);
   }
   .btn-primary:hover:not(:disabled) {
     background: var(--color-accent-strong);
@@ -401,5 +451,39 @@
   }
   .md-body .code-block pre.code-plain {
     color: var(--color-ink);
+  }
+
+  /* 深色主题：切换 Shiki 双主题输出（构建期同时内联浅/暗两套 CSS 变量） */
+  [data-theme='dark'] .md-body .code-block pre.shiki,
+  [data-theme='dark'] .md-body .code-block pre.shiki span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+    font-style: var(--shiki-dark-font-style) !important;
+    font-weight: var(--shiki-dark-font-weight) !important;
+  }
+
+  /* 行号（构建期 figure.line-numbers 才启用；span.line 由 Shiki 按行输出） */
+  .md-body .code-block.line-numbers pre code {
+    display: block;
+    counter-reset: line;
+  }
+  .md-body .code-block.line-numbers pre code .line {
+    display: block;
+    position: relative;
+    padding-left: 3.2em;
+    min-height: 1.65em;
+    counter-increment: line;
+  }
+  .md-body .code-block.line-numbers pre code .line::before {
+    content: counter(line);
+    position: absolute;
+    left: 0;
+    width: 2.4em;
+    text-align: right;
+    font-size: 11px;
+    line-height: inherit;
+    color: var(--color-ink-2);
+    opacity: 0.75;
+    user-select: none;
   }
 }
