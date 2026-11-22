@@ -13,6 +13,7 @@ import { useUiStore } from '@/stores/ui'
 import { useClientMounted } from '@/composables/useClientMounted'
 import { usePageTitle } from '@/composables/usePageTitle'
 import { domainProgress } from '@/lib/progress'
+import { formatDate } from '@/lib/format'
 
 usePageTitle('个人中心')
 
@@ -87,6 +88,24 @@ function saveProfile() {
 const activePath = computed(() => {
   const slug = ud.profile.activePathId
   return slug ? contentApi.getPath(slug) : undefined
+})
+
+/* ---- 找方向结果（F1.2：个人中心可查看与重测） ---- */
+const INTEREST_LABELS: Record<string, string> = {
+  frontend: '兴趣：做网站页面',
+  backend: '兴趣：做系统与数据',
+  ai: '兴趣：数据与智能',
+  cs: '兴趣：打好基础',
+  unsure: '兴趣：还不确定',
+}
+const guidePathName = computed(() => {
+  const slug = ud.guide?.recommendedPathSlug
+  return slug ? contentApi.getPath(slug)?.name : undefined
+})
+const guideMeta = computed(() => {
+  if (!mounted.value || !ud.guide) return ''
+  const parts = [INTEREST_LABELS[ud.guide.answers.interest] ?? '', formatDate(ud.guide.completedAt)]
+  return parts.filter(Boolean).join(' · ')
 })
 </script>
 
@@ -251,6 +270,28 @@ const activePath = computed(() => {
               <button class="btn btn-primary btn-sm flex-1" type="button" @click="saveProfile">保存</button>
               <button class="btn btn-ghost btn-sm" type="button" @click="editing = false">取消</button>
             </div>
+          </template>
+        </div>
+
+        <div class="card-plate p-4">
+          <p class="meta-mono mb-2">找方向结果</p>
+          <template v-if="mounted && ud.guide">
+            <p class="text-card font-bold text-ink">{{ guidePathName ?? '已保存推荐' }}</p>
+            <p class="meta-mono mt-1">{{ guideMeta }}</p>
+            <div class="mt-3 flex flex-col gap-1.5">
+              <RouterLink
+                v-if="ud.guide.recommendedPathSlug"
+                :to="`/path/${ud.guide.recommendedPathSlug}`"
+                class="btn btn-ghost btn-sm w-full"
+              >
+                查看推荐路线
+              </RouterLink>
+              <RouterLink to="/guide" class="btn btn-text btn-sm w-full">重新测一测</RouterLink>
+            </div>
+          </template>
+          <template v-else>
+            <p class="text-[13px] text-ink-2">还没做过找方向问答</p>
+            <RouterLink to="/guide" class="btn btn-ghost btn-sm mt-3 w-full">3 分钟找到方向</RouterLink>
           </template>
         </div>
 
