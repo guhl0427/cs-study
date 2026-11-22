@@ -85,6 +85,33 @@ const { tags, ...rest } = book           // rest 收集剩余属性
 
 **JSON 是对象字面量的字符串形态**——前后端传数据的通用语：`JSON.stringify(obj)` 打包发出、`JSON.parse(text)` 解包回来（呼应 fetch 课）。
 
+**对象里的方法与简写**——属性值是函数时叫「方法」，这是最常见的数据+行为组合：
+
+```js
+const cart = {
+  items: [],                       // 数据
+  add(name, price) {               // 方法（简写，等价于 add: function(...)）
+    this.items.push({ name, price })   // this 指向 cart 自己
+  },
+  total() {
+    return this.items.reduce((s, i) => s + i.price, 0)
+  },
+}
+cart.add("键盘", 199)
+cart.total()                        // 199
+```
+
+属性名与变量同名时的**属性简写**也值得记：`{ name, price }` 等价于 `{ name: name, price: price }`——上面 add 里的 `{ name, price }` 就是它，随处可见。
+
+**深拷贝的正规军**：浅拷贝 `[...arr]` 只复制一层；要连嵌套对象一起复制，现代浏览器内置了 `structuredClone`：
+
+```js
+const copy = structuredClone(books)   // 深拷贝：嵌套对象也是独立副本
+copy[0].author.city = "北京"           // 不影响原数据
+```
+
+注意它有边界（函数、DOM 节点拷不了）——大多数数据场景（JSON 形态的数据）都适用。
+
 ## 代码示例
 
 主线：一个「图书清单」的数据层——真实项目里任何列表页的内核都是它：

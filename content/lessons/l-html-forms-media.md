@@ -150,18 +150,9 @@ HTML5 的校验属性让浏览器在**提交瞬间**自动拦截不合法数据�
 ### 第 2 步：邮箱、手机与密码
 
 ```html
-        <p>
-          <label for="mail">邮箱</label>
-          <input id="mail" name="email" type="email" required />
-        </p>
-        <p>
-          <label for="phone">手机号</label>
-          <input id="phone" name="phone" type="tel" pattern="1[0-9]{10}" />
-        </p>
-        <p>
-          <label for="pwd">设置密码</label>
-          <input id="pwd" name="password" type="password" required minlength="8" />
-        </p>
+        <p><label for="mail">邮箱</label> <input id="mail" name="email" type="email" required /></p>
+        <p><label for="phone">手机号</label> <input id="phone" name="phone" type="tel" pattern="1[0-9]{10}" /></p>
+        <p><label for="pwd">设置密码</label> <input id="pwd" name="password" type="password" required minlength="8" /></p>
 ```
 
 浏览器效果：邮箱框输入 `abc` 提交会被拦下并提示「请包括 @」；手机框只收 11 位数字；密码框内容显示成圆点。
@@ -173,14 +164,8 @@ HTML5 的校验属性让浏览器在**提交瞬间**自动拦截不合法数据�
 ```html
         <fieldset>
           <legend>选择班次</legend>
-          <p>
-            <input id="cls-a" name="class" type="radio" value="A" checked />
-            <label for="cls-a">A 班（工作日晚间）</label>
-          </p>
-          <p>
-            <input id="cls-b" name="class" type="radio" value="B" />
-            <label for="cls-b">B 班（周末全天）</label>
-          </p>
+          <p><input id="cls-a" name="class" type="radio" value="A" checked /> <label for="cls-a">A 班（工作日晚间）</label></p>
+          <p><input id="cls-b" name="class" type="radio" value="B" /> <label for="cls-b">B 班（周末全天）</label></p>
         </fieldset>
 ```
 
@@ -194,12 +179,9 @@ HTML5 的校验属性让浏览器在**提交瞬间**自动拦截不合法数据�
         <fieldset>
           <legend>感兴趣的方向（可多选）</legend>
           <p>
-            <input id="int-1" name="interest" type="checkbox" value="web" />
-            <label for="int-1">网页开发</label>
-            <input id="int-2" name="interest" type="checkbox" value="mobile" />
-            <label for="int-2">移动端</label>
-            <input id="int-3" name="interest" type="checkbox" value="ai" />
-            <label for="int-3">AI 应用</label>
+            <input id="int-1" name="interest" type="checkbox" value="web" /> <label for="int-1">网页开发</label>
+            <input id="int-2" name="interest" type="checkbox" value="mobile" /> <label for="int-2">移动端</label>
+            <input id="int-3" name="interest" type="checkbox" value="ai" /> <label for="int-3">AI 应用</label>
           </p>
         </fieldset>
 ```
@@ -220,17 +202,12 @@ HTML5 的校验属性让浏览器在**提交瞬间**自动拦截不合法数据�
             <option value="online">线上班（不限城市）</option>
           </select>
         </p>
-        <p>
-          <label for="bio">自我介绍</label>
-          <textarea id="bio" name="bio" rows="4" placeholder="写两句你为什么想学前端"></textarea>
-        </p>
+        <p><label for="bio">自我介绍</label> <textarea id="bio" name="bio" rows="4" placeholder="写两句你为什么想学前端"></textarea></p>
         <p>
           <label for="ref">推荐人（可选）</label>
           <input id="ref" name="referrer" type="text" list="ref-list" />
           <datalist id="ref-list">
-            <option value="学姐张同学"></option>
-            <option value="课程公众号"></option>
-            <option value="自己找来的"></option>
+            <option value="学姐张同学"></option><option value="课程公众号"></option><option value="自己找来的"></option>
           </datalist>
         </p>
 ```

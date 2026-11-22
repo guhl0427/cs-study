@@ -3,7 +3,7 @@
   "domainSlug": "tools",
   "slug": "git-basics",
   "title": "Git 与命令行起步",
-  "summary": "第一周就该掌握的生产力基础：Git 的核心工作流、分支与合并，以及 Shell 与 Docker 的入门图景。",
+  "summary": "第一周就该掌握的生产力基础：Git 工作流、分支合并、撤销救急，加上 Shell 与 Docker 的动手入门——5 篇跟做教程。",
   "difficulty": 1,
   "audience": "所有学习者（建议与第一门语言同步学习）",
   "prereqs": "无",
@@ -11,12 +11,19 @@
     {
       "id": "ch-git",
       "title": "Git 核心",
-      "lessons": ["l-git-basic", "l-git-branch"]
+      "lessons": [
+        "l-git-basic",
+        "l-git-branch",
+        "l-git-undo"
+      ]
     },
     {
       "id": "ch-cli",
       "title": "命令行与环境",
-      "lessons": ["l-cli-shell", "l-cli-docker"]
+      "lessons": [
+        "l-cli-shell",
+        "l-cli-docker"
+      ]
     }
   ]
 }

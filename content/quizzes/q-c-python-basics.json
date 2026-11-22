@@ -6,55 +6,68 @@
   "questions": [
     {
       "id": "q-c-python-basics-1",
-      "stem": "用字典统计词频时，为什么用 `counts.get(word, 0) + 1` 而不是 `counts[word] + 1`？",
+      "stem": "`print(-7 // 2)` 输出什么？",
       "options": [
-        "get 更快，性能差一个数量级",
-        "键第一次出现时 counts[word] 会 KeyError，get 兜底返回默认值 0",
-        "get 会自动把结果排序",
-        "两者完全等价，只是写法风格不同"
+        "-3 ——向零取整，直接舍掉小数",
+        "-4 ——// 是向下取整，往负无穷方向走",
+        "-3.5 ——// 对负数返回浮点数",
+        "报错：负数不能参与整除"
       ],
       "answer": 1,
-      "explanation": "第一次遇到新词时字典里没有这个键，counts[word] 直接 KeyError 崩溃；counts.get(word, 0) 查不到返回 0，正好作为初始计数。这是 word count 的核心一招。",
-      "lessonId": "l-py-collections"
+      "explanation": "// 是向下取整（floor）：-3.5 往负无穷方向取到 -4。`/` 才永远返回浮点数。负数除法是最容易被想当然坑到的运算。",
+      "lessonId": "l-py-syntax"
     },
     {
       "id": "q-c-python-basics-2",
-      "stem": "`if __name__ == \"__main__\":` 这行代码的作用是？",
+      "stem": "`s = \"  hello  \"`，单独执行一行 `s.strip()`（没有赋值），再 `print(s)` 输出什么？",
       "options": [
-        "声明这个文件是整个项目的主入口，别的文件不能导入它",
-        "被别人 import 时不执行、直接运行本文件时才执行——脚本与模块两用",
-        "让代码跑得更快，跳过不必要的检查",
-        "Python 3 的强制要求，每个 .py 文件都必须有"
+        "'hello' ——strip 会原地修改字符串",
+        "'  hello  '，但第二次 print 时变成 'hello'",
+        "报错：strip 不能处理带空格的字符串",
+        "'  hello  ' ——字符串不可变，strip 返回的新串没被接住就丢弃了"
       ],
-      "answer": 1,
-      "explanation": "import 时 __name__ 是模块名（不等于 __main__），直接运行时才等于 __main__。所以这行下面的代码只在「当脚本跑」时执行，被导入时不打扰对方。",
-      "lessonId": "l-py-modules"
+      "answer": 3,
+      "explanation": "所有字符串方法都返回新字符串、原串不变（不可变性）；忘了 s = s.strip() 接住返回值是字符串操作的高频 bug。",
+      "lessonId": "l-py-strings"
     },
     {
       "id": "q-c-python-basics-3",
-      "stem": "函数里检测到分数超出 0–100，按照课程讲的工程习惯应该怎么做？",
+      "stem": "用字典统计词频时，为什么写 `counts.get(word, 0) + 1` 而不是 `counts[word] + 1`？",
       "options": [
-        "静默把分数截断到 0–100，别打扰调用者",
-        "print 一句警告然后照常继续运行",
-        "用 raise 抛出 ValueError——非法输入就该喊出来，别让 bug 藏深",
-        "返回 -1 当错误码，调用者自己猜"
+        "词第一次出现时字典里没有这个键，counts[word] 直接 KeyError，get 兜底返回 0",
+        "get 更快，性能差一个数量级",
+        "get 会自动把结果排序",
+        "两者完全等价，只是写法风格不同"
       ],
-      "answer": 2,
-      "explanation": "raise 让错误在发生处立刻暴露并附带清晰信息；静默截断和返回错误码都会让 bug 藏得更深、更晚爆发。print 警告则没人看——程序继续带着错误状态跑。",
-      "lessonId": "l-py-errors"
+      "answer": 0,
+      "explanation": "dict 的 [] 访问对缺失键零容忍，get(key, 默认值) 查不到返回默认值——这一行同时处理「首见」和「再现」，是 word count 的核心一招。",
+      "lessonId": "l-py-collections"
     },
     {
       "id": "q-c-python-basics-4",
-      "stem": "在项目目录里写了一个 random.py，之后 `import random` 开始报奇怪的错，最可能的原因是？",
+      "stem": "函数里写 `count = count + 1`（count 是模块顶层定义的全局变量），会发生什么？",
       "options": [
-        "random 标准库被官方移除了",
-        "当前目录的文件优先被导入，自己的 random.py 覆盖了标准库",
-        "Python 版本太旧，需要升级",
-        "import 语句写错了"
+        "正常累加全局变量 count",
+        "自动创建局部副本继续累加，退出函数后全局的也变了",
+        "UnboundLocalError ——函数内一旦出现赋值，这个名字就被判为局部变量，右边先读它就撞上「未赋值」",
+        "Python 会自动加 global 声明，行为与全局累加一致"
+      ],
+      "answer": 2,
+      "explanation": "LEGB 作用域规则：函数内赋值让名字变成局部变量，读未赋值的局部变量即 UnboundLocalError。工程纪律是参数传入、return 传出，克制使用 global。",
+      "lessonId": "l-py-functions"
+    },
+    {
+      "id": "q-c-python-basics-5",
+      "stem": "函数收到 score = 150，按本课程讲的工程习惯应该怎么做？",
+      "options": [
+        "静默截断到 100 继续算，别打扰调用者",
+        "raise ValueError(f\"分数超出 0-100 范围: {score}\") ——非法输入当场喊出来，别让坏数据流进下游",
+        "print 一句警告，然后照常返回结果",
+        "返回 -1 当错误码，调用者自己判断"
       ],
       "answer": 1,
-      "explanation": "import 的搜索路径包含当前目录且优先级高，自己的 random.py 会顶掉标准库 random——所以别给自己的文件起标准库的名字。这解释了「没改什么却突然崩」的一类灵异事件。",
-      "lessonId": "l-py-modules"
+      "explanation": "raise 让错误在发生处带着上下文立刻暴露；静默截断和错误码都会让 bug 藏得更深。可预期的外部错误用异常表达，比错误码更不容易被调用方忽略。",
+      "lessonId": "l-py-errors"
     }
   ]
 }

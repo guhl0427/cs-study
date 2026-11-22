@@ -5,42 +5,55 @@
   "title": "第 2 章随堂练习 · 传输层与抓包",
   "questions": [
     {
-      "id": "q-ch-net-4",
-      "stem": "TCP 三次握手为什么两次不够？",
+      "id": "q-ch-net-transport-1",
+      "stem": "面试官追问：TCP 三次握手改成两次行不行？最有说服力的回答是？",
       "options": [
-        "两次握手数据包太小，容易被截获",
-        "第二次握手只能让客户端确认双向可用，服务端还无法确认「自己的下行能被客户端收到」",
-        "三次是历史惯例，技术上两次完全等价",
-        "为了多收一次确认费用"
+        "行，两次握手更快，三次只是历史传统",
+        "不行，因为两个报文太小，容易被截获",
+        "不行——前两次只让客户端确认了双向可达，服务端还无法确认「自己说的话对方听得见」，也无法识别迟到的旧连接请求",
+        "行，但需要在应用层再补一个确认包"
+      ],
+      "answer": 2,
+      "explanation": "第三次 ACK 让服务端确认「客户端能收到我发的包」，双向可达才算坐实；缺了它，服务端也分不清新请求和历史重复请求。",
+      "lessonId": "l-net-tcp-udp"
+    },
+    {
+      "id": "q-ch-net-transport-2",
+      "stem": "本地启动服务时报 Address already in use（8080 端口被占用）。第一步应该做什么？",
+      "options": [
+        "重启电脑碰运气",
+        "netstat -ano | findstr :8080 找到占用端口的 PID，确认是谁后结束它或换端口",
+        "换一个 IP 地址再启动",
+        "把服务改绑到 443 端口"
       ],
       "answer": 1,
-      "explanation": "第三次握手让服务端确认「客户端能收到我发的包」。缺了这一步，服务端无法区分「历史重复的连接请求」和「新的连接请求」。",
+      "explanation": "一个端口同一时刻只能被一个进程监听。netstat 能列出端口到 PID 的映射，tasklist 再查出进程名——先看现场再动手。",
       "lessonId": "l-net-tcp-udp"
     },
     {
-      "id": "q-ch-net-5",
-      "stem": "视频直播选 UDP 而不是 TCP，最合理的解释是？",
+      "id": "q-ch-net-transport-3",
+      "stem": "Network 面板里某接口 Timing 显示 Content Download 约 4 秒，Waiting 只有 50ms。该从哪里修？",
       "options": [
-        "UDP 传输速度的上限更高",
-        "UDP 是免费的，TCP 要付费",
-        "直播宁可丢几帧也不能停顿等待重传；可靠性由应用自己按需处理",
-        "UDP 可以传输视频格式，TCP 不行"
+        "后端优化数据库慢查询",
+        "前端优化 JS 执行速度",
+        "更换 DNS 服务器",
+        "体积与传输问题——TTFB 很快说明后端不慢，先开压缩、减小响应体"
       ],
-      "answer": 2,
-      "explanation": "TCP 的确认与重传会带来停顿，对实时视频是致命的。UDP「不承诺可靠」换来了低延迟——可靠性是花钱买的，按业务需要购买。",
-      "lessonId": "l-net-tcp-udp"
+      "answer": 3,
+      "explanation": "Content Download 长而 Waiting 很短，是「体积的锅」的典型特征；若是 Waiting 独高才是后端的锅。先定段再定责。",
+      "lessonId": "l-net-capture"
     },
     {
-      "id": "q-ch-net-6",
-      "stem": "Network 面板里某接口的 Timing 显示 Waiting for server response 高达 3 秒，其他阶段都很快。该找谁修？",
+      "id": "q-ch-net-transport-4",
+      "stem": "你用 Copy as cURL 把前端请求复现命令发给后端排查。粘贴前应该先做什么？",
       "options": [
-        "前端：优化 JS 执行",
-        "网络运营商：升级带宽",
-        "后端：TTFB 高说明服务端处理慢",
-        "设计师：减少页面内容"
+        "删掉或打码 Cookie / Authorization 头——它们承载着你的登录态，泄露等于把账号凭据发给对方",
+        "把 URL 改短一点",
+        "删掉所有请求头，后端不需要",
+        "删掉 Cookie 后接口才更容易复现"
       ],
-      "answer": 2,
-      "explanation": "Waiting（TTFB）是等服务器「想」的时间，慢在这一段是服务端的事；慢在 Content Download 才与体积/带宽有关。",
+      "answer": 0,
+      "explanation": "Copy as cURL 会带上完整的鉴权与 Cookie 头。交接物要保留复现能力，但凭据必须打码——既防泄露，也避免触发对方限流。",
       "lessonId": "l-net-capture"
     }
   ]

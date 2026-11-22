@@ -9,7 +9,7 @@
       "stem": "改了 5 个文件但这次提交只想包含其中 2 个，Git 里正确的做法是？",
       "options": [
         "改完这 2 个文件再 commit，Git 自动识别",
-        "git add 只挑这 2 个文件，再 commit——暂存区就是「挑选」这次存档的内容",
+        "git add 只挑这 2 个文件，再 commit——暂存区就是「挑选」本次存档内容的装箱单",
         "删掉另外 3 个文件的改动，commit 后再恢复",
         "做不到，commit 只能包含全部改动"
       ],
@@ -19,29 +19,55 @@
     },
     {
       "id": "q-ch-git-2",
-      "stem": "合并时出现冲突标记 `<<<<<<< HEAD ... ======= ... >>>>>>> fix-bug`，正确处理流程是？",
+      "stem": "同事在 main 上做了新提交，你本地也有未推送的提交，push 被拒绝。正确处理是？",
       "options": [
-        "删掉整个文件重新写",
-        "手动编辑保留正确内容、删掉三行标记，git add 后继续完成合并",
-        "git push -f 强推远程覆盖掉",
-        "回滚 main 分支，重写代码"
+        "git push -f 强推覆盖远程",
+        "先 git pull 拉取并整合远程的新提交（必要时解决冲突），再 push——远程有新历史时 push 被拒是保护机制",
+        "删除自己本地的提交重新写",
+        "让同事撤掉他们的提交"
       ],
       "answer": 1,
-      "explanation": "冲突只是 Git 在问「这两版留哪版」：编辑文件决定最终内容（可以两版融合），删掉标记行，add 表示冲突已解决，再 commit 完成合并。强推是团队协作红线。",
-      "lessonId": "l-git-branch"
+      "explanation": "push 被拒说明远程有你没有的历史。pull（fetch+merge）整合两边后再推。强推会抹掉别人的提交，是协作红线——主干只许前进。",
+      "lessonId": "l-git-basic"
     },
     {
       "id": "q-ch-git-3",
-      "stem": "experiment 分支已经挂了两周没合并，主干这段时间大改。现在合并会发生什么、该怎么预防？",
+      "stem": "experiment 分支挂了两周没合并，主干这段时间大改。现在合并会发生什么、该怎么预防？",
       "options": [
         "Git 自动把 experiment 的所有改动合并进来，无事发生",
-        "大概率冲突爆炸——分支生命周期要以天计，小步快合并",
+        "大概率冲突爆炸——分支生命周期要以天计，小步快合并；两边改同一区域时冲突量随时间暴涨",
         "experiment 上的改动会被自动丢弃",
         "先把主干回滚两周再合并"
       ],
       "answer": 1,
-      "explanation": "两边改同一区域时冲突量随时间暴涨。分支是轻量指针，正确姿势是小步多开、勤合并；长期挂起的分支是冲突制造机。",
+      "explanation": "分支是轻量指针，正确姿势是小步多开、勤合并。长期挂起的分支是冲突制造机；PR 评审则是把合并升级成质量关卡。",
       "lessonId": "l-git-branch"
+    },
+    {
+      "id": "q-ch-git-4",
+      "stem": "撤销一个「已经 push 到远程」的错误提交，正确的工具是？",
+      "options": [
+        "git reset --hard HEAD~1 然后 push -f",
+        "git revert <哈希>——生成一个反向提交，历史只进不退；改写已推送历史（reset+强推）会让同事的本地全部错位",
+        "手动把代码改回去再重新 commit 一次",
+        "删除仓库重建"
+      ],
+      "answer": 1,
+      "explanation": "revert 用「加法做减法」：新提交内容与目标相反，别人 pull 后一切正常。reset+强推是公共分支红线。口诀：自己的分支可重写，公共分支只许 revert。",
+      "lessonId": "l-git-undo"
+    },
+    {
+      "id": "q-ch-git-5",
+      "stem": "git reset --hard HEAD~2 手滑抹掉了最近两个提交，怎么救回来？",
+      "options": [
+        "救不回来，只能重写代码",
+        "git reflog 找到抹掉前的哈希，git reset --hard <哈希> 恢复——reflog 记录了 HEAD 的每次移动，默认保留约 90 天",
+        "联系 GitHub 客服恢复",
+        "git checkout main 重置一切"
+      ],
+      "answer": 1,
+      "explanation": "reflog 是本地的操作日记：被 reset「抹掉」的提交对象仍在，90 天内可从 reflog 找回哈希。注意它是本地日记，clone 的新仓库没有完整记录。",
+      "lessonId": "l-git-undo"
     }
   ]
 }

@@ -104,6 +104,34 @@ for (const ch of "abc") {          // for...of 逐个取值（数组、字符串
 
 `switch` 适合「同一变量的多路分发」，别忘了每段 `break`；`&&`、`||` 除了逻辑判断还有短路求值的妙用（`name || "匿名"` 给默认值）。
 
+**块级作用域的可视化**——let/const 的可见范围是它所在的 `{}` 内部，出了大括号就消失：
+
+```js
+{
+  const secret = "块内可见"
+  console.log(secret)      // OK
+}
+console.log(secret)        // ReferenceError——大括号就是它的世界边界
+
+if (true) {
+  let tmp = 1
+}
+console.log(tmp)           // 同样 ReferenceError
+```
+
+这正是 `for` 循环里 `let i` 每轮独立的原理（作用域课会展开成经典面试题）。对照地，var 无视大括号、全部提升到函数顶部——「在块外也能访问块内变量」就是无数 bug 的温床。
+
+**严格模式一句话**：模块（`<script type="module">`）和 class 内自动启用严格模式——「静默失败变成显式报错」（比如给未声明变量赋值直接抛错）。所以用模块写代码，等于免费获得一层保护。
+
+**三个实用的 Console 技巧**（学 JS 的前两周你就住在 Console 里）：
+
+```js
+console.table(scores)            // 数组/对象打印成表格，一眼看全
+console.log({ name, score })     // 传对象（带属性名）而不是拼接串，调试更清晰
+console.time("循环")             // 计时器：测一段代码耗时
+console.timeEnd("循环")          // → 循环: 12.3ms
+```
+
 **字符串与数字的随身工具箱**——处理输入和展示时每天都要用：
 
 ```js

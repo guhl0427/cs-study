@@ -56,6 +56,20 @@ inputEl.addEventListener("input", (e) => {
 })
 ```
 
+**键盘事件**让快捷键成为可能——`keydown` 的事件对象带按键信息：
+
+```js
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") console.log("按了 ESC")           // e.key：键名（"Enter"/"a"/"Escape"）
+  if ((e.ctrlKey || e.metaKey) && e.key === "k") {          // 组合键：Ctrl+K / Cmd+K
+    e.preventDefault()
+    console.log("打开搜索")
+  }
+})
+```
+
+一个反直觉点：数字键按下的 `e.key` 是 `"1"`（字符串）不是数字；中文输入法组合期间会触发 `compositionstart/end` 而不是一串 keydown——做「回车提交」时中文用户敲回车选字也会触发 keydown，严谨的判断是监听 `keydown` 且 `e.isComposing === false`。
+
 `e.preventDefault()` 是表单课的续集——`submit` 事件的默认行为是「整页刷新跳转」，拦截它才能留在页面内做 JS 提交：
 
 ```js

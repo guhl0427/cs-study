@@ -6,41 +6,67 @@
   "questions": [
     {
       "id": "q-ch-py-start-1",
-      "stem": "`print(10 // 3)` 和 `print(10 / 3)` 分别输出什么？",
+      "stem": "`print(17 // 5, 17 % 5)` 输出什么？",
       "options": [
-        "3.33 和 3",
-        "3 和 3.333...（前者是整除，后者是真除法）",
-        "3 和 3（Python 里两个除法结果一样）",
-        "4 和 3.33（// 是向上取整）"
+        "3 2 ——整除得 3，余数是 2",
+        "3.4 2 ——// 和 / 结果相同，只是格式不同",
+        "2 3 ——% 的优先级比 // 高",
+        "3.4 3.4 ——这两个运算都返回浮点数"
       ],
-      "answer": 1,
-      "explanation": "`//` 是整除直接舍掉小数得 3；`/` 是真除法返回浮点 3.333...。求余用 %。这一组运算符的区别是 Python 第一周就必须分清的。",
+      "answer": 0,
+      "explanation": "`//` 是向下取整的整除（17÷5 商 3），`%` 取余数（17−15=2）。永远返回浮点数的是真除法 `/`，这一组区别是第一周就要分清的。",
       "lessonId": "l-py-syntax"
     },
     {
       "id": "q-ch-py-start-2",
-      "stem": "`a = [1, 2, 3]`，然后 `b = a; b.append(4)`，此时 `print(a)` 输出什么？",
+      "stem": "`for i in range(2, 10, 3): print(i)` 依次打印什么？",
       "options": [
-        "[1, 2, 3]——b 是 a 的独立拷贝",
-        "[1, 2, 3, 4]——b = a 只是让两个名字指向同一个列表",
-        "报错：列表不能 append",
-        "[1, 2, 3, 4, 4]"
+        "2、3、4……9 ——范围内的每个数",
+        "2、5、8、11 ——步长一直走到超出 10 为止",
+        "2、5、8 ——从 2 起每次加 3，超过 10 之前停",
+        "3、6、9 ——起点不计入序列"
       ],
-      "answer": 1,
-      "explanation": "`b = a` 复制的是引用不是数据，两个名字指向同一个列表，所以 b.append 后 a 也「变长」了。真拷贝要写 b = a.copy()。这是 Python 新手第一大坑。",
-      "lessonId": "l-py-collections"
+      "answer": 2,
+      "explanation": "range(2, 10, 3) 从 2 开始每次加 3：2、5、8，下一个 11 超出终点 10（含头不含尾）所以停。range 与切片统一「含头不含尾」。",
+      "lessonId": "l-py-syntax"
     },
     {
       "id": "q-ch-py-start-3",
-      "stem": "想把成绩字典里「可能不存在的键」安全地查一次、查不到就当 0，标准写法是？",
+      "stem": "`\"a,b,,c\".split(\",\")` 的结果是？",
       "options": [
-        "scores[\"小丽\"]，包在 try 里",
-        "scores.get(\"小丽\", 0)",
-        "scores(\"小丽\", 0)",
-        "scores.keys(\"小丽\")"
+        "['a', 'b', 'c'] ——连续分隔符自动合并",
+        "['a', 'b', '', 'c'] ——严格按逗号切，两个逗号之间切出空串",
+        "报错：字符串里不能有连续分隔符",
+        "['a', 'b,c'] ——只切第一个分隔符"
       ],
       "answer": 1,
-      "explanation": "dict.get(键, 默认值) 查不到返回默认值而不抛 KeyError，是「安全查」的标准写法。scores[\"小丽\"] 直接查不到会 KeyError；try/except 是给真意外的，不是给正常分支的。",
+      "explanation": "带参数的 split 严格按「一个指定分隔符」切，连续分隔符之间会产生空字符串；要忽略连续空白才用无参 split()。这是清洗脏数据时的关键区别。",
+      "lessonId": "l-py-strings"
+    },
+    {
+      "id": "q-ch-py-start-4",
+      "stem": "`counts = {\"py\": 2}`，执行 `counts.get(\"js\", 0) + 1` 之后，结果和 counts 的内容是？",
+      "options": [
+        "报 KeyError：js 不是已存在的键",
+        "结果是 1，并且 counts 里自动新增键 'js': 1",
+        "结果是 None：get 查不到返回 None",
+        "结果是 1，counts 不变 ——get 查不到返回默认值 0，且不写入字典"
+      ],
+      "answer": 3,
+      "explanation": "get(key, 默认值) 只读不写：查不到返回 0，加 1 得 1，字典不会新增键。计数写法 counts.get(w, 0) + 1 之所以安全，正因为它不依赖键已存在。",
+      "lessonId": "l-py-collections"
+    },
+    {
+      "id": "q-ch-py-start-5",
+      "stem": "`sorted({\"b\": 3, \"a\": 1})` 返回什么？",
+      "options": [
+        "['a', 'b'] ——sorted 迭代字典时只拿键，按字典序排",
+        "[('a', 1), ('b', 3)] ——自动转成键值对列表",
+        "[1, 3] ——按值从小到大排",
+        "报错：字典不支持排序"
+      ],
+      "answer": 0,
+      "explanation": "对 dict 直接 sorted 只迭代键、返回键列表。想按次数排 TopN 得写 sorted(counts.items(), key=lambda kv: kv[1], reverse=True)。",
       "lessonId": "l-py-collections"
     }
   ]

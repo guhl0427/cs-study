@@ -32,25 +32,14 @@ resources:
 
 ## 概念讲解
 
-**先建立心智模型**。浏览器拿到 HTML 后做两件事：把标签解析成一棵 DOM 树；然后逐条读入 CSS 规则，每条规则都是「选择器 + 一组声明」。它拿着每条规则去树上问：谁匹配这个选择器？匹配到的元素就套上这组声明。如果多条规则改了同一个属性，就按「层叠」规则裁决出唯一赢家。所以学 CSS 就是学三样东西：
-
-1. **选择器**——怎么精确地「选中谁」；
-2. **盒模型**——元素在页面上占多大地方；
-3. **层叠**——冲突时听谁的。
+**先建立心智模型**。浏览器拿到 HTML 后：先把标签解析成 DOM 树，再逐条读入 CSS 规则（每条规则 = 选择器 + 一组声明），拿着选择器去树上问「谁匹配」，匹配到的元素就套上这组声明；多条规则改同一个属性时，由**层叠**规则裁决出唯一赢家。所以学 CSS 就是学三样：**选择器**（怎么选中谁）、**盒模型**（元素占多大地方）、**层叠**（冲突时听谁的）。
 
 ### 把 CSS 装进页面：三种引入方式
 
 ```css
-/* 方式一：内联样式——写在标签的 style 属性里 */
-<div style="color: red">紧急通知</div>
-
-/* 方式二：内部样式——写在 HTML 头部的 <style> 标签里 */
-<style>
-  .warn { color: red; }
-</style>
-
-/* 方式三：外部样式表——独立的 .css 文件 */
-<link rel="stylesheet" href="style.css">
+/* 方式一：内联样式 */  <div style="color: red">紧急通知</div>
+/* 方式二：内部样式 */  <style> .warn { color: red; } </style>
+/* 方式三：外部样式表 */ <link rel="stylesheet" href="style.css">
 ```
 
 三者可以共存，优先级：**内联样式 > 内部/外部样式表**；内部和外部平级，谁在 HTML 里出现得晚谁赢。实战几乎只用方式三：样式与结构分离、多页面复用、浏览器还能缓存它。内联样式只留给极少数「一次性的例外」，`<style>` 标签多见于单页 demo 和组件化框架。
@@ -89,9 +78,7 @@ border-box:   width: 200 = 整个盒子就是 200px，内容自动缩到 174px
 于是现代 CSS 的第一行几乎都是：
 
 ```css
-* {
-  box-sizing: border-box; /* width/height 从此指「整个盒子」 */
-}
+* { box-sizing: border-box; } /* width/height 从此指「整个盒子」 */
 ```
 
 `*` 是通配选择器，命中所有元素。设了这行以后，`width: 50%` 的两列无论加多少 padding 和 border 都还是 50%，不会互相挤爆换行。这就是它是「现代默认」的原因：让 width 的语义与人脑直觉对齐，布局算术从「做减法」变成「所见即所得」。
@@ -124,9 +111,9 @@ B 的 margin-top:    30px
 伪类是最值得先掌握的一类，交互感全靠它：
 
 ```css
-.btn:hover { background: #1b62a6; }     /* 鼠标悬停 */
-.btn:focus { outline: 2px solid #f60; } /* 键盘聚焦 */
-input[type="checkbox"]:checked + label { color: green; } /* 选中态联动 */
+.btn:hover  { background: #1b62a6; }        /* 鼠标悬停 */
+.btn:focus  { outline: 2px solid #f60; }    /* 键盘聚焦 */
+.btn:active { transform: translateY(1px); } /* 按下瞬间 */
 ```
 
 `:hover` 负责「我指到你了」，`:focus` 负责「我选中你了」——后者对只用键盘的用户是唯一的定位手段，任何可交互元素都别裸奔。
@@ -136,17 +123,9 @@ input[type="checkbox"]:checked + label { color: green; } /* 选中态联动 */
 同名属性撞车时，浏览器按三层裁决：
 
 1. **来源优先级**：内联样式 > 作者样式表（你写的）> 浏览器默认样式。`h1` 自带的大字号、`body` 自带的 8px 边距，都属于最低级的默认样式。
-2. **特异性**：按选择器「精确度」算一个三元组分数 `(id, 类, 元素)`——ID 在第一格记 1，类/伪类/属性选择器在第二格记 1，元素在第三格记 1；从左到右比大小，左边大者胜。`!important` 是最高豁免，只在覆盖第三方库时偶尔用。
-3. **出现顺序**：分数相同，后写的赢。
+2. **特异性**：按选择器「精确度」算一个三元组分数 `(id, 类, 元素)`——ID 在第一格记 1，类/伪类/属性选择器在第二格记 1，元素在第三格记 1；从左到右比大小，左边大者胜（分数完全相同时，后写的赢）。`!important` 是最高豁免，只在覆盖第三方库时偶尔用。
 
-推演练习：「两个类谁赢」——
-
-```css
-.intro      { color: blue; } /* 分数 (0,1,0) */
-.intro.bold { color: red;  } /* 分数 (0,2,0)：同时命中两个类 */
-```
-
-同时命中的元素最终是**红色**——`.intro.bold` 两个类记 2 格，比单类高。再推演一个：`#app .title` 得 (1,1,0)，`.card .title:hover` 得 (0,3,0)——一个 ID 抵消后面所有类，**前者赢**。这就是「别用 ID 写样式」的数学原因：一旦用了，后面想覆盖只能再上 ID 或 `!important`，恶性循环。
+推演练习：「两个类谁赢」——`.intro { color: blue; }` 得 (0,1,0)，`.intro.bold { color: red; }` 得 (0,2,0)，同时命中的元素最终是**红色**（两个类记 2 格，比单类高）。再推演一个：`#app .title` 得 (1,1,0)，`.card .title:hover` 得 (0,3,0)——一个 ID 抵消后面所有类，**前者赢**。这就是「别用 ID 写样式」的数学原因：一旦用了，后面想覆盖只能再上 ID 或 `!important`，恶性循环。
 
 **继承**是层叠的温柔补充：`color`、`font-family`、`font-size`、`line-height`、`text-align` 等文本类属性会自动传给子元素——所以 `body { font-family: ... }` 一处设置全页生效；而 `margin`、`padding`、`border`、`width` 等盒模型属性不继承（子元素的边界本该独立）。拿不准时，开发者工具 Computed 面板会标明每个值是「直接命中」还是「继承而来」。
 
@@ -189,7 +168,6 @@ input[type="checkbox"]:checked + label { color: green; } /* 选中态联动 */
 * {
   box-sizing: border-box; /* 从此 width 指整个盒子 */
 }
-
 body {
   margin: 0;              /* 干掉默认 8px 边距，自己掌控 */
   font-family: system-ui, sans-serif;
@@ -221,12 +199,10 @@ body {
   margin: 0 0 8px;    /* 清掉标题默认外边距，只留下 8px */
   font-size: 18px;
 }
-
 .card-text {
   margin: 0 0 12px;
   color: #57606a;     /* 灰色正文，形成层级 */
 }
-
 .card-link {
   display: inline-block; /* 行内元素也能吃 padding */
   color: #1b62a6;
@@ -242,12 +218,10 @@ body {
 .card-link:hover {
   text-decoration: underline;  /* 悬停出现下划线 */
 }
-
 .card-link:focus {
   outline: 2px solid #f60;     /* 键盘聚焦的可见描边 */
   border-radius: 2px;
 }
-
 .card:hover {
   border-color: #1b62a6;       /* 悬停时边框变色 */
   box-shadow: 0 4px 12px rgba(27, 98, 166, 0.15); /* 浮起感 */
@@ -268,7 +242,6 @@ body {
 a[target="_blank"]::after {
   content: " ↗";
 }
-
 /* 特异性推演：这条 (0,1,1) 会赢过第 3 步的 .card-text (0,1,0) */
 p.card-text {
   color: #1f2328;

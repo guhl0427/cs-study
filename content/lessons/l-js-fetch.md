@@ -68,6 +68,18 @@ loading（请求中：骨架屏/转圈）→ 成功（渲染数据）/ 空态（
 
 **同源与跨域一句话**：浏览器默认禁止页面 JS 读取「不同源」接口的响应——开发时前端 5173、后端 8000 就是不同源，后端要加 CORS 响应头放行（FastAPI 的 CORSMiddleware 一行配置）；这是浏览器安全模型的一部分（呼应安全课），不是 fetch 的 bug。
 
+**带上登录凭证**：需要鉴权的接口要附上凭证——JWT 时代是 `Authorization` 头（呼应认证授权课）：
+
+```js
+const token = localStorage.getItem("token")     // 实际项目注意 XSS 风险（安全课）
+await fetch("/api/me", {
+  headers: { Authorization: `Bearer ${token}` },   // Bearer + 空格 + 令牌
+})
+// 若后端用 Cookie+Session：加 credentials: "include" 让浏览器带上 Cookie
+```
+
+401/403 的处理策略在后端课讲过：401 未认证（去登录）、403 已认证但无权限（提示越权）——前端把这两种状态码做成不同提示，就是「让状态码回归本位」的客户端配套。
+
 ## 代码示例
 
 主线：一个消费真实接口（JSONPlaceholder）的「待办加载器」，从最简版进化到三态完整版：

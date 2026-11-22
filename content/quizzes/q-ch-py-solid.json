@@ -2,45 +2,58 @@
   "id": "q-ch-py-solid",
   "scopeType": "chapter",
   "scopeId": "ch-py-solid",
-  "title": "第 2 章随堂练习 · 写得稳：异常与工程",
+  "title": "第 3 章随堂练习 · 写得稳：异常与工程",
   "questions": [
     {
       "id": "q-ch-py-solid-1",
-      "stem": "程序崩溃打印了一串红色 Traceback，最该先看哪里？",
+      "stem": "程序崩溃打印了一串 Traceback，按本课教的读法，第一步先看哪里？",
       "options": [
-        "第一行——Traceback 从头读起",
+        "第一行 Traceback (most recent call last)——从头按顺序读",
+        "中间出现自己文件名的那一行——先找文件再看别的",
         "最后一行——异常类型和说明在那里，九成问题答案已写明",
-        "文件名最长的那一行",
-        "不用看，直接重写整个程序"
+        "行号最大的那一行——行号越大越接近真相"
       ],
-      "answer": 1,
-      "explanation": "Traceback 的读法是从最后一行往上：最后一行是异常类型+说明（如 KeyError: '小丽'），往上依次是出错的调用链（文件、行号、语句）。",
+      "answer": 2,
+      "explanation": "Traceback 从最后一行往上读：最后一行是异常类型+消息（如 JSONDecodeError: ...），往上再定位自己写的文件与行号。先认类型，再找现场。",
       "lessonId": "l-py-errors"
     },
     {
       "id": "q-ch-py-solid-2",
-      "stem": "裸 `except:`（后面不写异常类型）最大的问题是什么？",
+      "stem": "用户输入可能不是数字，哪种写法符合本课纪律？",
       "options": [
-        "运行速度比带类型的 except 慢很多",
-        "它会把所有异常都吞掉——包括拼写错误和 Ctrl+C，bug 从此隐身",
-        "Python 3 已经废弃这个语法，会直接报错",
-        "它只能捕获 ValueError 一种异常"
+        "try 里只放 `v = float(s)`，except ValueError 里提示重输——精确捕类型、给可行动的提示",
+        "`except: v = 0`——先兜住再说，程序不崩最重要",
+        "`except Exception: pass`——吞掉异常让程序继续跑",
+        "在 except NameError 里处理——反正都是「输入错误」"
       ],
-      "answer": 1,
-      "explanation": "裸 except 捕获一切异常，连程序员的拼写错误 NameError 和用户按 Ctrl+C 的 KeyboardInterrupt 都被吞掉，错误静默消失。必须写具体类型，兜底才用 except Exception as e 并把 e 打出来。",
+      "answer": 0,
+      "explanation": "预期内的输入错误要精确捕获 ValueError 并给出可行动的提示；裸 except 和 except pass 会连 bug、Ctrl+C 一起吞掉，把错误藏进深处。NameError 是程序 bug，根本不该捕。",
       "lessonId": "l-py-errors"
     },
     {
       "id": "q-ch-py-solid-3",
-      "stem": "项目 A 需要 requests 2.x、项目 B 需要 requests 3.x，只装一个全局 Python 会打架。标准解法是？",
+      "stem": "项目目录里建了个手写的 `json.py`，之后 `import json` 开始报 `AttributeError: module 'json' has no attribute 'loads'`。最可能的原因是？",
       "options": [
-        "每次切项目时手动 pip install 对应版本",
-        "把两个项目合并到一个目录里",
-        "给每个项目建虚拟环境（python -m venv .venv），依赖互不污染",
-        "不用 requests，改用标准库重写"
+        "Python 版本太旧，需要升级",
+        "标准库 json 被卸载了",
+        "两个文件不能同时存在同名模块",
+        "import 优先搜当前目录，自己的 json.py 顶掉了标准库"
       ],
-      "answer": 2,
-      "explanation": "venv 给每个项目一个独立的小 Python，pip install 只装进当前激活的虚拟环境；依赖清单再用 pip freeze > requirements.txt 存档，别人 pip install -r 一条命令还原。",
+      "answer": 3,
+      "explanation": "import 的搜索路径里当前目录最优先，同目录的 json.py 会覆盖标准库 json。文件命名要避开标准库名，误撞后删文件并清理 __pycache__。",
+      "lessonId": "l-py-modules"
+    },
+    {
+      "id": "q-ch-py-solid-4",
+      "stem": "storage.py 的模块顶层（`if __name__` 块之外）写了 `print(\"storage 已就绪\")`，后果是？",
+      "options": [
+        "只有直接运行 storage.py 时打印一次，没有副作用",
+        "任何文件 import storage 时都会执行这行打印——import 会执行模块顶层代码",
+        "Python 会自动把这行移进 main 函数",
+        "报错：模块顶层不允许写 print"
+      ],
+      "answer": 1,
+      "explanation": "import 会执行模块顶层所有代码，副作用随之发生。顶层只放 import、常量和 def；一切「动作」收进函数或 if __name__ == \"__main__\": 块。",
       "lessonId": "l-py-modules"
     }
   ]

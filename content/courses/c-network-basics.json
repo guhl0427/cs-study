@@ -3,20 +3,28 @@
   "domainSlug": "cs-fundamentals",
   "slug": "network-basics",
   "title": "计算机网络入门",
-  "summary": "从「打开一个网页发生了什么」入手：分层模型、HTTP、DNS、TCP/UDP，最后学会用浏览器自己抓包看请求。",
+  "summary": "从「打开一个网页发生了什么」入手：分层模型、HTTP/HTTPS、DNS、TCP/UDP，最后学会自己抓包看请求——6 篇可动手的完整教程。",
   "difficulty": 1,
   "audience": "所有初学者；前端/后端学习者（面试与排错高频考区）",
   "prereqs": "无",
   "chapters": [
     {
       "id": "ch-net-model",
-      "title": "网络分层与 HTTP",
-      "lessons": ["l-net-layered", "l-net-http", "l-net-dns"]
+      "title": "网络分层与应用层",
+      "lessons": [
+        "l-net-layered",
+        "l-net-http",
+        "l-net-https",
+        "l-net-dns"
+      ]
     },
     {
       "id": "ch-net-transport",
       "title": "传输层与抓包",
-      "lessons": ["l-net-tcp-udp", "l-net-capture"]
+      "lessons": [
+        "l-net-tcp-udp",
+        "l-net-capture"
+      ]
     }
   ]
 }

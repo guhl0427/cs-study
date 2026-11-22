@@ -82,6 +82,30 @@ li.remove()                                 // 从树上摘掉
 
 **属性与数据**：`el.setAttribute("href", url)` 改任意属性；`el.dataset.id` 读 `data-id="42"` 这类自定义数据——把业务 id 挂在 DOM 上，事件课会靠它找到对应数据。
 
+**表单元素的取值与赋值**是交互页面的高频动作——input/textarea/select 都用 `.value`：
+
+```js
+const input = document.querySelector("#todo-input")
+input.value                  // 读：用户当前输入的文本
+input.value = ""             // 写：清空输入框（提交后必做）
+input.disabled = true        // 禁用输入（提交中防重复点）
+input.focus()                // 把光标放进去（体验细节）
+```
+
+`select` 用 `selectEl.value` 直接拿到选中项的 value；`checkbox` 看 `checked` 布尔属性。记住这条对照：**内容看 textContent、表单看 value、开关看 checked**——三种「读取状态」的口子别混。
+
+**节点关系导航**——拿到一个节点后可以按「亲缘关系」移动：
+
+```js
+li.parentElement              // 父节点
+ul.children                   // 子元素集合（HTMLCollection，可 for...of）
+ul.firstElementChild          // 第一个子元素
+li.nextElementSibling         // 下一个兄弟
+li.closest("ul")              // 向上找最近的匹配祖先（事件课的主力）
+```
+
+`closest` 值得单独记住：在事件委托里，你拿到的往往是最深处的点击目标（如 span），`closest("li")` 沿祖先向上找最近的列表项——「从点击点向上找容器」的通用解法。
+
 ## 代码示例
 
 主线：把「图书数据」渲染成页面——每个真实列表页的最内核：

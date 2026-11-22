@@ -62,15 +62,7 @@ resources:
 | `ol` | 有序步骤 | 菜谱步骤、排行榜、时间线 |
 | `dl` | 术语-描述对 | 术语表、FAQ |
 
-嵌套规则：`li` 里可以再放 ul/ol/p，形成多级清单；dl 的结构是 `dt`（术语）+ `dd`（描述）成对出现。
-
-```text
-<ol>  有序：浏览器自动编号
- ├── li 步骤一
- ├── li 步骤二
- │     └── <ul> 二级清单（li 里再放 ul）
- └── li 步骤三
-```
+嵌套规则：`li` 里可以再放 ul/ol/p 形成多级清单；dl 的结构是 `dt`（术语）+ `dd`（描述）成对出现。
 
 选型一句话：顺序有意义用 ol（打乱顺序就出错），顺序无意义用 ul（打乱无所谓），一条配一条解释用 dl。
 
@@ -100,10 +92,7 @@ resources:
 
 alt 有个特殊值：**空字符串 `alt=""`**。它表示「这张图是纯装饰的，读屏器请跳过」——不是忘写，是明确声明。装饰性背景图就用它。
 
-两个体贴属性：
-
-- `width`/`height`：写上图片原始宽高，浏览器提前留好位置，图片加载完成时页面不跳动（不写的话，图加载出来一瞬间下面的内容突然被推下去，体验很糟）；
-- `loading="lazy"`：滚动到附近才加载，首屏快的秘诀，长页面多图必加。
+两个体贴属性——`width`/`height`：写上图片原始宽高，浏览器提前留好位置，图片加载完成时页面不跳动（不写的话，图加载出来一瞬间下面的内容突然被推下去，体验很糟）；`loading="lazy"`：滚动到附近才加载，首屏快的秘诀，长页面多图必加。
 
 **figure/figcaption** 给「图 + 图注」这对搭档提供语义绑定，图注和图片永远在一起。
 
@@ -118,18 +107,7 @@ alt 有个特殊值：**空字符串 `alt=""`**。它表示「这张图是纯装
 
 ### 表格：给真正的二维数据用
 
-表格三件套先行，再谈纪律。结构如下：
-
-```html
-<table>
-  <thead>
-    <tr><th>作品</th><th>年份</th></tr>
-  </thead>
-  <tbody>
-    <tr><td>个人主页</td><td>2026</td></tr>
-  </tbody>
-</table>
-```
+表格三件套先行，再谈纪律：
 
 ```text
 <table>
@@ -188,10 +166,7 @@ alt 有个特殊值：**空字符串 `alt=""`**。它表示「这张图是纯装
         <ul>
           <li>羽毛球（每周两次）</li>
           <li>摄影，主要拍校园
-            <ul>
-              <li>人像</li>
-              <li>夜景</li>
-            </ul>
+            <ul><li>人像</li><li>夜景</li></ul>
           </li>
         </ul>
       </section>
@@ -211,28 +186,21 @@ alt 有个特殊值：**空字符串 `alt=""`**。它表示「这张图是纯装
         <table>
           <thead>
             <tr>
-              <th scope="col">作品</th>
-              <th scope="col">类型</th>
-              <th scope="col">完成时间</th>
-              <th scope="col">链接</th>
+              <th scope="col">作品</th><th scope="col">类型</th>
+              <th scope="col">完成时间</th><th scope="col">链接</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>个人介绍页</td>
-              <td>静态页面</td>
-              <td>2026-03</td>
+              <td>个人介绍页</td><td>静态页面</td><td>2026-03</td>
               <td><a href="index.html">查看</a></td>
             </tr>
             <tr>
-              <td>成绩查询脚本</td>
-              <td>Python 工具</td>
-              <td>2026-05</td>
+              <td>成绩查询脚本</td><td>Python 工具</td><td>2026-05</td>
               <td><a href="https://github.com/xiaoming" target="_blank" rel="noopener noreferrer">GitHub</a></td>
             </tr>
             <tr>
-              <td colspan="2">合计</td>
-              <td colspan="2">2 个作品，全部开源</td>
+              <td colspan="2">合计</td><td colspan="2">2 个作品，全部开源</td>
             </tr>
           </tbody>
         </table>
@@ -249,13 +217,8 @@ alt 有个特殊值：**空字符串 `alt=""`**。它表示「这张图是纯装
 
 ```html
         <figure>
-          <img
-            src="images/portfolio.png"
-            alt="个人介绍页截图：顶部是姓名和导航，下方是三个内容区块"
-            width="640"
-            height="360"
-            loading="lazy"
-          />
+          <img src="images/portfolio.png" width="640" height="360" loading="lazy"
+            alt="个人介绍页截图：顶部是姓名和导航，下方是三个内容区块" />
           <figcaption>个人介绍页效果截图（2026 年 3 月版）</figcaption>
         </figure>
 ```
@@ -266,15 +229,7 @@ alt 有个特殊值：**空字符串 `alt=""`**。它表示「这张图是纯装
 
 ### 第 5 步：导航更新 + 页脚外链
 
-页头 nav 增加新锚点，footer 加联系方式外链：
-
-```html
-      <nav>
-        <a href="#about">关于我</a>
-        <a href="#skills">技能</a>
-        <a href="#works">作品集</a>
-      </nav>
-```
+页头 nav 照第一课的写法把锚点更新为 #about / #skills / #works（正好对应三个新 section 的 id）；footer 加联系方式外链：
 
 ```html
     <footer>

@@ -1,0 +1,60 @@
+{
+  "id": "q-ch-py-data",
+  "scopeType": "chapter",
+  "scopeId": "ch-py-data",
+  "title": "第 2 章随堂练习 · 进阶：函数与文件",
+  "questions": [
+    {
+      "id": "q-ch-py-data-1",
+      "stem": "写 `def add_task(task, todo=[])` 往 todo 里 append。连续调用 `add_task(\"A\")`、`add_task(\"B\")`，第二次返回什么？",
+      "options": [
+        "['B'] ——每次调用都用全新的默认空列表",
+        "['A', 'B'] ——默认列表在定义时只创建一次，两次调用共享同一个",
+        "报错：默认参数不允许是可变类型，Python 直接禁止",
+        "['B', 'A'] ——每次调用会重置列表"
+      ],
+      "answer": 1,
+      "explanation": "可变默认值在 def 时创建一次、之后所有调用共享同一个列表，上一次的数据还在里面。正确写法默认值用 None，函数体内再现场创建列表。",
+      "lessonId": "l-py-functions"
+    },
+    {
+      "id": "q-ch-py-data-2",
+      "stem": "`def pick(d):` 函数体只有 `if \"a\" in d: return d[\"a\"]`。调用 `x = pick({})` 后 x 是什么？",
+      "options": [
+        "报错：函数没有覆盖所有分支",
+        "{} ——返回空字典",
+        "False ——条件不满足就返回假",
+        "None ——没有执行到 return 的路径返回 None"
+      ],
+      "answer": 3,
+      "explanation": "空字典里没有 \"a\"，if 条件为假，函数走到底没执行任何 return——Python 规定这种路径返回 None。print 没有 return、部分分支漏 return，都是这个机制。",
+      "lessonId": "l-py-functions"
+    },
+    {
+      "id": "q-ch-py-data-3",
+      "stem": "想把新日志「追加」到 log.txt，却写成了 `open(\"log.txt\", \"w\")`，后果是？",
+      "options": [
+        "原文件内容被整个清空，只留下新写的内容",
+        "追加成功：w 模式默认从文件末尾接着写",
+        "报错：文件已存在，w 模式拒绝打开",
+        "成功，且与 a 模式完全等价"
+      ],
+      "answer": 0,
+      "explanation": "w 模式打开的瞬间就清空整个文件；追加必须用 a 模式。「想追加用了 w」是文件操作的第一大事故，写代码前先确认模式。",
+      "lessonId": "l-py-files"
+    },
+    {
+      "id": "q-ch-py-data-4",
+      "stem": "把 `{1: \"一\", 2: \"二\"}` 用 json.dump 写入文件再 load 读回，之后 `d[1]` 会怎样？",
+      "options": [
+        "正常取到 \"一\"：整数键原样保留",
+        "报错：JSON 不支持整数键，dump 一步就失败了",
+        "KeyError：读回来的键全变成了字符串 \"1\"，必须用 d[\"1\"] 取",
+        "变成 d[\"一\"]：键和值互换了"
+      ],
+      "answer": 2,
+      "explanation": "JSON 标准里对象的键只能是字符串，load 无法还原原来的 int 键。存取前统一把键转成字符串，或改用列表套 dict 的结构来绕开这个限制。",
+      "lessonId": "l-py-files"
+    }
+  ]
+}
