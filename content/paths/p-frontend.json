@@ -24,8 +24,11 @@
       "description": "让页面动起来：语法与 DOM 是地基，异步是前端绕不开的一关。",
       "suggestDuration": "4–6 周",
       "items": [
-        { "id": "pf-s2-1", "lessonId": "l-js-syntax-dom", "prereqs": ["pf-s1-4"] },
-        { "id": "pf-s2-2", "lessonId": "l-js-async", "prereqs": ["pf-s2-1"] }
+        { "id": "pf-s2-1", "lessonId": "l-js-basics", "prereqs": ["pf-s1-4"] },
+        { "id": "pf-s2-2", "lessonId": "l-js-objects-arrays", "prereqs": ["pf-s2-1"] },
+        { "id": "pf-s2-3", "lessonId": "l-js-dom", "prereqs": ["pf-s2-2"] },
+        { "id": "pf-s2-4", "lessonId": "l-js-events", "prereqs": ["pf-s2-3"] },
+        { "id": "pf-s2-5", "lessonId": "l-js-async", "prereqs": ["pf-s2-4"] }
       ]
     },
     {

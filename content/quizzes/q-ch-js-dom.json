@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-js-dom",
+  "scopeType": "chapter",
+  "scopeId": "ch-js-dom",
+  "title": "第 4 章随堂练习 · DOM 与交互",
+  "questions": [
+    {
+      "id": "q-ch-js-dom-1",
+      "stem": "渲染用户提交的评论内容，`li.textContent = comment` 和 `li.innerHTML = comment` 的本质差别是？",
+      "options": [
+        "没有差别，textContent 更新一些",
+        "innerHTML 把字符串当 HTML 解析——用户提交 `<img onerror=…>` 会被执行（XSS）；textContent 永远当纯文本显示，用户数据一律用它",
+        "innerHTML 只能用于 div",
+        "textContent 不能显示中文"
+      ],
+      "answer": 1,
+      "explanation": "innerHTML 的「能解析标签」正是注入通道。需要富文本时先过白名单过滤（呼应安全课的 DOMPurify），纯文本场景 textContent 是默认安全选择。",
+      "lessonId": "l-js-dom"
+    },
+    {
+      "id": "q-ch-js-dom-2",
+      "stem": "「数据变了就重渲染」的待办应用里，为什么监听要绑一次、放在初始化时，而不是每次 render 里重绑？",
+      "options": [
+        "重绑会让页面变卡",
+        "每次 addEventListener 会叠加监听——点一次触发 N 次（N=渲染次数）；绑一次 + 事件委托，新增元素也自动被覆盖",
+        "浏览器只允许绑定一个事件",
+        "重绑会丢失 DOM 节点"
+      ],
+      "answer": 1,
+      "explanation": "addEventListener 是叠加不是覆盖。委托（监听绑在父级 + e.target.closest）让「内容变、监听不变」，这是数据驱动视图能成立的配套机制。",
+      "lessonId": "l-js-events"
+    },
+    {
+      "id": "q-ch-js-dom-3",
+      "stem": "列表有 100 项，点击任意一项要高亮它。为什么推荐在父级 ul 上绑一个 click 而不是给每个 li 绑？",
+      "options": [
+        "父级监听运行更快，浏览器有优化",
+        "这是事件委托：利用冒泡让一个监听覆盖全部子项，配合 e.target.closest 找到实际点击项——省 99 个监听，且增删列表项后无需重新绑定",
+        "子元素不允许绑定事件",
+        "因为 click 事件只能绑在块级元素上"
+      ],
+      "answer": 1,
+      "explanation": "点击 li 后事件会冒泡到 ul。委托的核心收益是「监听数量与列表长度无关」+「动态增删免重绑」——列表交互的标准模式。",
+      "lessonId": "l-js-events"
+    }
+  ]
+}

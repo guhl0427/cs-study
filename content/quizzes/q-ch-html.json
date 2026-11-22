@@ -6,42 +6,68 @@
   "questions": [
     {
       "id": "q-ch-html-1",
-      "stem": "为什么推荐用语义化标签（header/main/section）而不是全用 div？",
+      "stem": "小明在段落里写了 <p>简介<div>详情</div></p>，用 DevTools Elements 面板查看时发现 div 竟然跑到了 p 的外面。最可能的原因是？",
       "options": [
-        "语义化标签渲染速度比 div 快很多",
-        "标签本身就是信息：读屏器、搜索引擎与后来的维护者都靠它理解页面结构",
-        "div 已经被 HTML5 废弃，不再合法",
-        "语义化标签可以自动适配移动端"
+        "div 标签拼写错误，浏览器不认识",
+        "HTML 不允许块级元素放进 p，浏览器把 p 提前闭合了",
+        "DevTools 显示有延迟，刷新一下就正常",
+        "div 必须写在 body 标签之外才能生效"
       ],
       "answer": 1,
-      "explanation": "语义化不改变渲染性能，div 也完全合法；它的价值在于「结构即信息」——可访问性、SEO 和可维护性都依赖标签语义。",
+      "explanation": "p 只允许包含文本和行内元素，塞进块级元素时浏览器会自动修正、提前闭合 p，导致 DOM 与源码不一致。排查布局诡异问题时，先对比源码和 Elements 面板。",
       "lessonId": "l-html-doc-structure"
     },
     {
       "id": "q-ch-html-2",
-      "stem": "表单里的控件为什么要写 name 属性？",
+      "stem": "要给美食网页做两块内容：「做饭步骤」（顺序错了菜就没法做）和「购物清单」（条目先后无所谓）。分别该用什么标签？",
       "options": [
-        "没有 name 的控件在页面上不可见",
-        "name 用于关联 label 文字",
-        "提交表单时浏览器按「name=value」打包数据，没有 name 的控件等于不存在",
-        "name 是 CSS 选择器专用的"
+        "都用 table，看起来最整齐",
+        "都用 ul，反正浏览器都会编号",
+        "步骤用 dl，购物清单用 ol",
+        "步骤用 ol，购物清单用 ul"
       ],
-      "answer": 2,
-      "explanation": "提交时浏览器把「name=value」成对打包发送。label 关联靠的是 label 的 for 和控件的 id，不是 name。",
-      "lessonId": "l-html-forms-media"
+      "answer": 3,
+      "explanation": "顺序有意义（打乱就出错）用 ol，顺序无意义用 ul；dl 是「术语-描述」对。table 留给真正的行列对照数据，不是排版工具。",
+      "lessonId": "l-html-text-tables"
     },
     {
       "id": "q-ch-html-3",
-      "stem": "表单中间有一个「预览」按钮，点击却总是把表单提交了。最可能的原因是？",
+      "stem": "报名表单里「班次」是单选，用户却能同时勾选「A 班」和「B 班」。检查后发现两个 radio 的 id 和 label 关联都正常。最可能的原因是？",
       "options": [
-        "按钮放在 form 外面",
-        "button 在表单里默认 type 是 submit，非提交按钮要显式写 type=\"button\"",
-        "浏览器版本太旧",
-        "form 的 method 写错了"
+        "radio 必须放在 fieldset 里才能互斥",
+        "选错了类型，应该用 checkbox",
+        "两个 radio 的 name 不一致，没分到同一组——单选靠相同 name 分组",
+        "浏览器的单选功能坏了，需要用 JS 修复"
       ],
-      "answer": 1,
-      "explanation": "button 元素在表单内默认 type=\"submit\"。任何非提交动作的按钮都应显式声明 type=\"button\"。",
+      "answer": 2,
+      "explanation": "radio 的互斥靠相同 name 分组，name 不同就是两组互不相干的单选框；id 和 label 只负责关联文字，与单选无关。",
       "lessonId": "l-html-forms-media"
+    },
+    {
+      "id": "q-ch-html-4",
+      "stem": "页面右上角是一个只有「X」图标的关闭按钮，读屏器用户反馈「聚焦到这里只有一个未知按钮」。最合适的修复方式是？",
+      "options": [
+        "给按钮加 title=\"X\"，鼠标悬停就能看到",
+        "换成 div 并加上 onclick，把图标放进去",
+        "用原生 button 并补 aria-label=\"关闭弹窗\"，给没有文字的控件起名",
+        "在按钮旁边再加一个隐藏的 input 来承载语义"
+      ],
+      "answer": 2,
+      "explanation": "图标按钮没有可见文字，正确做法是原生 button 加 aria-label 起名；title 对读屏器不可靠，div+onclick 会丢掉键盘可达性和按钮角色。",
+      "lessonId": "l-html-a11y-seo"
+    },
+    {
+      "id": "q-ch-html-5",
+      "stem": "页面有一块「展开详情」折叠区，点击按钮切换显示/隐藏。哪种写法对键盘用户和读屏器都友好？",
+      "options": [
+        "<div onclick=\"toggle()\">展开详情</div>，鼠标点击最直接",
+        "<a href=\"#detail\">展开详情</a>，链接天然可以聚焦",
+        "<input type=\"hidden\">，自带无障碍支持",
+        "<button type=\"button\"> 配合 aria-expanded 反映展开状态"
+      ],
+      "answer": 3,
+      "explanation": "「在原地做动作」用 button（显式 type=button 避免误提交），状态类交互补 aria-expanded 让读屏器播报开合。div+onclick 键盘不可达；a 的语义是「去别处」不是「做动作」。",
+      "lessonId": "l-html-a11y-seo"
     }
   ]
 }

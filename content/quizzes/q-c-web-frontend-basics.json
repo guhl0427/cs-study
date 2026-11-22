@@ -6,55 +6,68 @@
   "questions": [
     {
       "id": "q-c-wfb-1",
-      "stem": "「网页是一棵树」指的是？",
+      "stem": "一个「全 div 布局、无 alt、标题用加粗文字」的页面要重构，从可访问性与 SEO 视角最先改什么？",
       "options": [
-        "HTML 文件的目录结构像树",
-        "浏览器把 HTML 解析成 DOM 树，JS 通过操作这棵树来读写页面",
-        "网站的导航栏要做成树形",
-        "CSS 的盒模型是树状的"
+        "把所有文字换成图片，视觉更好",
+        "语义化重构：header/nav/main/footer 划分区域、标题用 h1-h6 建层级、img 补 alt——读屏器、爬虫、键盘用户都靠语义「读」页面",
+        "加更多动画让页面活泼",
+        "压缩所有文件提升加载速度"
       ],
       "answer": 1,
-      "explanation": "DOM 是 HTML 在内存中的树形表示，querySelector/addEventListener 都作用在这棵树上——框架做的只是把「手动同步」自动化。",
-      "lessonId": "l-js-syntax-dom"
+      "explanation": "可访问性与 SEO 的地基都是语义化：结构与信息可被程序理解。三者（读屏器/爬虫/键盘党）共享同一套 HTML 语义——这也是「语义塌方」页面重构的第一步。",
+      "lessonId": "l-html-a11y-seo"
     },
     {
       "id": "q-c-wfb-2",
-      "stem": "同一条规则，.card .title 和 #title 同时命中一个元素且属性冲突，谁赢？",
+      "stem": "设计稿要求「三个卡片等宽等间距，屏幕窄了自动换行」。用现代 CSS 怎么落？",
       "options": [
-        "写在后面的赢",
-        "按 HTML 里出现的顺序决定",
-        "#title 的 ID 选择器优先级更高，赢",
-        "两者平级，随机取一"
+        "给每个卡片写固定宽度，手动算间距",
+        "Grid 一行搞定：`grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))` + gap——可用宽度不够就自动换行，无需媒体查询",
+        "用 float 排三遍",
+        "position: absolute 挨个定位"
       ],
-      "answer": 2,
-      "explanation": "层叠规则：ID > 类 > 标签；同优先级才按书写顺序。这也是「少用 ID 写样式」的原因——优先级太高难覆盖。",
-      "lessonId": "l-css-box-selector"
+      "answer": 1,
+      "explanation": "auto-fill + minmax 是响应式网格的标准组合：每列至少 240px、剩余空间均分。这体现 Grid「二维布局引擎」的价值——对比 Flex 的单行/单列思维。",
+      "lessonId": "l-css-flex-grid"
     },
     {
       "id": "q-c-wfb-3",
-      "stem": "关于 HTTPS 与 HTTP 的关系，正确的是？",
+      "stem": "表单提交后页面刷新、输入全丢了。根因和修复是？",
       "options": [
-        "HTTPS 是全新的应用层协议，报文结构与 HTTP 完全不同",
-        "HTTPS = HTTP 先经过 TLS 加密再传输，报文结构不变",
-        "HTTPS 只对登录请求生效",
-        "HTTPS 速度一定比 HTTP 慢十倍"
+        "浏览器 bug，换 Chrome 就好",
+        "submit 事件的默认行为就是「提交并整页刷新」——监听绑在 form 上、处理函数里 e.preventDefault() 拦截，再用 JS 收集数据提交",
+        "把 button 换成 a 标签",
+        "给 input 加 required 就不会刷新"
       ],
       "answer": 1,
-      "explanation": "HTTPS 改变的是传输管道（TLS 加密），HTTP 的方法、状态码、报文语义全部保留——所以 HTTP 知识完全适用于 HTTPS。",
-      "lessonId": "l-net-http"
+      "explanation": "preventDefault 阻止默认行为是 SPA 时代表单的第一动作。另外注意监听要绑 form（回车提交也覆盖）而非按钮，且非提交按钮要写 type=\"button\"。",
+      "lessonId": "l-js-events"
     },
     {
       "id": "q-c-wfb-4",
-      "stem": "从「学框架」的时机看，下列哪种做法符合本课程的建议？",
+      "stem": "渲染接口返回的 todo 标题，哪行代码有 XSS 风险？",
       "options": [
-        "零基础直接学 Vue，跳过原生 JS",
-        "能用原生 JS 独立写完一个小项目（列表增删/表单/本地存储）再学框架",
-        "同时并行学 Vue 和 React",
-        "先精通框架源码再写业务"
+        "li.textContent = todo.title",
+        "li.innerHTML = `<span>${todo.title}</span>`——innerHTML 会解析用户内容里的标签，`<img onerror=…>` 直接执行；纯文本一律 textContent",
+        "li.dataset.id = todo.id",
+        "document.createElement(\"li\")"
       ],
       "answer": 1,
-      "explanation": "框架语法只占两成，八成是组件化思维。分不清「框架的功劳」和「JS 本身的能力」，框架只会变成黑盒。",
-      "lessonId": "l-vue-intro"
+      "explanation": "innerHTML 的解析能力就是注入通道。真实项目里需要富文本时用 DOMPurify 白名单过滤（安全课），拼接字符串的 innerHTML + 用户输入是必须改掉的模式。",
+      "lessonId": "l-js-dom"
+    },
+    {
+      "id": "q-c-wfb-5",
+      "stem": "「逐个 await」请求 10 个互不依赖的接口很慢，为什么 Promise.all 能加速？",
+      "options": [
+        "Promise.all 压缩了每个请求本身的速度",
+        "逐个 await 是串行（每个等完才发下一个，耗时相加）；Promise.all 让 10 个请求同时发出，总耗时 ≈ 最慢的那个",
+        "Promise.all 会自动重试",
+        "网络请求其实是并发的，写法无所谓"
+      ],
+      "answer": 1,
+      "explanation": "await 一次只挂起当前 async 函数直到该请求完成——逐个 await 即串行。并发的条件是「互不依赖」；有依赖的仍要串行。注意 forEach 中 await 无效。",
+      "lessonId": "l-js-async"
     }
   ]
 }

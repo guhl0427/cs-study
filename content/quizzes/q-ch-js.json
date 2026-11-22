@@ -2,46 +2,59 @@
   "id": "q-ch-js",
   "scopeType": "chapter",
   "scopeId": "ch-js",
-  "title": "第 3 章随堂练习 · JavaScript 初步",
+  "title": "第 3 章随堂练习 · JavaScript 语言基础",
   "questions": [
     {
       "id": "q-ch-js-1",
-      "stem": "script 标签放在 <head> 里，querySelector 查不到元素返回 null。原因是？",
+      "stem": "用户在输入框里敲了 \"1\"（字符串），代码写 `if (input == 1)` 判断。为什么要改成 `===`？",
       "options": [
-        "querySelector 只能查 id",
-        "脚本执行时 DOM 还没生成；应放 body 末尾或加 defer",
-        "元素必须加 id 属性才能查到",
-        "head 里不允许写 script"
+        "=== 运行更快",
+        "== 会先把字符串隐式转成数字再比，背不完的转换规则是无数 bug 的源头；=== 类型不同直接 false，行为可预测",
+        "== 是旧语法，浏览器已经废弃",
+        "=== 能比较对象内容"
       ],
       "answer": 1,
-      "explanation": "head 中的脚本先于 body 解析执行，此时文档树里还没有那些元素。放 body 末尾或用 defer 都能解决。",
-      "lessonId": "l-js-syntax-dom"
+      "explanation": "== 的隐式转换产生 0 == \"\"、null == undefined 等反直觉真值；=== 不做转换。工程化课的 eqeqeq 规则就是把这条纪律变成机器检查。",
+      "lessonId": "l-js-basics"
     },
     {
       "id": "q-ch-js-2",
-      "stem": "10 个互不依赖的网络请求，写成 for 循环里逐个 await。问题在于？",
+      "stem": "`const arr = []; arr.push(1)` 完全合法——const 到底锁住了什么？",
       "options": [
-        "await 在 for 循环里是语法错误",
-        "请求被串行执行，总耗时等于各请求之和；应放进 Promise.all 并发",
-        "for 循环里不能发网络请求",
-        "await 会阻塞整个浏览器"
+        "锁住数组内容，push 应该报错",
+        "锁的是「变量名到值的绑定」：不能 arr = 别的，但对象/数组内部照常可变——默认 const 的意图是表达「不会换新值」",
+        "const 和 let 完全一样",
+        "锁住对象的所有属性"
       ],
       "answer": 1,
-      "explanation": "逐个 await 会等上一个完成才发下一个。互不依赖的请求应该用 Promise.all 并发，总耗时约等于最慢的那个。",
-      "lessonId": "l-js-async"
+      "explanation": "const 禁止重新赋值（arr = x 报 TypeError），不禁方法调用。真冻结用 Object.freeze。这也是「默认 const、需要重赋值才 let」规则成立的原因。",
+      "lessonId": "l-js-basics"
     },
     {
       "id": "q-ch-js-3",
-      "stem": "await 的正确理解是？",
+      "stem": "数组 `[10, 2, 1]` 直接 `.sort()` 得到 `[1, 10, 2]`，正确写法是？",
       "options": [
-        "await 会暂停整个页面，直到结果返回",
-        "await 只暂停当前 async 函数，页面其余部分照常响应",
-        "await 把异步变成了同步阻塞 I/O",
-        "await 只能用于 fetch"
+        "sort() 有 bug，应改用 ordered()",
+        "sort 默认把元素转字符串按字典序排；数字排序必须给比较函数 `sort((a, b) => a - b)`，且注意它改原数组",
+        "要先 reverse 再 sort",
+        "用 sort(\"numeric\") 参数"
       ],
       "answer": 1,
-      "explanation": "async/await 只是 Promise 的语法糖：等待发生在当前函数这一条执行线上，事件循环与页面渲染照常运行。",
-      "lessonId": "l-js-async"
+      "explanation": "默认排序按字符串比较，\"10\" < \"2\"。比较函数返回负数表示 a 在前。要保留原数组先 [...arr] 拷贝——呼应「不可变更新」纪律。",
+      "lessonId": "l-js-objects-arrays"
+    },
+    {
+      "id": "q-ch-js-4",
+      "stem": "`for (var i = 0; i < 3; i++) setTimeout(() => console.log(i))` 打出 3 3 3，把 var 换成 let 后打出 0 1 2。根本原因是？",
+      "options": [
+        "let 运行更快，setTimeout 来不及执行",
+        "var 没有块级作用域——三次回调共享同一个 i（循环结束时已是 3）；let 每轮生成独立绑定，各闭包记住各自的值",
+        "let 会自动复制变量",
+        "setTimeout 的 bug"
+      ],
+      "answer": 1,
+      "explanation": "闭包记住的是「变量本身」：var 的 i 是函数级的一个变量，let 在每轮循环创建新绑定。这是作用域与闭包课的经典案例，也是「别用 var」的原理级理由。",
+      "lessonId": "l-js-scope"
     }
   ]
 }

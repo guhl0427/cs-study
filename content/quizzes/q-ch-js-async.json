@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-js-async",
+  "scopeType": "chapter",
+  "scopeId": "ch-js-async",
+  "title": "第 5 章随堂练习 · 异步与接口",
+  "questions": [
+    {
+      "id": "q-ch-js-async-1",
+      "stem": "要同时请求「用户资料」和「通知列表」（互不依赖），哪种写法总耗时最短？",
+      "options": [
+        "const u = await getUser(); const n = await getNotices();",
+        "const [u, n] = await Promise.all([getUser(), getNotices()])——并发发出，总耗时 ≈ 最慢的那个；逐个 await 是串行，耗时相加",
+        "getUser(); getNotices(); 然后直接用变量",
+        "用 for 循环逐个 await"
+      ],
+      "answer": 1,
+      "explanation": "Promise.all 把多个独立请求并发化。注意 forEach 里写 await 完全无效（不等待回调）；有先后依赖的请求才用串行 await。",
+      "lessonId": "l-js-async"
+    },
+    {
+      "id": "q-ch-js-async-2",
+      "stem": "接口返回 404，fetch 的行为是？",
+      "options": [
+        "自动抛出异常，进 catch",
+        "不会抛错——fetch 只在网络层失败时 reject；404 是「成功拿到响应」只是状态码不对，必须手动 `if (!resp.ok) throw` 交给 catch",
+        "返回空对象",
+        "页面自动跳转到错误页"
+      ],
+      "answer": 1,
+      "explanation": "fetch 的 reject 只覆盖断网/DNS 失败等网络层错误。不检查 resp.ok 的后果是：错误页的 HTML 被 resp.json() 解析，炸出莫名其妙的 SyntaxError。",
+      "lessonId": "l-js-fetch"
+    },
+    {
+      "id": "q-ch-js-async-3",
+      "stem": "POST 提交后端报 422，但前端代码看着没毛病。按接口调试课的排查顺序，下一步看什么？",
+      "options": [
+        "直接换个接口试试",
+        "Network 面板看响应体——422 的 detail 会写清哪个字段不合规（如缺 Content-Type 导致 body 解析失败、忘 JSON.stringify 传了对象）",
+        "清浏览器缓存",
+        "把 method 改成 GET"
+      ],
+      "answer": 1,
+      "explanation": "排查三步：先看状态码（422 = 校验拒绝）→ 再看响应体（Pydantic 的 detail 精确指出字段）→ 再对照请求（headers 的 Content-Type 与 body 是否 JSON 字符串）。与后端课的契约知识在此汇合。",
+      "lessonId": "l-js-fetch"
+    }
+  ]
+}

@@ -96,7 +96,7 @@ const result = computed<Recommendation | null>(() => {
         : '标准节奏，阶段内可并行'
 
   if (interest === 'frontend') {
-    const startSlug = level === 'none' ? 'doc-structure' : level === 'some' ? 'syntax-dom' : 'promise-async'
+    const startSlug = level === 'none' ? 'doc-structure' : level === 'some' ? 'js-basics' : 'promise-async'
     const p = contentApi.getPath('frontend-path')
     return {
       domainName: '前端开发',
