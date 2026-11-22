@@ -6,41 +6,67 @@
   "questions": [
     {
       "id": "q-ch-react-eco-1",
-      "stem": "useEffect 的依赖数组写成 `[running]`，它的准确含义是？",
+      "stem": "`useEffect(() => { console.log('count =', count) }, [])` ——用户随后把 count 从 0 加到 5，控制台会打印什么？为什么？",
       "options": [
-        "组件挂载后立即执行一次，之后再也不执行",
-        "挂载后执行一次；之后每次 running 变化，先跑清理函数再重新执行 effect",
-        "每次任意 state 变化都执行",
-        "只在 running 为 true 时执行一次"
+        "只打印 count = 0：空数组意味着清单上没有任何值，effect 永不重跑，闭包捕获的是首次渲染的快照",
+        "打印 0 到 5 共 6 次：effect 会自动追踪 count 的变化",
+        "打印 count = 5：effect 执行时总能读到组件里的最新值",
+        "什么都不打印：空数组让 effect 整个不执行"
       ],
-      "answer": 1,
-      "explanation": "依赖数组的语义是「跟着谁变」：running 变化 → 清理函数先跑（关旧定时器）→ effect 重跑（开新定时器）。空数组 [] 则只在挂载后跑一次。",
+      "answer": 0,
+      "explanation": "心智模型是「依赖数组里列的值变了，就在渲染后重执行」——[] 表示清单为空，永不重跑；effect 里读到的 count 是那一轮渲染的闭包快照。想跟着 count 走，就把它列进依赖：[count]。",
       "lessonId": "l-react-hooks"
     },
     {
       "id": "q-ch-react-eco-2",
-      "stem": "课程详情页 `/course/a/1` 切到 `/course/a/2` 时数据还是旧的，原因是？",
+      "stem": "同一个事件处理函数里连续写两次 `setCount(count + 1)`（初始 count 为 0），点击一次后 count 最终是多少？怎么写才能加 2？",
       "options": [
-        "React Router 不支持参数变化",
-        "同一路由的组件实例被复用，useState 保留旧值——让请求 effect 的依赖数组包含 slug（slug 变 → 重新请求），或给组件加 key 强制重建",
-        "必须换成 Vue Router 才能解决",
-        "在路由配置里加 forceRefresh: true"
+        "2；写法没问题，React 天然支持连续累加",
+        "0；第二次 set 会把第一次的结果覆盖掉",
+        "1；count 是本次渲染的快照，两次 set 基于同一个快照——要加 2 用函数式更新 setCount(c => c + 1)",
+        "报错；React 不允许在一次事件里调用两次 setState"
       ],
-      "answer": 1,
-      "explanation": "组件复用是性能特性也是陷阱：state 不会自动重置。把「跟参数走的数据」放进 effect 依赖（配合 ignore 标志防竞态）是标准解法。",
-      "lessonId": "l-react-router-state"
+      "answer": 2,
+      "explanation": "setX 是「申请重渲染」而非立即赋值：两次 setCount(count + 1) 读到的都是本轮快照 0，队列里两次「设为 1」结果还是 1。函数式更新把计算推迟到队列执行时，c 永远是最新值。",
+      "lessonId": "l-react-hooks"
     },
     {
       "id": "q-ch-react-eco-3",
-      "stem": "课程列表、购物车、主题偏好三类状态，按课程给出的分类该怎么放？",
+      "stem": "开发模式下 StrictMode 让组件挂载后 effect 执行了两次，页面上出现了两个定时器（每秒 +2）。这说明什么、怎么处理？",
       "options": [
-        "全部放 Redux，全局状态只有一个地方",
-        "课程列表是服务端数据的镜像→交给请求缓存库；购物车是客户端共享状态→Zustand；主题偏好是低频全局→Context 或 Zustand 均可——先分类再选库",
-        "全部放 Context，最简单",
-        "全部放 useState + props 层层传"
+        "React 的 bug，上生产线前应该删掉 StrictMode 了事",
+        "依赖数组写错了，把 [] 换成 [Date.now()] 就不会重复",
+        "生产环境也会双调用，需要用 setTimeout 错开两次执行",
+        "双调用是「体检」：它暴露了 effect 只借不还——必须返回清理函数 clearInterval；生产环境不双调用，但清理纪律必须按「随时可能被拆了重来」来写"
+      ],
+      "answer": 3,
+      "explanation": "StrictMode 故意「挂载→执行→清理→再执行」来暴露未清理的副作用。写对清理函数后，双调用下定时器仍然只有一个；删 StrictMode 只是掩盖问题，不是修复。",
+      "lessonId": "l-react-hooks"
+    },
+    {
+      "id": "q-ch-react-eco-4",
+      "stem": "接口返回的课程列表、客户端维护的购物车、某输入框的草稿文本——三类状态分别该怎么存？",
+      "options": [
+        "全部放进 Zustand 一个大 store，查找方便",
+        "课程列表是服务端数据→请求缓存库（TanStack Query）；购物车是客户端共享→Zustand；草稿是组件私有→useState",
+        "全部集中在顶层 Context + useState，一处声明全站可用",
+        "全部先存 localStorage 再读回 state，保证刷新不丢"
       ],
       "answer": 1,
-      "explanation": "「服务端数据的真相在服务端」，镜像数据交给请求库管缓存与失效，手动进 store 迟早不一致。高频更新的购物车不适合 Context（全量重渲染）。分类是选库的前提。",
+      "explanation": "先分类再选库：服务端数据会过期、要重取，交给请求缓存库管缓存与竞态；跨组件共享的客户端状态才进全局库；只属于一个组件的留 useState。一股脑塞 store 会把「刷新丢不丢、谁负责失效」的语义全弄乱。",
+      "lessonId": "l-react-router-state"
+    },
+    {
+      "id": "q-ch-react-eco-5",
+      "stem": "从 /courses/2 跳到 /courses/3，CourseDetail 组件没卸载、内容却停在课程 2。原因与两种修法？",
+      "options": [
+        "React Router 的 bug，需要在跳转前调用 location.reload() 整页刷新",
+        "两个课程必须注册成两条不同的 Route 才会各自渲染",
+        "同路由不同参数会复用组件实例——推荐让 effect 依赖参数：useEffect(load, [id])；或包一层 <CourseDetail key={id}/> 强制重建",
+        "用 Context 监听 URL 变化，在回调里手动 setCourse 覆盖旧数据"
+      ],
+      "answer": 2,
+      "explanation": "复用实例是路由的性能设计（销毁重建太贵），代价是「参数变化」没有现成生命周期。effect 依赖 [id] 让取数跟着参数走；key 方案用重建换省心，牺牲复用性能。",
       "lessonId": "l-react-router-state"
     }
   ]

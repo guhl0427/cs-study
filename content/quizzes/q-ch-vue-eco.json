@@ -6,41 +6,67 @@
   "questions": [
     {
       "id": "q-ch-vue-eco-1",
-      "stem": "「购物车总价 = 各条目价格之和」应该用 ref 还是 computed 实现？",
+      "stem": "购物车组件里有两段逻辑：「应付金额 = 原价 × 折扣」和「应付变化时上报一次埋点」。分别该用什么实现？",
       "options": [
-        "ref——总价也是数据，用 watch 同步它",
-        "computed——派生值带缓存、只读，依赖变了自动重算；用 watch 手动同步等于回到「手动同步 DOM」的老路",
-        "ref，在每次 add 时手动更新",
-        "都行，没有区别"
+        "都用 computed，在 computed 里顺便调用埋点 SDK，一步到位",
+        "都用 watch，在 watch 回调里把金额算出来再上报",
+        "应付金额用 computed（派生值带缓存、依赖变了自动重算）；埋点用 watch（副作用不该混进计算）",
+        "都用 ref，在加购和换折扣的事件处理函数里手动重算并上报"
       ],
-      "answer": 1,
-      "explanation": "computed 强迫你声明依赖、带缓存（依赖不变不重算），且模板里多处使用只算一次。watch + 手动更新另一个 ref 是「手动同步」反模式——框架概览课批判的正是它。",
+      "answer": 2,
+      "explanation": "「算出来的」进 computed——缓存、只读、依赖自动追踪；「变了要做的事」进 watch。把埋点塞进 computed，执行次数取决于它被用到几处，时灵时不灵且无法手动重试。",
       "lessonId": "l-vue-composition"
     },
     {
       "id": "q-ch-vue-eco-2",
-      "stem": "`/course/a` 跳到 `/course/b` 是同一个 CoursePage 组件，页面数据没刷新。为什么、怎么修？",
+      "stem": "组件里写了 `const { id } = props`，父组件传入的 id 随后不断变化，但页面始终显示第一次的内容。最可能的原因与修法？",
       "options": [
-        "Router 的 bug，需要整页 location.reload()",
-        "同路由不同参数复用组件实例，setup 不重跑——在组件里 watch 路由参数来响应变化（本站修过的「上一篇/下一篇不刷新」就是这个问题）",
-        "把两条路径注册成两个不同的组件",
-        "给路由加 meta 强制刷新"
+        "解构把值从响应式容器里倒了出来，只剩当次快照——改用 `toRefs(props)` 再解构，或始终以 `props.id` 访问",
+        "props 是只读的，子组件必须 emit 事件让父组件重新传一遍",
+        "watch 少了 `deep: true` 选项，加上就正常",
+        "Vue 响应式有延迟，需要用 nextTick 包一层渲染逻辑"
       ],
-      "answer": 1,
-      "explanation": "Vue Router 的性能设计：路径参数变化不销毁重建组件。副作用是 setup 只跑一次、params 不自动重取——标准做法是 watch(() => route.params) 或对组件加 key。",
-      "lessonId": "l-vue-router-pinia"
+      "answer": 0,
+      "explanation": "响应式属于「容器」，不属于「里面的值」：解构出的 id 是当时的数字快照，从此与 props 脱钩。toRefs 让属性重新变回 ref，跟着 props 一起变。",
+      "lessonId": "l-vue-composition"
     },
     {
       "id": "q-ch-vue-eco-3",
-      "stem": "课程 id、登录态、购物车列表三类数据分别该放在哪？",
+      "stem": "onMounted 里用 setInterval 开了轮询，用户在列表页反复进出几次后，页面越来越卡、控制台日志重复打印好几份。根因是什么？",
       "options": [
-        "全部放进 Pinia store 统一管理",
-        "课程 id 放路由参数（刷新/分享不丢）、登录态和购物车放 Pinia（跨页面存活）——URL 能表达的不进任何状态",
-        "全部放组件 ref，用 props 层层传递",
-        "全部放 localStorage"
+        "ref 没用 shallowRef，深响应式拖慢了渲染",
+        "v-for 的 key 绑错，导致组件重复创建",
+        "浏览器内存不足，属于环境问题，与代码无关",
+        "只借不还——组件销毁不会自动清理定时器；onMounted 里借的资源必须在 onUnmounted 里 clearInterval 归还"
+      ],
+      "answer": 3,
+      "explanation": "组件卸载不会替你关闭自己开的定时器/监听，每次进入组件都新增一份，旧的全部还在跑。清理纪律是「借-还」配对：onMounted 借、onUnmounted 还。",
+      "lessonId": "l-vue-composition"
+    },
+    {
+      "id": "q-ch-vue-eco-4",
+      "stem": "router.beforeEach 里写了「未登录一律 return '/login'」，结果访问 /login 自己也陷入无限重定向。怎么修才对？",
+      "options": [
+        "在 return 前加 await nextTick() 等一拍再跳",
+        "先建白名单：to.path 命中白名单（含 /login）就 return true 放行，剩下才检查登录态",
+        "把守卫换成 afterEach，就不会死循环了",
+        "给 /login 路由加 meta: { auth: true }，让守卫跳过它"
       ],
       "answer": 1,
-      "explanation": "分类心法：URL 能表达的放路由参数（可刷新可分享）；跨组件共享且要跨页面存活的进 store；组件私有的用 ref。一股脑塞 store 会让「刷新丢/不丢」的语义变糊涂。",
+      "explanation": "死循环的根因是重定向目标也在拦截范围内：跳到 /login 触发守卫、又重定向回 /login。守卫第一纪律是「先放行、再拦截」；afterEach 在跳转之后运行、不能取消或重定向，替代不了拦截逻辑。",
+      "lessonId": "l-vue-router-pinia"
+    },
+    {
+      "id": "q-ch-vue-eco-5",
+      "stem": "课程详情 id、购物车条目列表、搜索框当前输入的草稿，三类数据分别该放在哪？",
+      "options": [
+        "全部放进 Pinia store 统一管理，最不容易丢",
+        "全部放组件 ref，需要跨组件时用 props 层层传递",
+        "全部写进 localStorage，刷新也不会丢",
+        "id 放路由参数（刷新不丢、链接可分享）；购物车放 Pinia（跨页面存活）；搜索草稿放组件 ref（组件私有）"
+      ],
+      "answer": 3,
+      "explanation": "三分法：能进 URL 的进 URL——页面的「身份」放状态里，刷新即丢、也无法分享；跨组件共享且要跨页存活的进 store；独享的留组件。localStorage 一把梭既丢了 URL 语义，也要自己处理过期与同步。",
       "lessonId": "l-vue-router-pinia"
     }
   ]
