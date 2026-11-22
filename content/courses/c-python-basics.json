@@ -1,0 +1,22 @@
+{
+  "id": "c-python-basics",
+  "domainSlug": "languages",
+  "slug": "python-basics",
+  "title": "Python 入门：第一门编程语言",
+  "summary": "以反馈最快的 Python 打底：语法、数据容器、异常处理与模块化——学完能独立写出有错误处理的小工具。",
+  "difficulty": 1,
+  "audience": "零基础新手（首选）；想快速建立编程心智的转行者",
+  "prereqs": "无（建议与「Git 与命令行起步」并行）",
+  "chapters": [
+    {
+      "id": "ch-py-start",
+      "title": "起步：语法与数据",
+      "lessons": ["l-py-syntax", "l-py-collections"]
+    },
+    {
+      "id": "ch-py-solid",
+      "title": "写得稳：异常与工程",
+      "lessons": ["l-py-errors", "l-py-modules"]
+    }
+  ]
+}

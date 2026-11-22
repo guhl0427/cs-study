@@ -1,0 +1,22 @@
+{
+  "id": "p-languages",
+  "slug": "languages-path",
+  "domainSlug": "languages",
+  "name": "编程语言路线",
+  "description": "第一门语言选 Python：反馈快、语法轻。原则是主修 1 门 + 辅修 1 门——第一门学扎实后，再按方向选第二门（前端补 JS/TS，后端补 Java/Go）。",
+  "targetAudience": "零基础新手；需要第二门语言的进阶者",
+  "stages": [
+    {
+      "id": "pl-s1",
+      "name": "第一门语言：Python",
+      "description": "目标是「独立写出有错误处理、模块化的小工具」，不是背语法。",
+      "suggestDuration": "3–4 周",
+      "items": [
+        { "id": "pl-s1-1", "lessonId": "l-py-syntax" },
+        { "id": "pl-s1-2", "lessonId": "l-py-collections", "prereqs": ["pl-s1-1"] },
+        { "id": "pl-s1-3", "lessonId": "l-py-errors", "prereqs": ["pl-s1-2"] },
+        { "id": "pl-s1-4", "lessonId": "l-py-modules", "prereqs": ["pl-s1-3"] }
+      ]
+    }
+  ]
+}
