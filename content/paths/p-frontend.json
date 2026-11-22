@@ -49,6 +49,18 @@
         { "id": "pf-s4-3", "lessonId": "l-eng-node-pnpm", "prereqs": ["pf-s2-1"] },
         { "id": "pf-s4-4", "lessonId": "l-eng-vite-lint", "prereqs": ["pf-s4-3"] }
       ]
+    },
+    {
+      "id": "pf-s5",
+      "name": "框架生态深入",
+      "description": "组合式 API 与 Hooks 的深入用法、路由与状态管理两大生态件——与 pf-s3 的二选一对应，深入哪门就学哪条分支。",
+      "suggestDuration": "4–6 周",
+      "items": [
+        { "id": "pf-s5-1", "lessonId": "l-vue-composition", "branch": "framework", "prereqs": ["pf-s3-1", "pf-s4-1"] },
+        { "id": "pf-s5-2", "lessonId": "l-vue-router-pinia", "branch": "framework", "prereqs": ["pf-s5-1"] },
+        { "id": "pf-s5-3", "lessonId": "l-react-hooks", "branch": "framework", "prereqs": ["pf-s3-2", "pf-s4-1"] },
+        { "id": "pf-s5-4", "lessonId": "l-react-router-state", "branch": "framework", "prereqs": ["pf-s5-3"] }
+      ]
     }
   ]
 }

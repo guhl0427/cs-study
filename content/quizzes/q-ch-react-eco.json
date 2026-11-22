@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-react-eco",
+  "scopeType": "chapter",
+  "scopeId": "ch-react-eco",
+  "title": "第 2 章随堂练习 · React 生态",
+  "questions": [
+    {
+      "id": "q-ch-react-eco-1",
+      "stem": "useEffect 的依赖数组写成 `[running]`，它的准确含义是？",
+      "options": [
+        "组件挂载后立即执行一次，之后再也不执行",
+        "挂载后执行一次；之后每次 running 变化，先跑清理函数再重新执行 effect",
+        "每次任意 state 变化都执行",
+        "只在 running 为 true 时执行一次"
+      ],
+      "answer": 1,
+      "explanation": "依赖数组的语义是「跟着谁变」：running 变化 → 清理函数先跑（关旧定时器）→ effect 重跑（开新定时器）。空数组 [] 则只在挂载后跑一次。",
+      "lessonId": "l-react-hooks"
+    },
+    {
+      "id": "q-ch-react-eco-2",
+      "stem": "课程详情页 `/course/a/1` 切到 `/course/a/2` 时数据还是旧的，原因是？",
+      "options": [
+        "React Router 不支持参数变化",
+        "同一路由的组件实例被复用，useState 保留旧值——让请求 effect 的依赖数组包含 slug（slug 变 → 重新请求），或给组件加 key 强制重建",
+        "必须换成 Vue Router 才能解决",
+        "在路由配置里加 forceRefresh: true"
+      ],
+      "answer": 1,
+      "explanation": "组件复用是性能特性也是陷阱：state 不会自动重置。把「跟参数走的数据」放进 effect 依赖（配合 ignore 标志防竞态）是标准解法。",
+      "lessonId": "l-react-router-state"
+    },
+    {
+      "id": "q-ch-react-eco-3",
+      "stem": "课程列表、购物车、主题偏好三类状态，按课程给出的分类该怎么放？",
+      "options": [
+        "全部放 Redux，全局状态只有一个地方",
+        "课程列表是服务端数据的镜像→交给请求缓存库；购物车是客户端共享状态→Zustand；主题偏好是低频全局→Context 或 Zustand 均可——先分类再选库",
+        "全部放 Context，最简单",
+        "全部放 useState + props 层层传"
+      ],
+      "answer": 1,
+      "explanation": "「服务端数据的真相在服务端」，镜像数据交给请求库管缓存与失效，手动进 store 迟早不一致。高频更新的购物车不适合 Context（全量重渲染）。分类是选库的前提。",
+      "lessonId": "l-react-router-state"
+    }
+  ]
+}

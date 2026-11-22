@@ -1,0 +1,60 @@
+{
+  "id": "q-c-sql-deep",
+  "scopeType": "course",
+  "scopeId": "c-sql-deep",
+  "title": "课程自测 · 深入 MySQL 与 PostgreSQL",
+  "questions": [
+    {
+      "id": "q-c-sql-deep-1",
+      "stem": "「先读余额再扣款」在 REPEATABLE READ 下防不住并发扣款，根因与正解是？",
+      "options": [
+        "隔离级别太低，改 SERIALIZABLE 就一定好",
+        "两次普通 SELECT 都是 MVCC 快照读，看不见别人已提交的扣款——用 FOR UPDATE 当前读（或把扣款写成带条件的原子 UPDATE）",
+        "加个 Redis 缓存就不冲突了",
+        "把表换成 InnoDB 以外的引擎"
+      ],
+      "answer": 1,
+      "explanation": "快照读的一致性恰恰是问题：「读旧值再改」= 丢失更新。当前读（FOR UPDATE）读最新值并加行锁；或 UPDATE ... SET balance=balance-100 WHERE balance>=100 单语句原子完成。",
+      "lessonId": "l-mysql-txn"
+    },
+    {
+      "id": "q-c-sql-deep-2",
+      "stem": "联合索引 (status, created_at) 让 ORDER BY created_at 的 filesort 消失，利用的是 B+ 树的哪个性质？",
+      "options": [
+        "叶子节点存整行数据",
+        "叶子层是有序双向链表，且树内先按 status 再按 created_at 排序——status 固定后，created_at 天然有序，LIMIT 直接沿链表取前 N 条",
+        "B+ 树的层数只有 3 层",
+        "聚簇索引的顺序写入"
+      ],
+      "answer": 1,
+      "explanation": "「查询条件+排序列共用联合索引」能消除 filesort 的原理是排序键在索引内已有序。这也是联合索引列顺序设计的核心考量：等值条件列在前、排序列在后。",
+      "lessonId": "l-mysql-index"
+    },
+    {
+      "id": "q-c-sql-deep-3",
+      "stem": "关于「文章的标签」用 PG 数组类型还是关联表，课程给出的边界是？",
+      "options": [
+        "永远用关联表，数组类型是错误设计",
+        "数据量小、只需过滤展示用数组+GIN；要计数、外键约束、多对多带属性时用关联表——对应范式与反范式的有意选择",
+        "永远用数组，PG 就是这么设计的",
+        "用 JSONB 塞进文章表最灵活"
+      ],
+      "answer": 1,
+      "explanation": "数组免建关联表但放弃了关系约束与统计能力；关联表多一次 JOIN 但约束完整、可扩展属性。边界判断与表结构设计课的「有意识的选择才叫设计」一脉相承。",
+      "lessonId": "l-pg-advanced"
+    },
+    {
+      "id": "q-c-sql-deep-4",
+      "stem": "CTE（WITH 查询）相比嵌套子查询的最大收益是？",
+      "options": [
+        "执行速度一定快很多",
+        "把复杂查询命名分层、按步骤读——可读性与可维护性是第一收益（MySQL 8.0 与 PG 均支持，含递归 CTE）",
+        "可以省掉 WHERE 条件",
+        "自动创建临时索引"
+      ],
+      "answer": 1,
+      "explanation": "CTE 先解决「可读性」：月度统计→再过滤 这种两步逻辑不再一层套一层。性能是否更快取决于优化器（PG/新 MySQL 会内联或物化），不能当作必然提速手段。",
+      "lessonId": "l-pg-advanced"
+    }
+  ]
+}

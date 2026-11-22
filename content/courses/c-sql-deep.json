@@ -1,0 +1,22 @@
+{
+  "id": "c-sql-deep",
+  "domainSlug": "database",
+  "slug": "sql-deep",
+  "title": "深入 MySQL 与 PostgreSQL",
+  "summary": "一套 SQL 学完后的深入课：InnoDB 索引原理、事务隔离与 MVCC、EXPLAIN 慢查询优化，再到 PostgreSQL 的 JSONB/CTE 对照——两个库的差异与选型。",
+  "difficulty": 3,
+  "audience": "学完「SQL 入门」、准备进阶数据库的学习者；后端求职面试冲刺期",
+  "prereqs": "「SQL 入门：从查询到设计」课程（查询、索引、事务基础）",
+  "chapters": [
+    {
+      "id": "ch-mysql",
+      "title": "MySQL 引擎与事务",
+      "lessons": ["l-mysql-index", "l-mysql-txn"]
+    },
+    {
+      "id": "ch-sql-optimization",
+      "title": "优化与对照",
+      "lessons": ["l-sql-explain", "l-pg-advanced"]
+    }
+  ]
+}

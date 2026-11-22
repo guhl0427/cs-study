@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-vue-eco",
+  "scopeType": "chapter",
+  "scopeId": "ch-vue-eco",
+  "title": "第 1 章随堂练习 · Vue 3 生态",
+  "questions": [
+    {
+      "id": "q-ch-vue-eco-1",
+      "stem": "「购物车总价 = 各条目价格之和」应该用 ref 还是 computed 实现？",
+      "options": [
+        "ref——总价也是数据，用 watch 同步它",
+        "computed——派生值带缓存、只读，依赖变了自动重算；用 watch 手动同步等于回到「手动同步 DOM」的老路",
+        "ref，在每次 add 时手动更新",
+        "都行，没有区别"
+      ],
+      "answer": 1,
+      "explanation": "computed 强迫你声明依赖、带缓存（依赖不变不重算），且模板里多处使用只算一次。watch + 手动更新另一个 ref 是「手动同步」反模式——框架概览课批判的正是它。",
+      "lessonId": "l-vue-composition"
+    },
+    {
+      "id": "q-ch-vue-eco-2",
+      "stem": "`/course/a` 跳到 `/course/b` 是同一个 CoursePage 组件，页面数据没刷新。为什么、怎么修？",
+      "options": [
+        "Router 的 bug，需要整页 location.reload()",
+        "同路由不同参数复用组件实例，setup 不重跑——在组件里 watch 路由参数来响应变化（本站修过的「上一篇/下一篇不刷新」就是这个问题）",
+        "把两条路径注册成两个不同的组件",
+        "给路由加 meta 强制刷新"
+      ],
+      "answer": 1,
+      "explanation": "Vue Router 的性能设计：路径参数变化不销毁重建组件。副作用是 setup 只跑一次、params 不自动重取——标准做法是 watch(() => route.params) 或对组件加 key。",
+      "lessonId": "l-vue-router-pinia"
+    },
+    {
+      "id": "q-ch-vue-eco-3",
+      "stem": "课程 id、登录态、购物车列表三类数据分别该放在哪？",
+      "options": [
+        "全部放进 Pinia store 统一管理",
+        "课程 id 放路由参数（刷新/分享不丢）、登录态和购物车放 Pinia（跨页面存活）——URL 能表达的不进任何状态",
+        "全部放组件 ref，用 props 层层传递",
+        "全部放 localStorage"
+      ],
+      "answer": 1,
+      "explanation": "分类心法：URL 能表达的放路由参数（可刷新可分享）；跨组件共享且要跨页面存活的进 store；组件私有的用 ref。一股脑塞 store 会让「刷新丢/不丢」的语义变糊涂。",
+      "lessonId": "l-vue-router-pinia"
+    }
+  ]
+}

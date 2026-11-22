@@ -1,0 +1,22 @@
+{
+  "id": "c-framework-deep",
+  "domainSlug": "frontend",
+  "slug": "framework-deep",
+  "title": "框架深入：Vue 3 与 React 生态",
+  "summary": "从「会写计数器」到「能做项目」：组合式 API 与 Hooks 的深入用法、Vue Router/Pinia 与 React Router/状态管理——Vue 与 React 各一条分支，选一门深入。",
+  "difficulty": 3,
+  "audience": "学完框架概览、准备用框架做真实项目的前端学习者",
+  "prereqs": "「前端框架概览」课程 + 「TypeScript 与前端工程化」课程（或同步学习）",
+  "chapters": [
+    {
+      "id": "ch-vue-eco",
+      "title": "Vue 3 生态",
+      "lessons": ["l-vue-composition", "l-vue-router-pinia"]
+    },
+    {
+      "id": "ch-react-eco",
+      "title": "React 生态",
+      "lessons": ["l-react-hooks", "l-react-router-state"]
+    }
+  ]
+}

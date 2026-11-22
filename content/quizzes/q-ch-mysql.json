@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-mysql",
+  "scopeType": "chapter",
+  "scopeId": "ch-mysql",
+  "title": "第 1 章随堂练习 · MySQL 引擎与事务",
+  "questions": [
+    {
+      "id": "q-ch-mysql-1",
+      "stem": "用 email 的二级索引查 `SELECT name FROM users WHERE email=?`，InnoDB 在拿到 email 索引的叶子后还要做什么？",
+      "options": [
+        "什么都不做，叶子里有整行数据",
+        "回表：拿叶子里的主键值回聚簇索引再查一次，取整行（SELECT * 时必需；只查 id 则覆盖索引免回表）",
+        "全表扫描补齐 name 列",
+        "重新建一个 name 索引"
+      ],
+      "answer": 1,
+      "explanation": "二级索引叶子只存「索引列+主键」，聚簇索引（主键树）的叶子才存整行。回表是二级索引取完整行的代价；覆盖索引（SELECT 的列全在索引里）可以省掉这一步。",
+      "lessonId": "l-mysql-index"
+    },
+    {
+      "id": "q-ch-mysql-2",
+      "stem": "为什么 InnoDB 表的主键推荐自增整数而不是随机 UUID？",
+      "options": [
+        "UUID 太长，存储成本高一点点",
+        "自增保证新行总插到 B+ 树最右侧（顺序写）；UUID 插入位置随机导致页频繁分裂、写放大——索引结构决定了主键设计",
+        "UUID 无法唯一",
+        "MySQL 不支持 UUID 类型"
+      ],
+      "answer": 1,
+      "explanation": "聚簇索引按主键组织整张表：递增主键=追加写（页满才分裂），随机主键=到处插（每次都可能分裂+碎片化）。这是「索引结构反推工程选型」的典型案例。",
+      "lessonId": "l-mysql-index"
+    },
+    {
+      "id": "q-ch-mysql-3",
+      "stem": "REPEATABLE READ 下，事务 A 先读余额 100，事务 B 提交了扣款到 50，A 再读同一行看到多少、为什么？",
+      "options": [
+        "50——读到的永远是最新值",
+        "100——A 用事务开始时的 MVCC 快照读，B 的提交对 A 不可见；这就是「不可重复读」被防住的机制",
+        "0——事务冲突自动回滚",
+        "随机，取决于锁竞争"
+      ],
+      "answer": 1,
+      "explanation": "MVCC：每个事务持有一张开始时的读视图，普通 SELECT 沿版本链找「对它可见」的版本——读不阻塞写，代价是读到的是历史快照。「读最新值」要用 FOR UPDATE 当前读。",
+      "lessonId": "l-mysql-txn"
+    }
+  ]
+}

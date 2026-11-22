@@ -3,7 +3,7 @@
   "slug": "database-path",
   "domainSlug": "database",
   "name": "数据库路线",
-  "description": "从「会把查询写清楚」到「能设计一套表结构」。MySQL 与 PostgreSQL 语法高度共通，一套 SQL 学完再做对照差异。",
+  "description": "从「会把查询写清楚」到「能设计一套表结构」，再到「懂引擎原理与优化」。MySQL 与 PostgreSQL 语法高度共通：一套 SQL 学完，再做两个库的深入与对照差异。",
   "targetAudience": "所有后端学习者（必修）；数据方向学习者",
   "stages": [
     {
@@ -24,6 +24,18 @@
       "items": [
         { "id": "pd-s2-1", "lessonId": "l-db-transaction", "prereqs": ["pd-s1-2"] },
         { "id": "pd-s2-2", "lessonId": "l-db-schema-design", "prereqs": ["pd-s1-2"] }
+      ]
+    },
+    {
+      "id": "pd-s3",
+      "name": "深入 MySQL 与 PostgreSQL",
+      "description": "引擎原理与面试高频：InnoDB 索引 B+ 树、事务隔离与 MVCC、EXPLAIN 慢查询优化，再到 PostgreSQL 的 JSONB/CTE 对照差异。",
+      "suggestDuration": "3–4 周",
+      "items": [
+        { "id": "pd-s3-1", "lessonId": "l-mysql-index", "prereqs": ["pd-s1-2"] },
+        { "id": "pd-s3-2", "lessonId": "l-mysql-txn", "prereqs": ["pd-s3-1"] },
+        { "id": "pd-s3-3", "lessonId": "l-sql-explain", "prereqs": ["pd-s3-1"] },
+        { "id": "pd-s3-4", "lessonId": "l-pg-advanced", "prereqs": ["pd-s2-2"] }
       ]
     }
   ]

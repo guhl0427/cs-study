@@ -26,14 +26,7 @@ resources:
 
 ## 概念讲解
 
-先立好工程结构（每个文件一个职责，对照「代码规范」一课）：
-
-```text
-todo-api/
-├── main.py     # 应用装配：FastAPI 实例 + 路由
-├── models.py   # SQLAlchemy 表模型（数据库长什么样）
-└── schemas.py  # Pydantic 出入站模型（接口契约长什么样）
-```
+三个文件各管一摊（对照「代码规范」一课）：`models.py` 是 SQLAlchemy 表模型（数据库长什么样），`schemas.py` 是 Pydantic 出入站模型（接口契约长什么样），`main.py` 装配应用与路由。
 
 **为什么 models 和 schemas 要分开？** models 描述「数据在库里怎么存」，schemas 描述「数据在接口上怎么进出」——生命周期不同（表结构改动少，接口契约是对前端的承诺）。混在一起，迟早出现「为了前端少传个字段去改数据库列」的事故。
 
@@ -41,30 +34,26 @@ todo-api/
 
 ## 代码示例
 
-四个文件拼成一个能跑的完整服务：
+三个文件拼成一个能跑的完整服务：
 
 ```python
-# models.py
+# models.py（表模型）与 schemas.py（接口契约）
 from sqlalchemy import String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from pydantic import BaseModel, Field
 
 class Base(DeclarativeBase): ...
 
-class Todo(Base):
+class Todo(Base):                       # models.py：表 todos
     __tablename__ = "todos"
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(50))
     done: Mapped[bool] = mapped_column(default=False)
-```
 
-```python
-# schemas.py
-from pydantic import BaseModel, Field
-
-class TodoIn(BaseModel):
+class TodoIn(BaseModel):                # schemas.py：入站（用户不该传 id）
     title: str = Field(min_length=1, max_length=50)
 
-class TodoOut(BaseModel):
+class TodoOut(BaseModel):               # schemas.py：出站（多暴露 id）
     id: int
     title: str
     done: bool
@@ -75,7 +64,6 @@ class TodoOut(BaseModel):
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-
 from models import Base, Todo
 from schemas import TodoIn, TodoOut
 
@@ -114,7 +102,6 @@ def toggle_todo(todo_id: int, session: Session = Depends(get_session)):
 fastapi dev main.py
 http POST :8000/todos title="学完 FastAPI"        # 201 {"id":1,"done":false,...}
 http PATCH :8000/todos/1/toggle                   # {"done":true}
-http :8000/todos
 ```
 
 ## 常见坑

@@ -1,0 +1,60 @@
+{
+  "id": "q-c-backend-java",
+  "scopeType": "course",
+  "scopeId": "c-backend-java",
+  "title": "课程自测 · Java 方向入门：Spring Boot 实战",
+  "questions": [
+    {
+      "id": "q-c-backend-java-1",
+      "stem": "Controller 只调 Service、Service 只调 Repository——这个分层对照 FastAPI 实战课的 todo-api 结构，共同目的是？",
+      "options": [
+        "代码行数更少",
+        "职责单一：Controller 管协议进出、Service 管业务、Repository 管数据——每层可独立测试与替换（呼应软件工程的测试与重构）",
+        "Java 框架强制要求，FastAPI 没有这套约束",
+        "让代码更难读以保护知识产权"
+      ],
+      "answer": 1,
+      "explanation": "分层不是为了仪式感：路由薄了才好测业务（塞假仓库），业务集中了才能复用。两个框架语言不同、分层思想完全一致——这是可迁移的工程能力。",
+      "lessonId": "l-spring-boot"
+    },
+    {
+      "id": "q-c-backend-java-2",
+      "stem": "实体类 Article 上 @Column(nullable=false, length=50) 对应「SQL 入门」里的什么？",
+      "options": [
+        "视图定义",
+        "列约束：NOT NULL 与 VARCHAR(50)——@Entity 类就是 CREATE TABLE 的对象化表达，ddl-auto 会按它建表",
+        "索引声明",
+        "事务隔离级别"
+      ],
+      "answer": 1,
+      "explanation": "JPA 实体 = 表结构的对象语言翻译：@Id 对应主键、@Column 对应列约束、@ManyToOne 对应外键。SQL 知识在 ORM 时代全部复用。",
+      "lessonId": "l-spring-data"
+    },
+    {
+      "id": "q-c-backend-java-3",
+      "stem": "生产环境数据库建表/改表，为什么不能靠 ddl-auto=update？",
+      "options": [
+        "会拖慢启动速度而已",
+        "自动改结构不可控、不可回滚也无评审记录——生产用 Flyway/Liquibase 迁移脚本（版本化、可回滚），对照 SQLAlchemy 课的 Alembic",
+        "Hibernate 不支持 MySQL",
+        "因为违反 Java 语法"
+      ],
+      "answer": 1,
+      "explanation": "「自动同步结构」在开发期是便利、在生产期是不可控变更：无历史、无回滚、无评审。版本化迁移脚本让每次结构变更都是一次可审计的提交。",
+      "lessonId": "l-spring-data"
+    },
+    {
+      "id": "q-c-backend-java-4",
+      "stem": "循环里对每个订单单独查询用户（1 次列表 + N 次用户查询），接口越来越慢。这个问题在 SQLAlchemy 课里叫什么、怎么解？",
+      "options": [
+        "死锁——加锁解决",
+        "N+1 查询——用 @EntityGraph / JOIN FETCH 预加载关联（SQLAlchemy 里叫 selectinload），一次查齐",
+        "缓存穿透——加 Redis",
+        "事务太长——缩短事务"
+      ],
+      "answer": 1,
+      "explanation": "N+1 是 ORM 时代通用病：查询次数 = N+1。所有 ORM 都提供「预加载关联」的机制，名字不同（EntityGraph/selectinload/include）但思路相同——这也是 SQL 知识可跨栈迁移的例证。",
+      "lessonId": "l-spring-data"
+    }
+  ]
+}

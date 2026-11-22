@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-os-memory",
+  "scopeType": "chapter",
+  "scopeId": "ch-os-memory",
+  "title": "第 2 章随堂练习 · 内存、文件与 I/O",
+  "questions": [
+    {
+      "id": "q-ch-os-memory-1",
+      "stem": "某程序申请了 2GB 内存但几乎不写入，`ps` 显示 RSS（常驻内存）只有 100MB。最合理的解释是？",
+      "options": [
+        "操作系统偷工减料没真分配，是内存泄漏的前兆",
+        "虚拟内存按需分配：申请只登记地址范围，写入某页触发缺页中断后才给真实物理内存",
+        "RSS 是统计错误，重启 ps 就准了",
+        "说明 1.9GB 已经被换出到 swap，属于危险状态"
+      ],
+      "answer": 1,
+      "explanation": "懒加载正是虚拟内存的设计目标：申请时只改页表登记，真正写入才触发缺页中断、分配物理页。RSS 低恰好说明没怎么写入；与泄漏、swap 都对不上。",
+      "lessonId": "l-os-memory"
+    },
+    {
+      "id": "q-ch-os-memory-2",
+      "stem": "服务连续运行三天后开始报 `Too many open files`，`ls /proc/<pid>/fd | wc -l` 有两万多行。最可能的根因是？",
+      "options": [
+        "fd 泄漏：某条代码路径打开文件、socket 或连接后没有关闭，句柄只涨不跌",
+        "磁盘上的文件总数太多，把进程的 fd 表撑爆了",
+        "文件系统的 inode 耗尽，创建不了新文件",
+        "并发量太大导致的正常现象，加机器就能解决"
+      ],
+      "answer": 0,
+      "explanation": "fd 是进程级有限资源（上限常为 1024），数量随运行时间只涨不跌，几乎必然是句柄泄漏——异常路径忘记 close。磁盘文件数和 inode 是另一类问题，不会体现为进程 fd 表的增长。",
+      "lessonId": "l-os-fs-io"
+    },
+    {
+      "id": "q-ch-os-memory-3",
+      "stem": "`f.write(...)` 返回成功后机器立刻掉电，重启后这行日志丢了。原因是？",
+      "options": [
+        "磁盘扇区损坏，write 把数据写到了坏块上",
+        "文件系统自动清理了没有 fsync 过的文件",
+        "write 只把数据送进内核页缓存（内存），还没真正写盘，掉电就丢；关键数据要 fsync",
+        "日志框架的实现 bug，与操作系统无关"
+      ],
+      "answer": 2,
+      "explanation": "write 返回成功只代表数据进了页缓存，内核择机刷盘；fsync 才强制落盘——数据库事务日志必须 fsync 就是这个原因。与坏块、文件清理无关。",
+      "lessonId": "l-os-fs-io"
+    }
+  ]
+}

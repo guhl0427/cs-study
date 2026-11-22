@@ -1,0 +1,22 @@
+{
+  "id": "c-os-basics",
+  "domainSlug": "cs-fundamentals",
+  "slug": "os-basics",
+  "title": "操作系统入门",
+  "summary": "把「程序在机器上的一天」讲透：进程与线程如何调度、内存如何分配与回收、文件与 I/O 怎么落盘——后端进阶与面试的底层地基。",
+  "difficulty": 2,
+  "audience": "CS 在校生、后端方向学习者；建议在完成任意一门语言入门后学习",
+  "prereqs": "任意一门编程语言；建议先修「计算机网络入门」建立系统直觉",
+  "chapters": [
+    {
+      "id": "ch-os-process",
+      "title": "进程与线程",
+      "lessons": ["l-os-process-thread", "l-os-scheduling"]
+    },
+    {
+      "id": "ch-os-memory",
+      "title": "内存、文件与 I/O",
+      "lessons": ["l-os-memory", "l-os-fs-io"]
+    }
+  ]
+}

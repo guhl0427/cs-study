@@ -3,7 +3,7 @@
   "slug": "cs-fundamentals-path",
   "domainSlug": "cs-fundamentals",
   "name": "计算机基础路线",
-  "description": "全领域的地基：先学网络（面试与排错的高频考区），再推数据结构与算法（刷题与面试共用地基）。操作系统、组成原理后续按阶段扩充。",
+  "description": "全领域的地基：网络（面试与排错的高频考区）→ 数据结构与算法（刷题与面试共用地基）→ 操作系统与组成原理（程序在机器上的一天）。",
   "targetAudience": "所有初学者（尤其是 CS 在校生）；建议与前端/后端方向并行",
   "stages": [
     {
@@ -33,6 +33,29 @@
         { "id": "cf-s2-6", "lessonId": "l-dsa-binary-tree", "prereqs": ["cf-s2-5"] },
         { "id": "cf-s2-7", "lessonId": "l-dsa-sorting", "prereqs": ["cf-s2-6"] },
         { "id": "cf-s2-8", "lessonId": "l-dsa-binary-search", "prereqs": ["cf-s2-7"] }
+      ]
+    },
+    {
+      "id": "cf-s3",
+      "name": "操作系统入门",
+      "description": "进程线程、调度与并发、虚拟内存、文件与 I/O——理解「程序在机器上的一天」，后端排错与面试的底层依据。",
+      "suggestDuration": "3–4 周",
+      "items": [
+        { "id": "cf-s3-1", "lessonId": "l-os-process-thread" },
+        { "id": "cf-s3-2", "lessonId": "l-os-scheduling", "prereqs": ["cf-s3-1"] },
+        { "id": "cf-s3-3", "lessonId": "l-os-memory", "prereqs": ["cf-s3-1"] },
+        { "id": "cf-s3-4", "lessonId": "l-os-fs-io", "prereqs": ["cf-s3-3"] }
+      ]
+    },
+    {
+      "id": "cf-s4",
+      "name": "组成原理入门",
+      "description": "二进制与补码、CPU 指令执行、存储层次与缓存——机器真正在做什么，与 C 语言联动学效果最佳。",
+      "suggestDuration": "2–3 周",
+      "items": [
+        { "id": "cf-s4-1", "lessonId": "l-co-bits" },
+        { "id": "cf-s4-2", "lessonId": "l-co-cpu", "prereqs": ["cf-s4-1"] },
+        { "id": "cf-s4-3", "lessonId": "l-co-cache", "prereqs": ["cf-s4-2"] }
       ]
     }
   ]

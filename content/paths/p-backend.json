@@ -3,7 +3,7 @@
   "slug": "backend-path",
   "domainSlug": "backend",
   "name": "后端开发路线",
-  "description": "以「语言无关」的主干起步：先把 Web 服务与认证讲通，再进入缓存与消息队列；之后按方向选一条语言分支深入（Python/FastAPI 或 Go/Gin，Java/Spring 筹备中）。",
+  "description": "以「语言无关」的主干起步：先把 Web 服务与认证讲通，再进入缓存与消息队列；之后按方向选一条语言分支深入（Python/FastAPI、Go/Gin 或 Java/Spring Boot）。",
   "targetAudience": "对系统逻辑、数据流转感兴趣，面向服务端开发就业的学习者",
   "stages": [
     {
@@ -48,6 +48,18 @@
         { "id": "pb-s4-2", "lessonId": "l-go-goroutine", "prereqs": ["pb-s4-1"] },
         { "id": "pb-s4-3", "lessonId": "l-go-gin", "prereqs": ["pb-s4-2"] },
         { "id": "pb-s4-4", "lessonId": "l-go-gorm", "prereqs": ["pb-s4-3"] }
+      ]
+    },
+    {
+      "id": "pb-s5",
+      "name": "语言分支：Java / Spring Boot",
+      "description": "就业主流技术栈：Java 面向对象与 Maven 构建 → Spring Boot 依赖注入与 Web → Spring Data JPA 数据层。",
+      "suggestDuration": "4–6 周",
+      "items": [
+        { "id": "pb-s5-1", "lessonId": "l-java-syntax", "prereqs": ["pb-s1-1"] },
+        { "id": "pb-s5-2", "lessonId": "l-java-maven", "prereqs": ["pb-s5-1"] },
+        { "id": "pb-s5-3", "lessonId": "l-spring-boot", "prereqs": ["pb-s5-2"] },
+        { "id": "pb-s5-4", "lessonId": "l-spring-data", "prereqs": ["pb-s5-3"] }
       ]
     }
   ]

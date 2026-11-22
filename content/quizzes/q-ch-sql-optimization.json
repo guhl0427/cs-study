@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-sql-optimization",
+  "scopeType": "chapter",
+  "scopeId": "ch-sql-optimization",
+  "title": "第 2 章随堂练习 · 优化与对照",
+  "questions": [
+    {
+      "id": "q-ch-sql-optimization-1",
+      "stem": "EXPLAIN 显示 type=ALL（全表扫描），检查 WHERE 条件后怀疑索引失效。下列哪种写法最可能让索引失效？",
+      "options": [
+        "WHERE status = 'published'",
+        "WHERE DATE(created_at) = '2026-11-01'——对列套函数，B+ 树里排好的是原始值，加工后的值用不上有序性",
+        "WHERE id = 42",
+        "WHERE created_at > '2026-11-01'"
+      ],
+      "answer": 1,
+      "explanation": "函数包列、隐式类型转换（VARCHAR 列传数字）都会让索引失效。改写成等价的范围条件即可恢复。对应修复思路：让「参与比较的值」和「树上排序的值」一致。",
+      "lessonId": "l-sql-explain"
+    },
+    {
+      "id": "q-ch-sql-optimization-2",
+      "stem": "「用了索引但依然慢」的可能原因里，最贴合 EXPLAIN 诊断思路的是？",
+      "options": [
+        "索引版本太旧需要升级",
+        "type=ref 但 rows 很大——索引选了但区分度差（如 status 只 3 个值命中半表），优化目标是「扫描行数」而不是「用没用索引」",
+        "SQL 写得太长",
+        "数据库版本不兼容"
+      ],
+      "answer": 1,
+      "explanation": "EXPLAIN 的目标是让 type/key/rows/Extra 变好看，核心指标是扫描行数。低区分度列单列索引常被优化器放弃，或命中行数太多照样慢。",
+      "lessonId": "l-sql-explain"
+    },
+    {
+      "id": "q-ch-sql-optimization-3",
+      "stem": "PG 里查询 `WHERE attrs->>'color' = 'red'` 很慢，attrs 是 JSONB 列。最直接的修复是？",
+      "options": [
+        "换 MySQL 就快了",
+        "给 attrs 建 GIN 索引（CREATE INDEX ... USING GIN (attrs)），并用 @> 包含操作符写条件——JSONB 查询不走 GIN 就是全表扫描",
+        "把 JSONB 换成 TEXT 存储",
+        "加 LIMIT 10"
+      ],
+      "answer": 1,
+      "explanation": "JSONB 的二进制结构配 GIN 索引才能高效检索（@> 包含、? 存在等操作符都吃 GIN）。TEXT 存储 JSON 字符串反而失去结构化能力。LIMIT 只能掩盖问题。",
+      "lessonId": "l-pg-advanced"
+    }
+  ]
+}

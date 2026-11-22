@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-java-start",
+  "scopeType": "chapter",
+  "scopeId": "ch-java-start",
+  "title": "第 1 章随堂练习 · Java 基础与构建",
+  "questions": [
+    {
+      "id": "q-ch-java-start-1",
+      "stem": "`String a = new String(\"hi\"); String b = new String(\"hi\");` 判断 `a == b` 与 `a.equals(b)` 的结果？",
+      "options": [
+        "都是 true，== 也能比字符串",
+        "== 是 false（比较引用，两个 new 是不同对象），equals 是 true（比较内容）——对象比较一律用 equals",
+        "== 是 true，equals 是 false",
+        "都是 false，字符串没法比较"
+      ],
+      "answer": 1,
+      "explanation": "Java 的 == 对对象比引用（是不是同一个实例），equals 比内容。字面量 \"hi\"==\"hi\" 因常量池恰好相同会骗过你——习惯上对象比较永远用 equals。",
+      "lessonId": "l-java-syntax"
+    },
+    {
+      "id": "q-ch-java-start-2",
+      "stem": "把 Student 类的字段设为 private 并提供 getName() 公开方法，这是三大支柱里的哪一条、换来什么？",
+      "options": [
+        "继承——换来代码复用",
+        "封装——字段藏起来、只留受控接口，外部无法直接改内部状态，校验和变更集中在一处",
+        "多态——换来运行时灵活性",
+        "泛型——换来类型安全"
+      ],
+      "answer": 1,
+      "explanation": "封装=private 数据 + public 接口。好处在改代码时显形：score 校验逻辑只写在 setScore 一处，所有调用方自动遵守。",
+      "lessonId": "l-java-syntax"
+    },
+    {
+      "id": "q-ch-java-start-3",
+      "stem": "pom.xml 里加了 jackson-databind 2.17.0，mvn compile 后代码里就能 import 使用。依赖是怎么进来的？",
+      "options": [
+        "IDE 自动下载并解压 jar 到项目目录",
+        "Maven 从中央仓库下载 jar 到本地仓库（~/.m2）并加入编译类路径——连同 jackson 的传递依赖一起到位",
+        "JDK 自带了 Jackson",
+        "需要手动下载 jar 复制到 lib 目录"
+      ],
+      "answer": 1,
+      "explanation": "Maven 按「坐标」从中央仓库下载到本地仓库缓存，编译期自动上类路径；依赖的依赖（传递依赖）也一并解析——「声明即拥有」，与 pnpm 的依赖树同概念。",
+      "lessonId": "l-java-maven"
+    }
+  ]
+}

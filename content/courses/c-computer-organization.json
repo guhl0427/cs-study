@@ -1,0 +1,22 @@
+{
+  "id": "c-computer-organization",
+  "domainSlug": "cs-fundamentals",
+  "slug": "computer-organization",
+  "title": "组成原理入门",
+  "summary": "机器真正在做什么：二进制与补码怎么表示数、CPU 怎么执行指令、缓存为什么让程序快——C 语言与性能优化的底层依据。",
+  "difficulty": 2,
+  "audience": "CS 在校生；学过 C 语言或任意一门语言、想补底层视角的学习者",
+  "prereqs": "建议与「C 语言入门」联动；无硬件背景要求",
+  "chapters": [
+    {
+      "id": "ch-co-bits",
+      "title": "数据表示与指令",
+      "lessons": ["l-co-bits", "l-co-cpu"]
+    },
+    {
+      "id": "ch-co-memory",
+      "title": "存储层次",
+      "lessons": ["l-co-cache"]
+    }
+  ]
+}

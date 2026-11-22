@@ -1,0 +1,22 @@
+{
+  "id": "c-backend-java",
+  "domainSlug": "backend",
+  "slug": "backend-java",
+  "title": "Java 方向入门：Spring Boot 实战",
+  "summary": "后端 Java 分支：面向对象语法与 Maven 构建，到 Spring Boot 的依赖注入与 Web 接口、Spring Data JPA 数据层——就业主流技术栈的第一程。",
+  "difficulty": 2,
+  "audience": "选择 Java 就业方向的後端学习者；已有一门语言基础",
+  "prereqs": "任一门编程语言入门 + REST 概念（「后端开发入门」课程）+ SQL 基础",
+  "chapters": [
+    {
+      "id": "ch-java-start",
+      "title": "Java 基础与构建",
+      "lessons": ["l-java-syntax", "l-java-maven"]
+    },
+    {
+      "id": "ch-spring-boot",
+      "title": "Spring Boot 实战",
+      "lessons": ["l-spring-boot", "l-spring-data"]
+    }
+  ]
+}

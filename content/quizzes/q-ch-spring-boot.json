@@ -1,0 +1,47 @@
+{
+  "id": "q-ch-spring-boot",
+  "scopeType": "chapter",
+  "scopeId": "ch-spring-boot",
+  "title": "第 2 章随堂练习 · Spring Boot 实战",
+  "questions": [
+    {
+      "id": "q-ch-spring-boot-1",
+      "stem": "ArticleService 的构造函数接收 ArticleRepository 参数但不自己 new，运行时仓库实例从哪来？",
+      "options": [
+        "Java 反射自动创建",
+        "Spring 容器统一创建并注入——你声明「需要什么」，容器在启动时把 Bean 装配进来；换实现、塞测试假实现都只改注册处",
+        "Repository 是单例常量",
+        "需要手动 new 后塞进构造函数"
+      ],
+      "answer": 1,
+      "explanation": "依赖注入的核心：对象的创建与装配交给容器。业务类不绑定具体实现——单元测试时传一个假 Repository 即可隔离数据库（呼应测试金字塔）。",
+      "lessonId": "l-spring-boot"
+    },
+    {
+      "id": "q-ch-spring-boot-2",
+      "stem": "Controller 上的 @GetMapping(\"/articles/{id}\") 与 FastAPI 的 @app.get(\"/articles/{id}\") 对应关系，错误的一项是？",
+      "options": [
+        "@PathVariable 对应 FastAPI 的路径参数（类型自动转换）",
+        "@RequestBody 对应请求体绑定",
+        "@RestController 对应「这个类是接口集」的声明",
+        "@GetMapping 的返回值必须手动转成 JSON 字符串"
+      ],
+      "answer": 3,
+      "explanation": "返回对象由 Spring 自动序列化为 JSON（借助 Jackson，正是 Maven 课里加的依赖）。两个框架的注解路由思想一致：URL+方法+参数绑定声明式表达。",
+      "lessonId": "l-spring-boot"
+    },
+    {
+      "id": "q-ch-spring-boot-3",
+      "stem": "`List<Article> findByAuthorOrderByTitleAsc(String author)` 零实现就能用，它是怎么变成 SQL 的？",
+      "options": [
+        "编译器把方法名直接当 SQL 执行",
+        "Spring Data JPA 解析方法名生成查询（WHERE author = ? ORDER BY title ASC）——「方法名即查询」是派生查询机制",
+        "运行时人工补写 SQL",
+        "Hibernate 全表扫描后内存过滤"
+      ],
+      "answer": 1,
+      "explanation": "Spring Data 按关键词（findBy/OrderBy/Asc/And…）解析方法名生成参数化查询。拼错字段名会在启动期报错——错误暴露得越早越好（对照代码规范课的「机器管规矩」）。",
+      "lessonId": "l-spring-data"
+    }
+  ]
+}

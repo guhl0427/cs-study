@@ -1,0 +1,60 @@
+{
+  "id": "q-c-framework-deep",
+  "scopeType": "course",
+  "scopeId": "c-framework-deep",
+  "title": "课程自测 · 框架深入：Vue 3 与 React 生态",
+  "questions": [
+    {
+      "id": "q-c-framework-deep-1",
+      "stem": "Vue 的 computed 和 watch 的分工边界是？",
+      "options": [
+        "没有边界，可以互相替代",
+        "computed 产出「派生值」（纯计算、带缓存）；watch 执行「副作用」（存档、上报、请求）——在 computed 里发请求是反模式",
+        "computed 处理对象，watch 处理原始值",
+        "watch 性能更好，应该优先用 watch"
+      ],
+      "answer": 1,
+      "explanation": "一句话分工：要「一个值」用 computed，要「做一件事」用 watch。computed 的缓存与纯计算要求决定了副作用放进去会被坑（不触发或重复触发）。",
+      "lessonId": "l-vue-composition"
+    },
+    {
+      "id": "q-c-framework-deep-2",
+      "stem": "两个框架的「页面参数变化」问题（Vue 的 /course/a→/course/b、React 的 /a/1→/a/2）根因和解法上的共同点是？",
+      "options": [
+        "都是框架 bug，只能整页刷新",
+        "根因同源：同一路由复用组件实例以省性能；解法同向：监听路由参数重新取数（或强制重建组件）",
+        "Vue 有问题 React 没有",
+        "需要给每条路径注册独立组件"
+      ],
+      "answer": 1,
+      "explanation": "复用实例是两个框架共同的性能设计（销毁重建太贵），副作用都是「setup/组件逻辑不重跑」。Vue 用 watch(route.params)，React 用 effect 依赖数组——模型不同，思想相同。",
+      "lessonId": "l-react-router-state"
+    },
+    {
+      "id": "q-c-framework-deep-3",
+      "stem": "React 里 setArr(arr.push(x)) 不触发更新，Vue 里 b = a 后 push 也同步改变——两者的「可变性纪律」为什么完全相反？",
+      "options": [
+        "Vue 的响应式追踪的是「变化本身」，改原数据也能被感知；React 靠引用对比判断「变没变」，必须换新对象——理解各自的更新模型才能写出正确代码",
+        "Vue 比 React 更先进",
+        "React 的 bug，下个版本会修复",
+        "两者其实纪律相同，只是写法不同"
+      ],
+      "answer": 0,
+      "explanation": "Vue 用代理追踪读写，改原对象就触发；React 对比前后引用做 diff，引用不变就认为没变。纪律源自模型：React 必须不可变更新，Vue 可以直接改。",
+      "lessonId": "l-react-hooks"
+    },
+    {
+      "id": "q-c-framework-deep-4",
+      "stem": "项目里出现 prop drilling（props 穿三层），且这份状态在刷新后应保留。按课程的心法该怎么处理？",
+      "options": [
+        "继续传，props 是 React/Vue 的正统",
+        "把状态提升到全局状态库（Pinia/Zustand）并持久化到 localStorage——跨组件共享 + 需要跨刷新存活，两者都满足",
+        "改用路由参数传递",
+        "放进 URL 的 query 里"
+      ],
+      "answer": 1,
+      "explanation": "prop drilling 是「状态放错层级」的信号：跨组件共享 → 提升 store。「刷新保留」决定持久化（localStorage 或后端）。路由参数适合「可分享、可刷新重建」的数据，与「刷新保留的编辑状态」语义不同。",
+      "lessonId": "l-vue-router-pinia"
+    }
+  ]
+}
