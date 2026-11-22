@@ -50,7 +50,7 @@ todo-api/
 初学最常见的质疑：「Todo 表有 id/title/done，接口也传 title、返回 id/title/done——结构几乎一样，何必两个文件？」四个理由，从浅到深：
 
 1. **生命周期不同**。表结构服务于数据完整性，改动要迁移、要谨慎（上一课的 Alembic）；接口契约是对前端的承诺，随产品需求频繁演化（今天加分页、明天加排序）。节奏不同的事物绑在一起，迟早出现「为了接口加个字段去动数据库列」或反过来的事故。
-2. **方向不对称**（Pydantic 课的入站出站分离，在这里落地）。入站（POST /todos）只该收 title；出站要回 id/title/done；更新（PATCH）又只收改的字段——同一张表的数据对应**至少三个契约**，一个 SQLAlchemy 类根本表达不了。
+2. **方向不对称**（Pydantic 课的入站出站分离，在这里落地）。入站（POST /todos）只该收 title；出站要回 id/title/done——同一个创建动作就有两个契约；往后要加部分更新、批量导入，契约只增不减。一个 SQLAlchemy 类根本表达不了。
 3. **技术类型不同**。SQLAlchemy 模型的字段是列描述（Mapped，服务于建表与查询）；Pydantic 模型的字段是校验器（Field，服务于进出数据）。混写要么丢掉 ORM 能力，要么手工在校验和 ORM 之间倒腾字典——两边的自动化全部报废。
 4. **隔离改动成本**。契约层稳定后，前端照 schemas 先 mock；将来换数据库（SQLite→PostgreSQL）只动 models，接口版本化只动 schemas——改动被隔离在各自的文件里。
 
@@ -85,7 +85,7 @@ def get_session():
 | POST | /todos | 201 Created | 新资源已创建，响应体回显它 | 422（校验不过） |
 | GET | /todos | 200 OK | 返回集合（列表） | —— |
 | GET | /todos/{id} | 200 OK | 返回单个资源 | 404（不存在） |
-| PATCH | /todos/{id}/toggle | 200 OK | 部分更新/状态翻转，回更新后的资源 | 404 |
+| PATCH | /todos/{id}/toggle | 200 OK | 状态翻转，回更新后的资源 | 404 |
 | DELETE | /todos/{id} | 204 No Content | 删除成功，无内容可回 | 404 |
 
 对照 REST 课的约定逐条回看：**201 只给创建**（区别于一般成功的 200）；**204 只给无正文的成功**（删除后没什么可回的，响应体必须为空）；PATCH 用 200 回更新后的完整资源（前端不用再查一次）。写 CRUD 时先对着表入座，状态码就不会乱。
@@ -106,14 +106,13 @@ def get_session():
 
 ## 代码示例
 
-主线任务：跑通完整 todo-api——五个端点全部实现，用 HTTPie 逐一验证。全程约 40 分钟。
+主线任务：跑通完整 todo-api——五个端点全部实现，用 HTTPie 逐一验证，全程约 40 分钟。
 
 ### 第 0 步：安装与目录
 
 ```bash
-pip install "fastapi[standard]" "sqlalchemy>=2.0"
-pip install httpie                   # 验证工具（比 curl 少敲很多引号）
-mkdir todo-api                       # 三个文件都放这个目录
+pip install "fastapi[standard]" "sqlalchemy>=2.0" httpie   # httpie 用于验证
+mkdir todo-api && cd todo-api       # 三个文件都放这个目录
 ```
 
 ### 第 1 步：models.py——表模型
@@ -121,7 +120,6 @@ mkdir todo-api                       # 三个文件都放这个目录
 ```python
 # models.py
 from datetime import datetime
-
 from sqlalchemy import String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -140,15 +138,10 @@ class Todo(Base):
 ```python
 # schemas.py
 from datetime import datetime
-
 from pydantic import BaseModel, Field
 
 class TodoIn(BaseModel):             # 入站：创建时用户能传的
     title: str = Field(min_length=1, max_length=50)
-
-class TodoPatch(BaseModel):          # 入站：更新时全可选
-    title: str | None = Field(default=None, min_length=1, max_length=50)
-    done: bool | None = None
 
 class TodoOut(BaseModel):            # 出站：接口返回的
     id: int
@@ -157,41 +150,39 @@ class TodoOut(BaseModel):            # 出站：接口返回的
     created_at: datetime
 ```
 
-三个契约对应三个方向：创建、更新、返回——这就是「为什么分开」的具象化。
+两个契约对应两个方向：创建收什么、返回什么——这就是「为什么分开」的具象化（将来要加部分更新，再添一个全可选的 TodoPatch 即可）。
 
 ### 第 3 步：main.py——装配与五个端点
 
 ```python
-# main.py
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
-
 from models import Base, Todo
-from schemas import TodoIn, TodoOut, TodoPatch
+from schemas import TodoIn, TodoOut
 
 engine = create_engine("sqlite:///todo.db")
-Base.metadata.create_all(engine)                 # 原型期：建表（改模型就删库重建）
+Base.metadata.create_all(engine)              # 原型期：建表（改模型就删库重建）
 
 app = FastAPI(title="Todo API")
 
-def get_session():                               # 依赖：每请求一个 Session
+def get_session():                            # 依赖：每请求一个 Session
     with Session(engine) as session:
         yield session
 
 def get_todo_or_404(todo_id: int, session: Session) -> Todo:
-    todo = session.get(Todo, todo_id)            # 按主键查
+    todo = session.get(Todo, todo_id)         # 按主键查
     if todo is None:
         raise HTTPException(status_code=404, detail="待办不存在")
     return todo
 
 @app.post("/todos", response_model=TodoOut, status_code=201)
 def create_todo(data: TodoIn, session: Session = Depends(get_session)):
-    todo = Todo(**data.model_dump())             # 契约对象 → 表对象
+    todo = Todo(**data.model_dump())          # 契约对象 → 表对象
     session.add(todo)
     session.commit()
-    session.refresh(todo)                        # 把自增 id 同步回对象
-    return todo                                  # response_model 输出 TodoOut
+    session.refresh(todo)                     # 把自增 id 同步回对象
+    return todo
 
 @app.get("/todos", response_model=list[TodoOut])
 def list_todos(session: Session = Depends(get_session)):
@@ -201,39 +192,27 @@ def list_todos(session: Session = Depends(get_session)):
 def read_todo(todo_id: int, session: Session = Depends(get_session)):
     return get_todo_or_404(todo_id, session)
 
-@app.patch("/todos/{todo_id}", response_model=TodoOut)
-def update_todo(todo_id: int, data: TodoPatch, session: Session = Depends(get_session)):
-    todo = get_todo_or_404(todo_id, session)
-    for field, value in data.model_dump(exclude_unset=True).items():
-        setattr(todo, field, value)              # 只更新传了的字段
-    session.commit()
-    return todo
-
 @app.patch("/todos/{todo_id}/toggle", response_model=TodoOut)
 def toggle_todo(todo_id: int, session: Session = Depends(get_session)):
     todo = get_todo_or_404(todo_id, session)
-    todo.done = not todo.done                    # 原地取反
-    session.commit()                             # 改属性 + commit 即 UPDATE
+    todo.done = not todo.done                 # 原地取反
+    session.commit()                          # 改属性 + commit 即 UPDATE
     return todo
 
 @app.delete("/todos/{todo_id}", status_code=204)
 def delete_todo(todo_id: int, session: Session = Depends(get_session)):
     todo = get_todo_or_404(todo_id, session)
     session.delete(todo)
-    session.commit()                             # 204：无响应体
+    session.commit()                          # 204：无响应体
 ```
 
-注意三个细节：`get_todo_or_404` 把「查不到 → 404」收敛成一处（DRY）；每个端点都声明了 `response_model`（出站闸门）；`create_todo` 里 commit 后 refresh 才 return。
+三个细节：`get_todo_or_404` 把「查不到 → 404」收敛成一处（DRY）；每个端点都声明了 `response_model`（出站闸门）；`create_todo` 里 commit 后 refresh 才 return。
 
-### 第 4 步：启动
+### 第 4 步：启动并用 HTTPie 逐端点验证
 
 ```bash
-cd todo-api
-fastapi dev main.py
-# INFO:     Uvicorn running on http://127.0.0.1:8000
+fastapi dev main.py                # INFO: Uvicorn running on http://127.0.0.1:8000
 ```
-
-### 第 5 步：HTTPie 逐端点验证
 
 ```bash
 http POST :8000/todos title="学完 FastAPI"
@@ -242,12 +221,7 @@ http POST :8000/todos title="学完 FastAPI"
 ```text
 HTTP/1.1 201 Created
 
-{
-    "created_at": "2026-11-22T10:00:00",
-    "done": false,
-    "id": 1,
-    "title": "学完 FastAPI"
-}
+{"created_at": "2026-11-22T10:00:00", "done": false, "id": 1, "title": "学完 FastAPI"}
 ```
 
 判读：201 + 完整资源回显（id 是 refresh 同步回来的）；`done: false` 来自模型默认值；入站只传了 title——TodoIn 的契约在起作用。
@@ -257,16 +231,12 @@ http POST :8000/todos title=""                    # 422：违反 min_length=1
 http :8000/todos                                  # 200：列表（数组，按 id 排序）
 http :8000/todos/1                                # 200：详情
 http :8000/todos/999                              # 404：{"detail":"待办不存在"}
-```
-
-```bash
 http PATCH :8000/todos/1/toggle                   # 200 {"done": true, ...}
-http PATCH :8000/todos/1 title="改个标题"         # 200：部分更新
 http DELETE :8000/todos/1                         # HTTP/1.1 204（空正文）
 http :8000/todos/1                                # 404：已删除
 ```
 
-五个端点、五种状态码，与概念讲解的对照表逐一对上。最后打开 `http://127.0.0.1:8000/docs`——三个模型的字段表、每个端点的参数与响应示例全部自动生成。这就是分层的红利：**models 管库、schemas 管契约，FastAPI 把两者都变成文档**。
+七个请求、五种状态码（201/200/204/404/422），与概念讲解的对照表逐一对上。最后打开 `http://127.0.0.1:8000/docs`——模型的字段表、每个端点的参数与响应示例全部自动生成。这就是分层的红利：**models 管库、schemas 管契约，FastAPI 把两者都变成文档**。
 
 ### 扩展清单：这个骨架接下来长什么
 
@@ -287,5 +257,5 @@ http :8000/todos/1                                # 404：已删除
 
 1. 给 TodoIn 加 `priority: int = Field(default=0, ge=0, le=3)`，TodoOut 同步暴露；用 HTTPie 验证传 4（越界）返回 422 且 loc 指向 body.priority。
 2. 按扩展清单实现分页：`GET /todos?page=2&size=5` 返回 `{items, page, total}`，并验证 total 是全量条数而不是当页条数。
-3. 给 update_todo 加保护：TodoPatch 一个字段都没传时返回 422（提示：`exclude_unset()` 的结果为空就 raise）——思考为什么空 PATCH 算调用方的 bug。
+3. 给 delete_todo 做幂等实验：连续 DELETE 同一个 id 两次，观察第二次的 404——用一句话解释为什么 DELETE 是幂等方法。
 4. **综合任务**：按扩展清单第 3 条给 todo-api 加 User（models 加表 + schemas 加 UserOut），实现 `GET /users/{id}/todos`；用 HTTPie 完整验证「建用户 → 建带用户的 todo → 按用户查列表」，把这条链路整理成你第一个接口测试清单。

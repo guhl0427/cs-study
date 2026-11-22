@@ -6,54 +6,67 @@
   "questions": [
     {
       "id": "q-c-frontend-engineering-1",
-      "stem": "TS 和 JS 的关系，下列说法正确的是？",
+      "stem": "下列哪一类错误是 TypeScript 能在编译期拦住的？",
       "options": [
-        "TS 是一门全新语言，要重新学语法",
-        "TS 是 JS 的超集：所有合法 JS 都是合法 TS，TS 加的是类型标注与编译期检查，最终编译回 JS 运行",
-        "TS 运行更快，因为类型检查在运行时优化了",
-        "TS 只能用于 React 项目"
+        "接口返回的 JSON 里缺了 username 字段",
+        "函数形参声明为 Todo，实参却传了字符串——Type 'string' is not assignable to type 'Todo'",
+        "数组太大导致页面内存溢出",
+        "登录逻辑的 if 判断条件写反了"
       ],
       "answer": 1,
-      "explanation": "TS 不是新语言而是 JS + 静态类型，现有 JS 知识全部有效。它编译成纯 JS 运行，运行时没有任何类型信息——快慢与 TS 无关。",
+      "explanation": "TS 是编译期守门员，管的是「代码合不合声明的形状」——类型不匹配、缺字段、拼错属性都在其列。网络数据的真实性要靠运行时校验，业务逻辑正误要靠测试。",
       "lessonId": "l-ts-basics"
     },
     {
       "id": "q-c-frontend-engineering-2",
-      "stem": "`interface Result<T> { code: number; data: T }` 这样的泛型接口解决什么问题？",
+      "stem": "开启 noUncheckedIndexedAccess 后，`todos[0].title` 报 'todos[0]' is possibly 'undefined'。正确的态度是什么？",
       "options": [
-        "让接口的 data 字段可以是任意类型不用管",
-        "复用同一个响应外壳：Result<User> 和 Result<Todo[]> 共用结构，data 字段的类型各自精确——「泛型之于类型，如参数之于值」",
-        "让编译器忽略 data 的类型错误",
-        "替代 interface，TS 推荐写法"
+        "这个配置太烦，关掉它",
+        "把 todos 改成 any 绕过去",
+        "这是真实场景——数组可能为空；先 if 收窄再访问，或封装一个 safeGet 帮手函数统一处理",
+        "写 todos![0].title 用感叹号担保就行"
       ],
-      "answer": 1,
-      "explanation": "没有泛型就得为每种 data 类型复制一份接口，或用 any 关掉检查。泛型把类型参数化：一个 Result<T> 适配所有响应，且每处调用的 data 类型都精确可查。",
+      "answer": 2,
+      "explanation": "「数组是空的」是真实世界天天发生的事，这个开关把越界访问这类高频 bug 提前到编译期。嫌烦的正解是收窄一次、处处复用，而不是关检查或用 ! 空担保。",
       "lessonId": "l-ts-generics"
     },
     {
       "id": "q-c-frontend-engineering-3",
-      "stem": "新项目配 tsconfig，「以后再收紧类型」为什么不推荐？",
+      "stem": "新同事刚 clone 项目，node_modules 不在 Git 里（也不该在）。他要怎么把环境跑起来？这背后的分工逻辑是什么？",
       "options": [
-        "strict 配置编译太慢",
-        "宽松模式下写的代码会堆满 any 和隐式错误——回头收紧的成本远高于一开始就 strict；新项目直接 strict: true，旧项目渐进收紧",
-        "strict 需要付费版编译器",
-        "strict 会禁止使用第三方库"
+        "pnpm install 按 lock 文件精确还原 node_modules——node_modules 是可再生资源且体积巨大，lock 进 Git、node_modules 进 .gitignore，一条命令原样重建",
+        "让老成员把 node_modules 打包发给他",
+        "对照 package.json 手动逐个安装每个依赖",
+        "把 package.json 里的 ^ 全部改成精确版本再重装"
       ],
-      "answer": 1,
-      "explanation": "类型债和代码债一样只会越滚越大：宽松写法的每个 any 都在关闭检查。strict 模式只是打开 null 检查、禁隐式 any 等编译期约束，与第三方库兼容性无关。",
-      "lessonId": "l-ts-generics"
+      "answer": 0,
+      "explanation": "package.json 声明范围、lock 文件锁定精确版本、node_modules 随时可按 lock 重建——三者分工决定了「lock 必须进 Git、node_modules 必须进 .gitignore」。这也保证了任何人任何时间装出的版本一致。",
+      "lessonId": "l-eng-node-pnpm"
     },
     {
       "id": "q-c-frontend-engineering-4",
-      "stem": "CI workflow 里 `pnpm lint && pnpm typecheck && pnpm test` 三步的分工与顺序，正确的是？",
+      "stem": "`var x == \"1\"` 这行代码（合法但有坏味道），ESLint、Prettier、TypeScript 三个工具各自的发言权是什么？",
       "options": [
-        "顺序随意，反正都要跑",
-        "lint 先抓低级错误与风格（最快失败），typecheck 抓类型错误，test 最后验证行为——越靠前的步骤越便宜、失败越早",
-        "test 要放最前面，行为最重要",
-        "三步重复劳动，留 test 一步就够"
+        "只有 TypeScript 有发言权，其他两个工具管不到",
+        "Prettier 会报错并拒绝格式化这行代码",
+        "TypeScript 报类型错误，ESLint 对 == 不闻不问",
+        "ESLint 报 no-var 与 eqeqeq（质量规则），Prettier 只管格式外观（不问 ==），TS 检查类型匹配——三权分立，缺谁都有盲区"
+      ],
+      "answer": 3,
+      "explanation": "分工表是本课核心：格式归 Prettier（缩进引号换行）、质量归 ESLint（var、==、未使用变量）、类型归 TS。同一行代码三个工具各查各的维度，工具链要三者齐备而不是互相替代。",
+      "lessonId": "l-eng-vite-lint"
+    },
+    {
+      "id": "q-c-frontend-engineering-5",
+      "stem": "接手一个「没有 lock 文件、tsconfig 是 strict:false、没有任何 lint」的旧仓库，要把它带上工程正轨。最合理的第一批动作是什么？",
+      "options": [
+        "推倒重来，一次性把整个项目重写",
+        "三件事分层做：lock 文件进 Git 并统一用 pnpm（环境可复现）→ 旧代码按目录渐进收紧 strict 且不新增错误（类型债渐进还）→ 接上 ESLint + Prettier 并用 git hooks / CI 强制（风格不漂移）",
+        "只把 strict 打开，其他维持现状",
+        "先给所有数据标上 any 保证能编译，其余以后再说"
       ],
       "answer": 1,
-      "explanation": "守门员的顺序按「成本与失败速度」排：lint 毫秒级抓低级错误，typecheck 编译期验证，test 慢但验证真实行为。lint 放前面能在几秒内拦住明显问题，省下后面更贵的检查。",
+      "explanation": "三个基建各自独立成环：环境复现靠 lock、类型债按「不新增错误」渐进还、风格靠流程而不是自觉强制。一次性重写风险最大；直接开 strict 会面对全项目报错，any 兜底则是把检查永久关掉。",
       "lessonId": "l-eng-vite-lint"
     }
   ]

@@ -6,41 +6,54 @@
   "questions": [
     {
       "id": "q-ch-eng-1",
-      "stem": "同事 clone 了仓库，node_modules 没提交（也不该提交），他怎么把依赖装回来？",
+      "stem": "同事 clone 仓库后跑起来就是不对，你的电脑却一直没问题。仓库里只有 package.json（依赖写的是 ^1.2.3 这类范围），lock 文件没提交。最可能的根因？",
       "options": [
-        "从网盘下载你的 node_modules 压缩包",
-        "pnpm install——package-lock/pnpm-lock.yaml 锁定了精确版本，一条命令还原出一模一样的依赖树",
-        "对照 package.json 手动逐个安装",
-        "无法还原，必须重新写依赖清单"
+        "他的 Node 版本一定装错了",
+        "没有 lock 文件，各人安装时刻在 ^ 范围内解析出的版本不同——你俩装的根本不是同一套依赖",
+        "package.json 里必须手写精确版本号，不能用 ^",
+        "把 node_modules 打包发给他就能永久解决"
       ],
       "answer": 1,
-      "explanation": "package.json 声明依赖范围（^1.2.3），lock 文件锁定精确版本。pnpm install 按 lock 文件还原——这也是 lock 文件必须进 Git 的原因：保证任何人任何时间装到的版本一致。",
+      "explanation": "package.json 只声明范围，「实际装到哪版」取决于安装时刻；lock 缺失时每人解析结果不同，这就是「我本地是好的」的经典根因。正解是把 lock 文件提交进 Git，发 node_modules 压缩包是反模式。",
       "lessonId": "l-eng-node-pnpm"
     },
     {
       "id": "q-ch-eng-2",
-      "stem": "dayjs（运行时要用）和 typescript（只在构建时用），分别该怎么装？",
+      "stem": "本地一切正常，部署到生产后报 `Cannot find module 'dayjs'`。查看 package.json 发现：`\"devDependencies\": { \"dayjs\": \"^1.11.0\" }`。根因与修法？",
       "options": [
-        "都装生产依赖，反正都是依赖",
-        "dayjs 进 dependencies，typescript 用 pnpm add -D 进 devDependencies——判据是「只在构建期用就 -D」",
-        "都装 devDependencies，构建工具本来就该 dev",
-        "全局安装最省事"
+        "生产机器没装 Node，先装 Node",
+        "dayjs 版本太老，升级到 2.x 即可",
+        "lock 文件记录错了，重新生成一份",
+        "dayjs 是运行时要用的库却装进了 devDependencies——生产按 --prod 安装不装 dev 侧，应移到 dependencies"
       ],
-      "answer": 1,
-      "explanation": "devDependencies 是构建/开发期的工具（TS、ESLint、Vite），dependencies 是运行时必需的库（dayjs）。装错位置会导致部署后缺包。项目依赖永远装项目里，-g 是给 pnpm/node 这类全局工具的。",
+      "answer": 3,
+      "explanation": "判据只有一条：「用户浏览器/生产服务器上要不要跑」。dayjs 要跑就进 dependencies；typescript、eslint 这类只在构建/开发期用的才进 devDependencies。装错位置本地发现不了，只在 --prod 安装时爆。",
       "lessonId": "l-eng-node-pnpm"
     },
     {
       "id": "q-ch-eng-3",
-      "stem": "ESLint 报了 `Expected '===' and instead saw '=='`，这个错误 Prettier 能修吗？",
+      "stem": "为什么 Vite 的 dev 模式改一行立刻生效、几乎不受项目规模影响，而 build 却随项目变大越来越慢？",
       "options": [
-        "能，Prettier 负责所有代码问题",
-        "不能——这是质量规则问题（ESLint 的 eqeqeq），Prettier 只管格式（缩进/引号/换行）；分工：格式归 Prettier，质量归 ESLint，类型归 TS",
-        "能，但要加 --fix 参数",
-        "要装 @types/prettier 才能修"
+        "dev 走原生 ESM 按需编译——浏览器请求哪个文件才转译哪个，反馈速度与项目大小基本无关；build 才用 Rollup 全量打包做压缩、tree-shaking 与拆包",
+        "dev 模式跳过了所有语法检查，build 时才补做",
+        "dev 模式代码没压缩所以天然快，build 慢是压缩算法太差",
+        "因为 dev 模式会多占 CPU 核心跑得更快"
       ],
-      "answer": 1,
-      "explanation": "三个工具各司其职：Prettier 管格式（外观），ESLint 管质量规则（== 换 ===、未使用变量），TypeScript 管类型。eslint-config-prettier 的作用正是关掉 ESLint 里和 Prettier 重复的格式规则，让两者不打架。",
+      "answer": 0,
+      "explanation": "dev 优化的是迭代速度（按需编译 + HMR），build 优化的是线上体积（全量打包）。两套策略各管一头——也意味着 dev 下看到的不是最终形态，性能问题要用 build 产物验证。",
+      "lessonId": "l-eng-vite-lint"
+    },
+    {
+      "id": "q-ch-eng-4",
+      "stem": "src/demo.ts 有三处报错：`var flag = 1`（no-var）、`if (flag == 1)`（eqeqeq）、`var unused = 42`（no-unused-vars）。跑 `eslint --fix` 之后会怎样？",
+      "options": [
+        "三处全部自动修复，文件零报错",
+        "全都修不了，必须一行一行手改",
+        "只有 eqeqeq 被自动修复（== 改成 ===）——no-var 与 no-unused-vars 涉及作用域语义和「是否真的不用了」，机器不敢替你决定，仍报错待手动处理",
+        "eslint 会自动删除整个 demo.ts 文件"
+      ],
+      "answer": 2,
+      "explanation": "--fix 只修「改写明确、不改变行为」的问题：== 换 === 是纯等价改写；var 改 let 可能改变作用域、删未使用变量可能是你忘了用它，都要人来判断。读 lint 输出认准行末的规则名，那是查文档的关键词。",
       "lessonId": "l-eng-vite-lint"
     }
   ]

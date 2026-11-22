@@ -6,42 +6,68 @@
   "questions": [
     {
       "id": "q-ch-ts-1",
-      "stem": "函数参数标了 `user: User` 后访问 `user.totle`（User 只有 name 字段），会发生什么？",
+      "stem": "编译器报出：`Property 'dno' does not exist on type 'Todo'. Did you mean to access 'done'?`。按报错三问（位置/给的/要的）排查，结论是什么？",
       "options": [
-        "运行时报 TypeError",
-        "编译期红线报错并提示 Did you mean 'name'?——错误从「上线后半夜」提前到「敲代码时」",
-        "运行时返回 undefined，静默失败",
-        "TS 自动创建 totle 字段"
+        "运行时才会炸，先上线再观察",
+        "Todo 接口定义了多余字段，应该删掉 done",
+        "代码访问了 Todo 上不存在的属性 dno，是拼写错误——Did you mean 已提示正确写法 done，照着改即可",
+        "要给 Todo 接口补上 dno 字段定义才能通过"
       ],
-      "answer": 1,
-      "explanation": "静态类型的核心价值就是「把运行时错误提前到编译期」：拼错属性名、缺字段、类型不匹配，编辑器当场报错。运行时它已经编译成纯 JS，不做任何检查。",
+      "answer": 2,
+      "explanation": "这条报错三问齐答：位置标明了行与属性名，要的是 Todo 的合法字段清单，Did you mean 直接给出正确拼写。拼错属性在敲代码时就被拦下，根本轮不到运行时。",
       "lessonId": "l-ts-basics"
     },
     {
       "id": "q-ch-ts-2",
-      "stem": "接口返回的 JSON 会被 TS 自动变成 interface User 的实例吗？",
+      "stem": "接口声明了 `priority: \"low\" | \"mid\" | \"high\"`，有人调用 `createTodo(\"写作业\", \"urgent\")`，会发生什么？",
       "options": [
-        "会，编译器自动转换",
-        "不会——TS 类型在编译后就消失，只做编译期检查；跨边界（接口返回）的数据要做运行时校验，as 断言只是「骗」编译器",
-        "会，只要写 as User[]",
-        "不会，除非用 any"
+        "编译期报 Argument of type '\"urgent\"' is not assignable to parameter of type '\"low\" | \"mid\" | \"high\"'——非法值根本进不了运行时",
+        "运行时 priority 悄悄变成 undefined",
+        "TS 自动把 \"urgent\" 加进联合类型清单",
+        "只要写成 \"urgent\" as any 就算正确修复"
       ],
-      "answer": 1,
-      "explanation": "TS 是编译期类型系统，运行时没有任何类型保护。`resp.json() as User` 只是把校验责任推给编译器的断言，数据本身没变。运行时校验要么靠后端（Pydantic），要么靠前端校验库（如 zod）。",
-      "lessonId": "l-ts-generics"
+      "answer": 0,
+      "explanation": "字面量联合把取值收窄到清单内，清单外的值编译期就报 not assignable。加 as 只是让红线消失的担保，不是修复——非法值照样进运行时。",
+      "lessonId": "l-ts-basics"
     },
     {
       "id": "q-ch-ts-3",
-      "stem": "`function first<T>(arr: T[]): T | undefined` 调用 `first([1, 2, 3])` 时 T 是什么、为什么不写 `<number>`？",
+      "stem": "`function pick<T, K extends keyof T>(obj: T, key: K): T[K]`，对 `user = { id: 1, name: \"小明\" }` 调用 `pick(user, \"age\")` 报错。根因是什么？",
       "options": [
-        "T 是 any，必须显式写 <number> 否则报错",
-        "T 被自动推导为 number——类型也能像值一样被参数化，且 99% 场景推导得比手写准",
-        "T 是 undefined，因为可能返回 undefined",
-        "T 是数组本身"
+        "泛型 T 推导失败，必须显式写 pick<User>(…)",
+        "函数体里 obj[key] 的写法本身非法",
+        "keyof 只能用在 interface 上，对象字面量不行",
+        "K extends keyof T 约束要求键名必须取自 keyof T 清单，\"age\" 不在其中——传错键名被编译期拦截"
+      ],
+      "answer": 3,
+      "explanation": "keyof T 是「T 所有键名组成的联合类型」，约束让清单外的键在编译期报 not assignable to 'keyof …'。约束不是装饰：没有它，obj[key] 这个访问在类型上根本不成立。",
+      "lessonId": "l-ts-generics"
+    },
+    {
+      "id": "q-ch-ts-4",
+      "stem": "做编辑草稿表单：用户可能只填 Todo 的部分字段，其余以后再补。选哪个类型最合适？",
+      "options": [
+        "Omit<Todo, \"id\">",
+        "Partial<Todo>——所有字段变可选，天然表达「只填了一部分」",
+        "Record<\"title\", string>",
+        "Todo[]"
       ],
       "answer": 1,
-      "explanation": "泛型 T 是「类型的参数」，调用时由实参自动推导：传 number 数组则 T=number。显式写 first<number> 合法但多余——手写类型参数只在推导不出的边界场景用。",
+      "explanation": "Partial<T> 把每个字段变成可选（可能缺、可能是 undefined），正是草稿态。Omit 是去掉指定键，Record 是按键清单造对象类型，都不表达「字段可选」。",
       "lessonId": "l-ts-generics"
+    },
+    {
+      "id": "q-ch-ts-5",
+      "stem": "新同事说「TS 报错全修完了，as 也都加上了」，上线后用户却反馈 data.username 是 undefined。最可能的原因是什么？",
+      "options": [
+        "TS 编译器漏报了错误，属于编译器 bug",
+        "username 应该定义成可选属性就没事了",
+        "跨边界的数据 TS 在编译期看不到——as 只是给编译器的担保书，运行时 JSON 并没变；接口数据要靠运行时校验（后端保证或前端 zod）兜底",
+        "把 strict 关掉就不会再出这类问题"
+      ],
+      "answer": 2,
+      "explanation": "编译期检查只看代码的声明形状，看不到网络那头的真实数据。as 消掉的是编译器红线，不是运行时错误——「编译后类型消失」，真实性只能靠运行时校验。",
+      "lessonId": "l-ts-basics"
     }
   ]
 }

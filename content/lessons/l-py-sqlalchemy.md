@@ -43,8 +43,7 @@ resources:
 一行记录                  →    一个 Article 实例（article.title 就是该行的 title 列）
 INSERT INTO articles ...  →    session.add(article); session.commit()
 SELECT ... WHERE ...      →    session.scalars(select(Article).where(...))
-UPDATE ... SET ...        →    article.views = 5; session.commit()
-DELETE FROM ...           →    session.delete(article); session.commit()
+UPDATE / DELETE FROM ...  →    article.views = 5 或 session.delete(a)，再 commit
 ```
 
 关键认知：**ORM 不消灭 SQL，而是把 SQL 包装成对象操作**。你写的每个 ORM 调用背后都是一条 SQL——好用的 ORM 用法建立在懂 SQL 的基础上；不懂 SQL 的人用 ORM 只会「碰运气式编程」。本课代码示例都会附 SQL 对照注释，让翻译过程全程可见。
@@ -62,11 +61,7 @@ DELETE FROM ...           →    session.delete(article); session.commit()
 ### 2.0 风格模型定义：DeclarativeBase + Mapped + mapped_column
 
 ```python
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import String
-
-class Base(DeclarativeBase):        # 所有模型的公共基类
-    ...
+class Base(DeclarativeBase): ...    # 公共基类；Mapped/mapped_column 从 sqlalchemy.orm 导入
 
 class Article(Base):
     __tablename__ = "articles"                      # 表名
@@ -107,11 +102,7 @@ one = session.get(Article, 1)                         # 按主键查一条（最
 
 ### create_all 与迁移的边界
 
-```python
-Base.metadata.create_all(engine)     # 幂等：表不存在就建，已存在就跳过
-```
-
-`create_all` **只会建新表，不会改旧表**——给 Article 加了 `created_at` 列，已有数据表不会长出这一列，查询直接报 `no such column`。这是 create_all 和迁移工具的分界：**原型期（可以随时删库重建）用 create_all；数据不能丢的库用 Alembic 迁移**（生成 ALTER TABLE 脚本、可回滚）。本课先用 create_all + SQLite 删库重建，项目上生产前再学 Alembic。
+`Base.metadata.create_all(engine)` 幂等地建表：表不存在就建，已存在就跳过。但它**只会建新表，不会改旧表**——给 Article 加了 `created_at` 列，已有数据表不会长出这一列，查询直接报 `no such column`。这是 create_all 和迁移工具的分界：**原型期（可以随时删库重建）用 create_all；数据不能丢的库用 Alembic 迁移**（生成 ALTER TABLE 脚本、可回滚）。本课先用 create_all + SQLite 删库重建，项目上生产前再学 Alembic。
 
 ### N+1 问题与预加载
 
@@ -123,15 +114,13 @@ for a in articles:
     print(a.comments)        # 每访问一次，触发 1 条新的评论查询！
 ```
 
-10 篇文章就是 **1 + 10 = 11 条 SQL**——列表页越往后越慢，日志里同一条查询刷屏，这就是 N+1。对策是**预加载**：查列表时把关联一次带回来：
+10 篇文章就是 **1 + 10 = 11 条 SQL**——列表页越往后越慢，日志里同一条查询刷屏（排查口诀：**列表页慢 + 日志 SQL 成串 → 先想 N+1**）。对策是**预加载**：查列表时把关联一次带回来：
 
 ```python
 from sqlalchemy.orm import selectinload
 stmt = select(Article).options(selectinload(Article.comments))
 # 全程只有 2 条 SQL：一条查文章，一条 WHERE article_id IN (...) 查全部评论
 ```
-
-排查口诀：**列表页慢 + 日志 SQL 成串 → 先想 N+1**。
 
 ### 与手写 SQL 的分工
 
