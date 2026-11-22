@@ -31,5 +31,8 @@ jobs:
       - name: 类型检查
         run: pnpm -C frontend typecheck
 
+      - name: 单元测试（storage / 统计推导 / 搜索分词）
+        run: pnpm -C frontend test
+
       - name: SSG 构建（内容路由全量预渲染）
         run: pnpm -C frontend build

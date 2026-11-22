@@ -24,10 +24,10 @@ export const searchDocs = searchDocsJson as unknown as SearchDoc[]
 
 const CJK = /[\u4e00-\u9fff]/
 
-/** 中文按单字+二元组切分，西文按词切分并小写 */
+/** 中文按单字+二元组切分，西文按词切分并小写（标点与符号一律切开） */
 export const cjkTokenizer = (raw: string): string[] => {
   const out: string[] = []
-  for (const word of raw.split(/[\s\p{P}]+/u)) {
+  for (const word of raw.split(/[\s\p{P}\p{S}]+/u)) {
     if (!word) continue
     if (CJK.test(word)) {
       const chars = [...word]
