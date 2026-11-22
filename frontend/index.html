@@ -8,7 +8,26 @@
       name="description"
       content="为 CS 初学者提供一张清晰的学习地图：技术领域 → 学习路线 → 课程内容 → 本地进度反馈。无需注册，进度仅存于你的浏览器。"
     />
+    <meta property="og:site_name" content="cs-study" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "cs-study",
+        "alternateName": "计算机科学技术学习平台",
+        "url": "https://guhl0427.github.io/cs-study/",
+        "inLanguage": "zh-CN",
+        "description": "为 CS 初学者提供一张清晰的学习地图：技术领域 → 学习路线 → 课程内容 → 本地进度反馈。"
+      }
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script>
+      // 首帧前应用主题（用户选择 → 系统偏好 → 浅色），避免深色模式闪烁
+      try {
+        var __t = localStorage.getItem('cs-study:theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.dataset.theme = __t;
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="app"></div>

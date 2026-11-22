@@ -24,7 +24,7 @@ function toggle() {
 
 <template>
   <div v-if="isDone" class="group flex items-center gap-2">
-    <button class="btn btn-sm bg-ok text-white hover:bg-ok" type="button" :aria-label="`已完成：${lesson.title}`" @click="toggle">
+    <button class="btn btn-sm bg-ok text-on-ok hover:bg-ok" type="button" :aria-label="`已完成：${lesson.title}`" @click="toggle">
       <IconCheck size="15" stroke-width="2" />
       已完成
     </button>

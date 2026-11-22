@@ -171,7 +171,8 @@ const guideMeta = computed(() => {
         <section>
           <h2 class="text-section mb-3 font-bold text-ink">学习日历</h2>
           <div class="grid-zone rounded-card border border-line-strong p-5">
-            <HeatCalendar :counts="ud.doneByDate" :weeks="40" />
+            <HeatCalendar :counts="ud.doneByDate" :weeks="40" class="hidden sm:block" />
+            <HeatCalendar :counts="ud.doneByDate" view="month" class="sm:hidden" />
           </div>
         </section>
 

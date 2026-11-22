@@ -212,10 +212,28 @@ const LANG_MAP = {
 const LANG_LABEL = { javascript: 'js', typescript: 'ts', html: 'html', css: 'css', json: 'json', bash: 'shell', python: 'py' }
 
 const escapeHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+// 深色主题色板（与 main.css [data-theme='dark'] 的令牌套件同步维护）
+const blueprintDarkTheme = {
+  name: 'Blueprint Draft Dark',
+  type: 'dark',
+  colors: { 'editor.background': '#0F1826', 'editor.foreground': '#E3E9F2' },
+  settings: [
+    { scope: ['comment', 'punctuation.definition.comment'], settings: { foreground: '#7E93A6', fontStyle: 'italic' } },
+    { scope: ['keyword', 'keyword.control', 'keyword.operator.logical', 'storage.type'], settings: { foreground: '#6FA3E8', fontStyle: 'bold' } },
+    { scope: ['entity.name.function', 'support.function', 'meta.function-call'], settings: { foreground: '#4FB3BF' } },
+    { scope: ['string', 'string.quoted'], settings: { foreground: '#58B380' } },
+    { scope: ['constant.numeric'], settings: { foreground: '#A98FD8' } },
+    { scope: ['punctuation', 'meta.brace'], settings: { foreground: '#9AA8BC' } },
+    { scope: ['variable', 'source', 'meta.embedded'], settings: { foreground: '#E3E9F2' } },
+    { scope: ['entity.name.tag'], settings: { foreground: '#6FA3E8' } },
+    { scope: ['entity.other.attribute-name'], settings: { foreground: '#4FB3BF' } },
+  ],
+}
 let highlighter
 try {
   highlighter = await createHighlighter({
-    themes: [blueprintTheme],
+    themes: [blueprintTheme, blueprintDarkTheme],
     langs: ['javascript', 'typescript', 'html', 'css', 'json', 'bash', 'python', 'sql'],
   })
 } catch (e) {
@@ -229,16 +247,25 @@ md.renderer.rules.fence = (tokens, idx) => {
   const lang = LANG_MAP[info] ?? ''
   const label = lang ? (LANG_LABEL[lang] ?? lang) : 'text'
   let body
+  let blockClass = 'code-block'
   if (lang && highlighter) {
     try {
-      body = highlighter.codeToHtml(token.content, { lang, theme: 'Blueprint Draft' })
+      // 双主题输出：默认内联浅色值 + --shiki-dark CSS 变量，深色主题由样式表切换
+      body = highlighter.codeToHtml(token.content, {
+        lang,
+        themes: { light: blueprintTheme, dark: blueprintDarkTheme },
+        defaultColor: 'light',
+      })
+      // 行号：Shiki 按行输出 span.line；去行间换行后由 CSS 计数器编号（F3.5 可选项）
+      body = body.replace(/(?<=<\/span>)\n(?=<span class="line")/g, '')
+      blockClass = 'code-block line-numbers'
     } catch {
       body = `<pre class="code-plain"><code>${escapeHtml(token.content)}</code></pre>`
     }
   } else {
     body = `<pre class="code-plain"><code>${escapeHtml(token.content)}</code></pre>`
   }
-  return `<figure class="code-block" data-lang="${label}">` +
+  return `<figure class="${blockClass}" data-lang="${label}">` +
     `<figcaption class="code-head"><span class="code-lang">${label}</span>` +
     `<button class="code-copy" type="button">复制</button></figcaption>` +
     body + `</figure>\n`

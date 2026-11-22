@@ -8,7 +8,7 @@ const props = defineProps<{ state: ProgressState }>()
 const cfg = computed(() => {
   switch (props.state) {
     case 'done':
-      return { label: '已完成', cls: 'border-ok bg-ok text-white' }
+      return { label: '已完成', cls: 'border-ok bg-ok text-on-ok' }
     case 'learning':
       return { label: '学习中', cls: 'border-teal bg-surface text-teal' }
     default:

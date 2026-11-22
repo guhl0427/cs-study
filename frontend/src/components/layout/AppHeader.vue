@@ -1,14 +1,24 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { IconMenu2, IconSearch, IconX } from '@tabler/icons-vue'
+import { IconMenu2, IconMoon, IconSearch, IconSun, IconX } from '@tabler/icons-vue'
 import { useUserDataStore } from '@/stores/userData'
 import { useClientMounted } from '@/composables/useClientMounted'
+import { currentTheme, toggleTheme, type Theme } from '@/lib/theme'
 
 const route = useRoute()
 const ud = useUserDataStore()
 const mounted = useClientMounted()
 const drawerOpen = ref(false)
+const theme = ref<Theme>('light')
+
+onMounted(() => {
+  theme.value = currentTheme()
+})
+
+function onToggleTheme() {
+  theme.value = toggleTheme()
+}
 
 const navs = [
   { label: '首页', to: '/', name: 'home' },
@@ -70,6 +80,17 @@ const ctaLabel = computed(() => (mounted.value && ud.lastVisit ? '继续学习' 
       >
         <IconSearch size="16" stroke-width="1.5" />
       </RouterLink>
+
+      <!-- 深浅主题切换 -->
+      <button
+        class="btn btn-ghost btn-sm shrink-0 px-2"
+        type="button"
+        :aria-label="theme === 'dark' ? '切换到浅色主题' : '切换到深色主题'"
+        @click="onToggleTheme"
+      >
+        <IconSun v-if="theme === 'dark'" size="16" stroke-width="1.5" />
+        <IconMoon v-else size="16" stroke-width="1.5" />
+      </button>
 
       <RouterLink :to="ctaTo" class="btn btn-primary btn-sm ml-auto md:ml-0">
         {{ ctaLabel }}

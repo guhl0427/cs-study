@@ -10,7 +10,7 @@ import ResourceList from '@/components/lesson/ResourceList.vue'
 import MarkDoneButton from '@/components/progress/MarkDoneButton.vue'
 import { contentApi } from '@/api'
 import { useUserDataStore } from '@/stores/userData'
-import { usePageTitle } from '@/composables/usePageTitle'
+import { usePageTitle, SITE_URL } from '@/composables/usePageTitle'
 import { openFeedback } from '@/lib/feedback'
 import { lessonState } from '@/lib/progress'
 import { formatDate } from '@/lib/format'
@@ -24,6 +24,18 @@ const course = contentApi.getCourse(courseSlug)
 usePageTitle(
   view?.meta.title ?? '知识点',
   view ? `${view.meta.summary} · ${view.meta.courseTitle} · 约 ${view.meta.estMinutes} 分钟` : undefined,
+  view
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'LearningResource',
+        name: view.meta.title,
+        description: view.meta.summary,
+        inLanguage: 'zh-CN',
+        learningResourceType: 'Lesson',
+        url: `${SITE_URL}/course/${view.meta.courseSlug}/lesson/${view.meta.slug}`,
+        isPartOf: { '@type': 'Course', name: view.meta.courseTitle ?? '' },
+      }
+    : undefined,
 )
 
 const ud = useUserDataStore()
