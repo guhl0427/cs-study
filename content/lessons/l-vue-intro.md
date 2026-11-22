@@ -1,50 +1,77 @@
 ---
 id: l-vue-intro
 slug: vue-intro
-title: Vue 3 初识
+title: Vue 3 初识：响应式与单文件组件
 difficulty: 2
-estMinutes: 25
+estMinutes: 75
 tags: [Vue, 框架]
-summary: Vue 用「响应式数据 + 模板」让页面跟着数据自动变——体会声明式渲染与原生 DOM 操作的本质区别。
-updated: 2026-11-21
+summary: Vue 用「响应式数据 + 单文件组件」接管手动同步——从原生计数器到 Vue 计数器逐行对照，亲手在 Playground 里跑通第一个组件。
+updated: 2026-11-22
 resources:
   - id: r-vue-doc
     title: Vue 3 官方文档（中文）
     url: https://cn.vuejs.org/guide/introduction.html
     type: doc
-    difficulty: 2
-    note: 中文文档质量极高，官方指南就是最好的教程。
+    difficulty: 1
+    note: 官方指南是最佳教程，本课平行阅读前几章。
   - id: r-vue-play
     title: Vue SFC Playground
     url: https://play.vuejs.org/
     type: tool
     difficulty: 1
-    note: 在线写组件即时预览，本节示例可直接粘贴运行。
+    note: 浏览器里直接写 .vue 组件运行，本课全部示例在此练。
 ---
 
-> 一句话定义：Vue 把「数据」和「页面」绑定在一起——你只改数据，DOM 自动跟着变。
+> 一句话定义：Vue 把「数据」和「页面」绑定在一起——你只改数据，DOM 自动跟着变；组件化让页面拆成可复用的乐高块。
 
 ## 概念讲解
 
-回忆上一课的计数器：改了 `count` 之后要**手动**调用 `render()` 把数字写回页面。数据一多，「手动同步」就成了灾难——漏一处就是 bug。
-
-Vue 的解法叫**响应式**：把数据放进 `ref()`，模板里直接用。数据一变，Vue 自动找出哪些页面位置依赖它并更新。对比一下：
+**从三件套课程的痛点说起。** 回忆 DOM 课的计数器：改了 `count` 之后要**手动**调用 `render()` 把数字写回页面；「为什么需要框架」课进一步演示了同步散弹问题——同一数据在 N 处显示就要手动改 N 处。Vue 的解法叫**响应式**：把数据放进 `ref()`，模板里直接用；数据一变，Vue 自动找出哪些页面位置依赖它并更新：
 
 ```js
 // 原生：改数据 → 手动改 DOM（两步，会漏）
-count.value += 1;
+count += 1
+document.querySelector("#count").textContent = count
 
 // Vue：只改数据（一步，DOM 自动对齐）
-count.value += 1;
+count.value += 1
 ```
 
-核心组件是 **SFC**（Single-File Component，单文件组件）：一个 `.vue` 文件 = 结构（`<template>`）+ 逻辑（`<script setup>`）+ 样式（`<style scoped>`），一个组件管自己那一块页面。`scoped` 让样式只作用于本组件——不用再担心类名冲突。
+**SFC（单文件组件）是 Vue 的代码组织单元**——一个 `.vue` 文件 = 结构 + 逻辑 + 样式：
 
-组合式 API 三个高频 API：`ref`（声明响应式数据）、`computed`（由数据算出来的值，自动缓存）、`onMounted`（组件挂载后执行的钩子）。本节只需要 `ref`。
+```text
+App.vue
+├── <template>    结构：HTML 模板 + 指令（{{ 插值 }}、@click 事件）
+├── <script setup> 逻辑：响应式数据、方法、生命周期
+└── <style scoped> 样式：scoped 让样式只作用于本组件（类名不会互相污染）
+```
+
+一个组件管自己那一块页面——TodoList 组件管列表、TodoItem 管单条，改一处样式不会炸到别处。
+
+**组合式 API 三个高频 API**（本课只需要 ref，另两个先混脸熟）：
+
+| API | 干什么 | 一句话记忆 |
+| ---- | ---- | ---- |
+| `ref` | 声明响应式数据 | 「这份数据要被页面用」 |
+| `computed` | 由数据算出来的值，自动缓存 | 「派生值，不用手动同步」 |
+| `onMounted` | 组件挂载后执行的钩子 | 「页面就绪后的第一件事」 |
+
+**ref 的 .value 规则**（新手第一大坑的原理）：`ref()` 把值包成一个「响应式盒子」——在 **JS 里**要通过 `count.value` 开盒子访问，在**模板里**不用（自动解包）：
+
+```js
+const count = ref(0)
+console.log(count)          // RefImpl 对象（盒子本身）
+console.log(count.value)    // 0（盒子里的值）
+count.value = 5             // 改盒子里的值 → 页面自动更新
+```
+
+**什么时候学框架？** 能用原生 JS 独立写完一个小项目（列表增删、表单提交、本地存储）再学框架，否则你分不清「框架的功劳」和「JS 本身的能力」——出了问题也不知道该查哪一层。
 
 ## 代码示例
 
-同样是计数器，Vue 版本（可粘贴进 Playground 运行）：
+主线：在 Playground 里把「待办列表」从原生对照版写到 Vue 版，覆盖插值、事件、双向绑定：
+
+**第 1 步：复现计数器**（粘贴进 play.vuejs.org）：
 
 ```vue
 <script setup>
@@ -59,24 +86,58 @@ const count = ref(0)
 </template>
 
 <style scoped>
-button {
-  padding: 8px 16px;
-}
+button { padding: 8px 16px; }
 </style>
 ```
 
-对比原生版本省掉了什么：没有 `querySelector`，没有 `addEventListener`，没有手动 `render()`。`{{ count }}` 是插值——数据到视图的桥。`@click` 是事件绑定——用户动作到逻辑的桥。
+对比原生版本省掉了什么：没有 `querySelector`，没有 `addEventListener`，没有手动 `render()`。`{{ count }}` 是**插值**——数据到视图的桥；`@click` 是**事件绑定**——用户动作到逻辑的桥。
 
-**什么时候学框架？** 能用原生 JS 独立写完一个小项目（列表增删、表单提交、本地存储）再学框架，否则你分不清「框架的功劳」和「JS 本身的能力」。
+**第 2 步：双向绑定与列表渲染**：
+
+```vue
+<script setup>
+import { ref, computed } from 'vue'
+
+const text = ref('')                          // 输入框的内容
+const todos = ref([])                         // 待办列表（对象数组）
+const remaining = computed(() =>              // 派生值：未完成数（自动缓存）
+  todos.value.filter(t => !t.done).length
+)
+
+function add() {
+  if (!text.value.trim()) return
+  todos.value.push({ text: text.value, done: false })
+  text.value = ''                             // 清空输入框
+}
+</script>
+
+<template>
+  <input v-model="text" placeholder="要做什么？" @keyup.enter="add" />
+  <button @click="add">添加</button>
+  <p>剩余 {{ remaining }} 项未完成</p>
+  <ul>
+    <li v-for="(todo, i) in todos" :key="i">
+      <label><input type="checkbox" v-model="todo.done" /> {{ todo.text }}</label>
+    </li>
+  </ul>
+</template>
+```
+
+三个新指令各司其职：`v-model` **双向绑定**（输入框↔数据，两边改都同步）；`v-for` **列表渲染**（`:key` 给每项唯一身份）；`v-model` 绑 checkbox 直接切换 done——没有一行手动 DOM 操作。
+
+**第 3 步：验证响应式**——在 add() 里加 `console.log(todos.value)` 观察：数据变了，页面同步变了，而你没有写过任何「更新页面」的代码。
 
 ## 常见坑
 
-1. **坑 1：忘了 `.value`**。`ref()` 包出来的数据在 **JS 里**要 `count.value` 访问，但在**模板里**不用（自动解包）。症状：界面显示一串对象而不是数字。排查：打印时忘了 `.value`。
+1. **坑 1：忘了 `.value`**。`ref()` 包出来的数据在 **JS 里**要 `count.value` 访问，但在**模板里**不用（自动解包）。症状：界面显示一串对象而不是数字；`count + 1` 得到 "[object Object]1"。排查：打印时忘了 `.value`。
 2. **坑 2：把「学框架」当成「学 Vue 语法」**。框架语法只占 20%，剩下 80% 是组件化思维：怎么拆组件、状态放哪、父子怎么通信。语法三天，思维三个月。
-3. **坑 3：在 `<script setup>` 里直接改 props**。props 是只读的，子组件想改外部数据应该「发事件」让父组件改。
+3. **坑 3：在 `<script setup>` 里直接改 props**。props 是只读的，子组件想改外部数据应该「发事件」让父组件改（框架深入课展开单向数据流）。
+4. **坑 4：v-for 忘了 :key**。不写 key 时 Vue 用下标猜身份，列表中间插入/删除时出现「内容错位」——key 用稳定 id，不用数组下标（React 课同款纪律）。
+5. **坑 5：解构 props/ref 丢失响应式**。`const { count } = props` 之后 props 变了你看不见——保留响应式用 computed 包一层或 toRef。
 
 ## 小练习
 
-1. 在 Playground 里复现计数器，再加一个「清零」按钮。
-2. 加一个 `<input v-model="name">` 和 `<p>你好，{{ name }}</p>`，体会双向绑定。
-3. 思考题：如果页面要同时显示「总数」和「未完成数」，两者都由同一个任务数组算出来——该用 `ref` 还是 `computed`？为什么？
+1. 在 Playground 复现主线两步，并加一个「清空全部」按钮（todos.value = []）。
+2. 加一个「只看未完成」开关：`<input type="checkbox" v-model="showPending">` + computed 产出过滤列表——体会 computed 与 ref 的分工。
+3. 综合任务：把计数器改造成「点我 +1，但记录每次点击的历史时间」（history 数组 + v-for 渲染），对比三件套 DOM 课的同款实现，数一数你少写了多少行「手动同步」代码。
+4. 思考题：`v-model` 在原生 JS 里等价于哪两行代码？（监听 input 事件 + 更新 value——框架只是把它打了个包。）

@@ -32,6 +32,19 @@
     },
     {
       "id": "q-ch-c-start-3",
+      "stem": "没有大括号的 `if (x > 0) printf(\"A\"); printf(\"B\");`——x <= 0 时输出什么？",
+      "options": [
+        "什么都不输出",
+        "输出 B——没有大括号时 if 只管紧随的第一条语句，缩进只是给人看的",
+        "输出 A",
+        "编译错误"
+      ],
+      "answer": 1,
+      "explanation": "C 用大括号划分代码块，缩进对编译器无意义。纪律：哪怕只有一行也永远写大括号——「缩进骗人」是 C 的经典事故来源。",
+      "lessonId": "l-c-syntax"
+    },
+    {
+      "id": "q-ch-c-start-4",
       "stem": "`swap_wrong(int a, int b)` 交换失败而 `swap(int *a, int *b)` 成功，根本原因是？",
       "options": [
         "swap_wrong 少写了 return",
@@ -41,6 +54,19 @@
       ],
       "answer": 1,
       "explanation": "C 函数参数按值拷贝：swap_wrong 拿到的是复印件，怎么改都不影响原件。swap 接收的是变量地址，*a = *b 直接写原变量的内存。和速度无关。",
+      "lessonId": "l-c-pointer"
+    },
+    {
+      "id": "q-ch-c-start-5",
+      "stem": "`int arr[5] = {10,20,30,40,50}; int *p = arr;` 之后 `*(p + 2)` 的值是？",
+      "options": [
+        "12——p+2 是地址加 2 个字节",
+        "30——指针算术按类型步长移动：p+2 前进 2 个 int（8 字节），解引用取到第 3 个元素",
+        "20——指针从 0 开始数",
+        "编译错误，指针不能加数字"
+      ],
+      "answer": 1,
+      "explanation": "指针算术的单位是「sizeof(类型)」：int* 的 +1 前进 4 字节。arr[i] 的官方定义就是 *(arr + i)——下标语法只是语法糖。",
       "lessonId": "l-c-pointer"
     }
   ]

@@ -6,41 +6,54 @@
   "questions": [
     {
       "id": "q-ch-dsa-linear-1",
-      "stem": "依次执行：stack = []；stack.append('A')；stack.append('B')；stack.append('C')；x = stack.pop()；y = stack.pop()。x 和 y 分别是？",
+      "stem": "用栈做括号匹配，扫描合法序列 \"([{}])\" 的过程中，栈里同时存在的左括号最多有几个？",
       "options": [
-        "x='A'，y='B'：先进先出",
-        "x='C'，y='A'：弹出顺序随机",
-        "x='C'，y='B'：后进先出，最后放的最先被拿走",
-        "报错：pop() 必须指定下标"
+        "1 个：每出现一个右括号就清空一次",
+        "2 个：最多同时压入两个左括号",
+        "3 个：(、[、{ 全部压栈后弹栈才开始",
+        "4 个：包括字符 } 也算入栈深度"
       ],
       "answer": 2,
-      "explanation": "list 当栈，pop() 取末尾元素，符合 LIFO：C 先出、B 再出。先进先出是队列的行为。",
+      "explanation": "前三个字符 ( [ { 依次入栈，栈深达到 3；之后 } ] ) 依次配对弹栈。嵌套深度就是最大栈深。",
       "lessonId": "l-dsa-stack-queue"
     },
     {
       "id": "q-ch-dsa-linear-2",
-      "stem": "写 BFS 时用了 queue = []，入队 queue.append(x)，出队 queue.pop(0)，数据量一大就明显变慢。瓶颈在哪？",
+      "stem": "打印店要按「先提交的先打印」处理任务。这个场景应该选哪种结构、用哪个操作组合？",
       "options": [
-        "append 太慢，应该改成 insert(0, x)",
-        "pop(0) 每次要把后面所有元素往前搬，O(n)；应换 collections.deque 的 popleft()",
-        "list 不支持队列操作，应该直接报错才对",
-        "BFS 本来就该用栈，用队列思路就错了"
+        "栈：push 收任务，pop 取任务，取走的是最新任务",
+        "队列：尾部 append 入队，头部 popleft 出队，先来先服务",
+        "dict：把任务号当键，按号码顺序取",
+        "list：insert(0) 收任务，pop() 取任务"
       ],
       "answer": 1,
-      "explanation": "list 的头部删除是 O(n)，元素越多越卡；deque 两端操作都是 O(1)，是队列的标准答案。BFS 正是用队列。",
+      "explanation": "先来先服务是 FIFO，用 deque 的 append/popleft 两端都是 O(1)。栈是 LIFO 会取走最新任务；list 的 insert(0) 是 O(n) 的坑。",
       "lessonId": "l-dsa-stack-queue"
     },
     {
       "id": "q-ch-dsa-linear-3",
-      "stem": "10 万条商品记录存在「list 套 dict」里，按商品 ID 查价格每次都要遍历整个 list。怎么改能让单次查找接近 O(1)？",
+      "stem": "两数之和（LeetCode 1）的哈希版在扫描 nums=[3, 5, 3]、target=6 时，直到扫描到第几个元素才返回结果？",
       "options": [
-        "建一个 dict：{商品 ID: 价格}，用 ID 直达取值",
-        "把 list 按价格排序后再查",
-        "把外层 list 换成 tuple，查找自然变快",
-        "缩短每条记录的字段名，减少比较开销"
+        "第 1 个：3 自己就满足条件",
+        "第 2 个：5 和 3 相加等于 6",
+        "第 3 个：扫描到第二个 3 时，need=3 才在 seen 里出现",
+        "扫描完也返回空：这组数据无解"
+      ],
+      "answer": 3,
+      "explanation": "i=0 登记 {3:0}；i=1 时 need=1 不在 seen，登记 {3:0,5:1}；i=2 时 need=3 已在 seen，返回 [0,2]。「先查后存」保证不会自己配自己。",
+      "lessonId": "l-dsa-hash-table"
+    },
+    {
+      "id": "q-ch-dsa-linear-4",
+      "stem": "对包含 n 个元素的容器做成员判断 x in c。关于两种容器的复杂度，哪个说法正确？",
+      "options": [
+        "list 的 in 是 O(n) 逐个比对，set 的 in 均摊 O(1) 哈希直达",
+        "两者都是 O(1)：in 是语法糖，被解释器优化",
+        "list 是 O(1)，set 是 O(n)：set 要遍历哈希桶",
+        "两者都是 O(n)：任何容器都逃不掉逐个检查"
       ],
       "answer": 0,
-      "explanation": "dict 就是哈希表，按键直达，平均 O(1)。排序后线性查找仍是 O(n)，换容器类型也不改变「逐条比较」的查找方式。",
+      "explanation": "list 无哈希结构只能线性扫；set 用哈希函数算出桶位置直达。这正是循环里做成员判断时应先把 list 换成 set 的原因。",
       "lessonId": "l-dsa-hash-table"
     }
   ]

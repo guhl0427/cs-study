@@ -1,70 +1,139 @@
 ---
 id: l-backend-mq
-slug: mq-intro
-title: 消息队列初步：异步与解耦
-difficulty: 3
-estMinutes: 30
-tags: [后端, 中间件]
-summary: 「发通知」要 2 秒但下单只要 100 毫秒——把不急的事交给队列慢慢做，是异步；服务之间不再互相直接调用，是解耦。
+slug: mq
+title: 消息队列：异步、解耦与削峰
+difficulty: 2
+estMinutes: 80
+tags: [MQ, RabbitMQ, 后端]
+summary: 下单接口为什么要 1.6 秒？——MQ 的三大用途（异步/解耦/削峰）、生产者消费者模型、ack 与幂等，跟着把「下单发短信」改造成队列架构。
 updated: 2026-11-22
 resources:
-  - id: r-mq-rabbit
+  - id: r-rabbitmq-tutorial
     title: RabbitMQ 官方教程
     url: https://www.rabbitmq.com/tutorials
     type: doc
-    difficulty: 3
-    note: 六个渐进式教程，从 Hello World 到路由。
+    difficulty: 2
+    note: 六个渐进式教程，本课模型出自第一个。
+  - id: r-mq-cloud
+    title: CloudAMQP · RabbitMQ 入门
+    url: https://www.cloudamqp.com/blog/part1-rabbitmq-for-beginners-what-is-rabbitmq.html
+    type: doc
+    difficulty: 2
+    note: 新手友好的概念讲解。
 ---
 
-> 一句话定义：消息队列（MQ）是一个「收件箱」——生产者把要办的事投递进来就返回，消费者按自己的节奏取出来处理。
+> 一句话定义：消息队列是**服务之间的「邮政系统」**——生产者把消息投进队列就走人，消费者按自己的节奏取件处理；它用「延迟满足」换来异步、解耦与削峰三大能力。
 
 ## 概念讲解
 
-没有 MQ 的同步调用有三个典型痛点：
+**没有 MQ 的同步调用有多痛？** 拆一笔账：
 
-```
-下单接口（同步）：
+```text
+下单接口（同步串行）：
   写订单 100ms → 发短信 800ms → 发邮件 500ms → 加积分 200ms
-  = 用户等 1.6 秒；短信服务一挂，整个下单失败
+  = 用户盯着转圈 1.6 秒；短信服务一挂，整个下单失败
 ```
 
-三个痛点对应 MQ 的三个经典用途：
+三个痛点，正好对应 MQ 的三大经典用途：
 
-1. **异步**：主流程只做「写订单」，其余投递到队列——用户 100ms 拿到结果，通知类任务慢慢做；
-2. **解耦**：下单服务不认识短信服务，只发一条「订单已创建」事件。新增「送优惠券」消费者？订阅这条事件即可，下单代码一行不改；
-3. **削峰**：秒杀瞬间 1 万 QPS 涌进来，队列挡在前面，数据库按自己的处理能力匀速消费。
+1. **异步**：主流程只做「写订单」（100ms 拿到结果），通知类任务投递到队列慢慢做——用户 0.1 秒看到「下单成功」；
+2. **解耦**：下单服务不认识短信服务，只广播一条「订单已创建」事件。明天加「送优惠券」？新增一个订阅者即可，下单代码一行不改；
+3. **削峰**：秒杀瞬间 1 万 QPS 涌进来，队列挡在前面当「蓄水池」，数据库按自己的处理能力匀速消费。
 
-代价也要认清：**一致性从「实时」变「最终」**——邮件可能晚几秒到，消费者可能失败需要重试，消息可能重复需要幂等（同一个订单号只处理一次）。这是架构级的权衡，不是免费的午餐。
+**核心模型：生产者 → 队列 → 消费者**：
+
+```text
+下单服务(生产者) ──投递──► [ order-events 队列 ] ──消费──► 通知服务(消费者)
+                              │                ──消费──► 积分服务(消费者)
+                              │                    （多消费者可订阅同一队列）
+```
+
+**代价必须认清**：一致性从「实时」变「最终」——邮件晚几秒到没关系；消费者可能失败需要重试；重试必然带来重复投递。所以 MQ 不是免费的午餐，它把复杂度从「同步耦合」转移到「消息可靠性」。
+
+**ack（确认）机制是可靠性的关键**：消费者「处理完才确认」，处理中崩溃的消息会被重新投递给其他消费者——这个机制反过来要求消费逻辑必须写**幂等**（同一个订单号只处理一次，重复收到就跳过）。
+
+**什么时候不该用 MQ**：需要「立刻知道结果」的调用（支付校验、扣库存防超卖）不适合异步——判断标准只有一条：**调用方是否关心结果**。关心结果 → 同步；不关心（通知、日志、积分）→ 队列。
 
 ## 代码示例
 
-用 RabbitMQ 的最简模型理解角色分工（以 Python 教程代码为例）：
+主线：用 RabbitMQ 的最简模型（Python）跑通「投递 → 消费 → ack → 幂等」全流程：
 
-```python
-# 生产者：投递消息后立刻返回，不等消费者处理
-channel.basic_publish(
-    exchange='', routing_key='order-events',
-    body='{"event": "order.created", "orderId": 42}',
-)
+**第 1 步：跑起来**（本地装 RabbitMQ 或用 docker：`docker run -d -p 5672:5672 rabbitmq:3`）：
 
-# 消费者：常驻进程，取出并处理；处理完才确认（ack）
-def callback(ch, method, props, body):
-    send_email(body)               # 假设发送失败会抛异常
-    ch.basic_ack(delivery_tag=method.delivery_tag)
-
-channel.basic_consume(queue='order-events', on_message_callback=callback)
+```bash
+pip install pika
 ```
 
-「处理完才 ack」是可靠性的关键：消费者崩溃时消息未确认，会被重新投递给其他消费者——这就是为什么消费逻辑必须写**幂等**（重复收到同一单号，跳过即可）。
+**第 2 步：生产者——投递后立刻返回**：
+
+```python
+# producer.py
+import pika, json
+
+conn = pika.BlockingConnection(pika.ConnectionParameters("localhost"))
+ch = conn.channel()
+ch.queue_declare(queue="order-events")          # 声明队列（幂等操作）
+
+msg = {"event": "order.created", "orderId": 42, "user": "小明"}
+ch.basic_publish(exchange="", routing_key="order-events",
+                 body=json.dumps(msg),          # 消息体：JSON 字符串
+                 properties=pika.BasicProperties(delivery_mode=2))  # 2 = 持久化到磁盘
+print("已投递，立刻返回")                        # 主流程不等处理结果
+```
+
+**第 3 步：消费者——常驻进程，处理完才 ack**：
+
+```python
+# consumer.py
+import pika, json, time
+
+sent_log: set[int] = set()                       # 幂等去重表（生产中放 Redis/数据库）
+
+def callback(ch, method, props, body):
+    msg = json.loads(body)
+    order_id = msg["orderId"]
+
+    if order_id in sent_log:                     # 幂等：重复投递直接跳过
+        print(f"订单 {order_id} 已处理过，跳过")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+        return
+
+    time.sleep(1)                                # 模拟：发短信很慢（且可能失败）
+    print(f"给 {msg['user']} 发短信：订单 {order_id} 已创建")
+    sent_log.add(order_id)
+    ch.basic_ack(delivery_tag=method.delivery_tag)   # 处理完才确认——可靠性的关键
+
+conn = pika.BlockingConnection(pika.ConnectionParameters("localhost"))
+ch = conn.channel()
+ch.queue_declare(queue="order-events")
+ch.basic_consume(queue="order-events", on_message_callback=callback)
+print("消费者就绪，等待消息（Ctrl+C 退出）")
+ch.start_consuming()
+```
+
+**第 4 步：亲手验证「处理完才 ack」**：
+
+```bash
+python producer.py        # 窗口 1：投递一条消息
+python consumer.py        # 窗口 2：看到「正在发短信」时 Ctrl+C 杀掉消费者
+python consumer.py        # 再启动：同一条消息被重新投递——消息没有丢
+```
+
+这就是「至少一次投递」：ack 之前消费者死了，消息会回来。配合幂等，才能既不丢消息、又不重复处理。
 
 ## 常见坑
 
-1. **坑 1：什么都往队列里塞**。需要「立刻知道结果」的调用（如支付校验）不适合 MQ，用同步调用；判断标准是「调用方是否关心结果」。
-2. **坑 2：消费逻辑不幂等**。重试机制必然带来重复投递——没有幂等，一封邮件发三遍。
-3. **坑 3：没有死信处理**。一条永远处理失败的消息反复重试，堵住整个队列。设置重试上限，超限转入死信队列人工排查。
+1. **坑 1：什么都往队列里塞**。支付校验、扣库存这类「调用方关心结果」的调用走队列，失败时用户页面拿不到反馈——判断标准是「是否关心结果」，不是「哪个更酷」。
+2. **坑 2：消费逻辑不幂等**。重试机制必然带来重复投递——没有幂等，一封邮件发三遍、积分加三次。幂等的标准实现：业务唯一键 + 去重表。
+3. **坑 3：没有死信处理**。一条永远处理失败的消息反复重试，堵住整个队列——设置重试上限，超限转入死信队列（dead letter queue）人工排查。
+4. **坑 4：消息没持久化**。默认内存队列，Broker 重启消息全丢——声明队列与消息都加持久化（durable=True / delivery_mode=2）。
+5. **坑 5：事件里塞了整包数据导致强耦合**。「订单已创建」事件里带 40 个字段，消费者每次跟着生产者的表结构改——事件只带 id 与必要事实，需要详情让消费者自己查或订阅专门的事件。
+6. **坑 6：忘了 ack 也忘了 nack**。处理失败既不 ack 也不拒绝，消息卡在「未确认」状态堵住预取额度——失败路径要么 nack 重投，要么转入死信。
 
 ## 小练习
 
-1. 把「下单 → 短信/邮件/积分」改造为 MQ 架构，画出消息与两个服务的交互图。
-2. 判断：哪些适合异步（发欢迎邮件、扣库存、生成订单号），哪些必须同步？说明理由。
-3. 思考题：幂等消费为什么通常用「业务唯一键 + 去重表」实现，而不是消息自带的 messageId？
+1. 走通主线四步，亲手在「发短信」时杀掉消费者，观察消息被重新投递；再验证幂等表把第二次投递跳过。
+2. 把「下单 → 短信/邮件/积分」的同步架构画成 MQ 架构图（一个事件、三个消费者），标出哪一步从 1.6 秒变成 0.1 秒。
+3. 判断以下场景适合同步还是异步（MQ），并说明理由：发欢迎邮件 / 扣库存 / 生成订单号 / 发货后送积分 / 支付扣款校验。
+4. 综合任务：给消费者加重试上限——同一消息处理失败 3 次后不再重投，打印到「死信日志」（提示：消息头带 retry 计数字段）。
+5. 思考题：幂等消费为什么通常用「业务唯一键 + 去重表」实现，而不是消息自带的 messageId？（提示：同一次下单被生产者重试时会生成不同 messageId。）

@@ -32,6 +32,32 @@
     },
     {
       "id": "q-ch-c-struct-3",
+      "stem": "把用户提交的内容 `strcpy(buf, user_input)` 拼进固定大小的 buf，最安全的替代是？",
+      "options": [
+        "换成 strcat 再拼一次",
+        "换成 snprintf(buf, sizeof(buf), \"%s\", user_input)——限长写入，保证不越过 buf 边界（strcpy 是缓冲区溢出的重灾区）",
+        "把 buf 声明得更大一点",
+        "先 strlen 检查再 strcpy 一样安全"
+      ],
+      "answer": 1,
+      "explanation": "「先检查再拷贝」在并发/多行路径下总会漏；限长函数从结构上杜绝越界。gets 则完全没有安全替代，禁止使用。",
+      "lessonId": "l-c-array-string"
+    },
+    {
+      "id": "q-ch-c-struct-4",
+      "stem": "`Student *p = &alice;` 之后要打印姓名，正确的写法是？",
+      "options": [
+        "p.name",
+        "p->name——指针用箭头，等价于 (*p).name；点号只能用于结构体变量本身",
+        "*p.name",
+        "p&name"
+      ],
+      "answer": 1,
+      "explanation": "口诀：变量用点、指针用箭头。p->name 是 (*p).name 的语法糖。p.name 会编译报错（左边不是结构体变量）。",
+      "lessonId": "l-c-struct-io"
+    },
+    {
+      "id": "q-ch-c-struct-5",
       "stem": "程序用 `FILE *fp = fopen(\"data.txt\", \"r\");` 后立刻 fprintf(fp, ...)，最应该先做的是？",
       "options": [
         "先把 fp 指针 free 掉",

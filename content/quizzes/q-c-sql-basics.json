@@ -6,55 +6,68 @@
   "questions": [
     {
       "id": "q-c-sql-basics-1",
-      "stem": "LEFT JOIN 之后又写了 `WHERE a.status = 'published'`（a 是右表），「没有文章的用户」从结果里消失了。为什么？",
+      "stem": "同学写出：SELECT author_id, COUNT(*) AS cnt FROM posts GROUP BY author_id WHERE cnt > 1; 这条 SQL 的问题在哪？",
       "options": [
-        "LEFT JOIN 本身写错了，应该用 INNER JOIN",
-        "WHERE 在 JOIN 之后执行，NULL ≠ 'published' 把整行过滤掉了；右表条件应放进 ON 里",
-        "数据库 bug，换 PostgreSQL 就正常",
-        "需要加 DISTINCT 才能保留"
+        "书写顺序错了——WHERE 应在 GROUP BY 之前，且对聚合结果的过滤要用 HAVING",
+        "COUNT(*) 不能起别名",
+        "SELECT 里不允许同时出现普通列和聚合函数",
+        "author_id 必须加引号"
       ],
-      "answer": 1,
-      "explanation": "LEFT JOIN 保留的「没有文章的用户」右表列全是 NULL，WHERE 一过滤这些行全被丢弃，LEFT JOIN 白写了。想让「没文章的用户」留在结果里，右表的过滤条件要写进 ON 子句。",
+      "answer": 0,
+      "explanation": "WHERE 跑在分组之前，那时聚合值还不存在；过滤「每组计数」必须用 HAVING。SELECT 同时出现分组键和聚合函数本来是合法写法。",
       "lessonId": "l-sql-select"
     },
     {
       "id": "q-c-sql-basics-2",
-      "stem": "LEFT JOIN 数文章数时，`COUNT(*)` 会把「没有文章的用户」也数成 1，正确写法是？",
+      "stem": "「每个分类里浏览量最高的文章」用相关子查询实现：WHERE (SELECT COUNT(*) FROM articles b WHERE b.category = a.category AND b.views > a.views) = 0。这个条件的含义是？",
       "options": [
-        "COUNT(u.id)",
-        "COUNT(a.id)——数右表的主键，NULL 行不会被计入",
-        "COUNT(*) - 1",
-        "SUM(1)"
+        "全表没有浏览量比它更高的行",
+        "它是本分类里浏览量为 0 的行",
+        "它所在的分类只有一行数据",
+        "本分类中没有浏览量比它更高的行——即它是本类第一名"
       ],
-      "answer": 1,
-      "explanation": "COUNT(列) 只数该列非 NULL 的行：没有文章的用户 a.id 为 NULL 不计入，得到 0；COUNT(*) 数的是行数，NULL 行也算。一对差异背后是「数行还是数非空值」。",
-      "lessonId": "l-sql-select"
+      "answer": 3,
+      "explanation": "相关子查询数的是「同类且比我大的行数」，等于 0 即本类第一；把 =0 换成 <N 就是「每类前 N 名」的子查询解法。与窗口函数 ROW_NUMBER 版结果一致。",
+      "lessonId": "l-sql-subquery"
     },
     {
       "id": "q-c-sql-basics-3",
-      "stem": "设计「文章可以有多个标签」的表结构，为什么不该把标签塞进文章表一列（如 `tags VARCHAR` 存 'css,js'）？",
+      "stem": "查询 WHERE created_at >= '2026-11-01' AND created_at < '2026-11-02' 原本走索引；同事改成 WHERE DATE(created_at) = '2026-11-01' 后 EXPLAIN 里 key 变 NULL、type 变 ALL。诊断结论是？",
       "options": [
-        "VARCHAR 太短装不下",
-        "没法按标签高效查询、没法做唯一性约束——一对多关系应该拆成关联表",
-        "会导致 JOIN 变慢",
-        "数据库不允许一列存多个值"
+        "日期字符串格式不对导致查询失败",
+        "对列套函数使索引失效——树里排的是原始值；改回等价的范围条件即可恢复",
+        "DATE 函数本身有 bug，应换成 EXTRACT",
+        "索引被数据库自动删除了，需要重建"
       ],
       "answer": 1,
-      "explanation": "把列表塞进一个字段（违反第一范式），查询「所有带 css 标签的文章」只能全表扫描字符串匹配，也无法在数据库层面约束重复。正确做法是 tags 表 + article_tags 关联表。",
-      "lessonId": "l-db-schema-design"
+      "explanation": "函数包列是典型失效场景：B+ 树按原始值排序，函数值在树里无序。两种写法语义等价（都是取当天），改写为范围条件是零成本的优化。",
+      "lessonId": "l-sql-index"
     },
     {
       "id": "q-c-sql-basics-4",
-      "stem": "关于索引的代价，下列说法正确的是？",
+      "stem": "转账事务 COMMIT 返回前网络断开，应用层不知道 COMMIT 是否已生效。正确的下一步是？",
       "options": [
-        "索引只占磁盘空间，不影响任何操作速度",
-        "每个索引都会拖慢写入——插入/更新时要多维护一棵树，所以只给高频查询条件列建",
-        "索引会让 SELECT 也变慢",
-        "索引建得越多，优化器一定选得越准"
+        "立即原样重发整个转账请求",
+        "先执行一条 UPDATE 把余额改回转账前的值",
+        "靠转账单号的幂等设计：先查该单号是否已成功，再决定重试或放弃",
+        "换一个数据库连接再 COMMIT 一次"
+      ],
+      "answer": 2,
+      "explanation": "COMMIT 可能已生效只是结果没传回来，盲目重试就是双倍扣款；回滚也救不了已提交的事务。唯一安全解是幂等键（UNIQUE 单号约束）让重试可判定。",
+      "lessonId": "l-db-transaction"
+    },
+    {
+      "id": "q-c-sql-basics-5",
+      "stem": "订单表要记录「下单时商品的价格」，要求商品改价后历史订单仍显示正确。哪种设计最合适？",
+      "options": [
+        "orders 存一个 JSON 列，把整份商品信息塞进去",
+        "order_items 存 unit_price 快照列：下单时写入，永不随商品表追改",
+        "order_items 只存 product_id，展示时 JOIN products 取当前价",
+        "products 表建历史版本表，查询时按时间区间匹配"
       ],
       "answer": 1,
-      "explanation": "索引是「查询加速、写入减速」的权衡：每次写入都要同步维护索引树。同时更多索引也让优化器的选择空间变大。给低频查询列建索引是纯亏。",
-      "lessonId": "l-sql-index"
+      "explanation": "快照列语义清晰、查询简单：历史订单回答「下单那一刻的价格」。JOIN 取当前价会让历史订单随改价漂移；JSON 列无法加约束；版本表是更重的方案，不是首选。",
+      "lessonId": "l-db-schema-design"
     }
   ]
 }

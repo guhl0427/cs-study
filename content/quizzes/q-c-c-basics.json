@@ -55,6 +55,19 @@
       "answer": 2,
       "explanation": "\"w\" 每次打开都清空旧内容，正是「日志只剩最后一次数据」这个经典坑的来源；追加用 \"a\"。C 的 fopen 没有双字母 \"rw\" 模式，读写用 \"r+\"。",
       "lessonId": "l-c-struct-io"
+    },
+    {
+      "id": "q-c-c-basics-5",
+      "stem": "`char buf[8]; strcpy(buf, user_input);`（user_input 来自用户）这句代码最大的风险是？",
+      "options": [
+        "执行速度太慢",
+        "缓冲区溢出——用户输入超过 8 字节会写穿 buf 边界，污染相邻内存；应改用 snprintf 限长写入",
+        "strcpy 不支持中文",
+        "编译器会直接拒绝编译"
+      ],
+      "answer": 1,
+      "explanation": "C 不做边界检查，strcpy 拷多长写多长。缓冲区溢出是安全史上最经典的漏洞家族（呼应 SQL 注入课的「原始工具不设防」）。限长函数（snprintf/strncat）从结构上杜绝越界。",
+      "lessonId": "l-c-array-string"
     }
   ]
 }

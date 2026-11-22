@@ -3,7 +3,7 @@
   "domainSlug": "cs-fundamentals",
   "slug": "dsa-basics",
   "title": "数据结构与算法入门",
-  "summary": "以「怎么描述效率 + 怎么组织数据」为主线：大 O、线性结构、哈希、递归与树、排序与查找——刷题和面试共用的地基。",
+  "summary": "以「怎么描述效率 + 怎么组织数据」为主线：大 O、线性结构、哈希、递归、树与图、排序与查找——刷题和面试共用的地基，9 篇可跟做的完整教程。",
   "difficulty": 2,
   "audience": "CS 在校生、准备刷题与面试的学习者；建议与任意方向并行推进",
   "prereqs": "任意一门编程语言入门（Python / C / JS 均可，示例以 Python 呈现）",
@@ -11,22 +11,35 @@
     {
       "id": "ch-dsa-foundations",
       "title": "地基：如何描述效率",
-      "lessons": ["l-dsa-big-o", "l-dsa-array-list"]
+      "lessons": [
+        "l-dsa-big-o",
+        "l-dsa-array-list"
+      ]
     },
     {
       "id": "ch-dsa-linear",
       "title": "线性结构：栈、队列与哈希",
-      "lessons": ["l-dsa-stack-queue", "l-dsa-hash-table"]
+      "lessons": [
+        "l-dsa-stack-queue",
+        "l-dsa-hash-table"
+      ]
     },
     {
       "id": "ch-dsa-tree",
-      "title": "递归与树",
-      "lessons": ["l-dsa-recursion", "l-dsa-binary-tree"]
+      "title": "递归、树与图",
+      "lessons": [
+        "l-dsa-recursion",
+        "l-dsa-binary-tree",
+        "l-dsa-graph"
+      ]
     },
     {
       "id": "ch-dsa-algo",
       "title": "经典算法：排序与查找",
-      "lessons": ["l-dsa-sorting", "l-dsa-binary-search"]
+      "lessons": [
+        "l-dsa-sorting",
+        "l-dsa-binary-search"
+      ]
     }
   ]
 }

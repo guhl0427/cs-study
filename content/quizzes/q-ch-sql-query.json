@@ -6,41 +6,67 @@
   "questions": [
     {
       "id": "q-ch-sql-query-1",
-      "stem": "「查出发文 ≥5 篇的作者」需要按作者分组计数再过滤。过滤条件应该写在哪个子句里？",
+      "stem": "博客库 users 有 5 行（其中小红没发过文章），posts 有 9 行（其中 1 篇 author_id 为 NULL 的匿名投稿）。执行 SELECT COUNT(*) FROM users u INNER JOIN posts p ON p.author_id = u.id; 返回多少？",
       "options": [
-        "WHERE COUNT(*) >= 5",
-        "HAVING COUNT(*) >= 5——WHERE 在分组前逐行过滤，碰不到聚合值",
-        "ORDER BY COUNT(*) >= 5",
-        "LIMIT 5"
+        "9——文章总数不变",
+        "45——两表行数相乘",
+        "8——匿名投稿对不上任何用户，被 INNER JOIN 剪掉",
+        "5——只统计用户数"
       ],
-      "answer": 1,
-      "explanation": "执行顺序是 FROM→WHERE→GROUP BY→HAVING：WHERE 先于分组执行，那时还没有 COUNT 可用；对聚合结果的过滤必须用 HAVING。写 WHERE COUNT(*) 会直接报错。",
+      "answer": 2,
+      "explanation": "INNER JOIN 的行数由「能对上的行」决定：9 篇文章里匿名投稿被剪掉剩 8 行；没发文的小红不产生行。45 是忘写 ON 的笛卡尔积。数 JOIN 结果前先想清楚粒度。",
       "lessonId": "l-sql-select"
     },
     {
       "id": "q-ch-sql-query-2",
-      "stem": "建了联合索引 `(status, created_at)`，只按 `created_at > '2026-11-01'` 查询，索引的表现是？",
+      "stem": "需求是「每个用户的已发布文章数，没文章的显示 0」。同学写了 FROM users u LEFT JOIN posts p ON p.author_id = u.id WHERE p.status = 'published'，结果里没文章的用户消失了。最小改动是？",
       "options": [
-        "正常使用整条索引",
-        "走不了——联合索引遵循最左前缀原则，跳过最左列就用不上",
-        "自动创建一个新索引",
-        "和单列索引一样快"
+        "把 p.status = 'published' 从 WHERE 挪进 ON 子句",
+        "把 LEFT JOIN 换成 INNER JOIN",
+        "加 DISTINCT 去重",
+        "把 COUNT(*) 换成 COUNT(p.id)"
       ],
-      "answer": 1,
-      "explanation": "联合索引像电话簿先按姓再按名排序：只知道名（created_at）没法利用排序结构。查询条件必须包含最左列 status 才能吃到这条索引。",
-      "lessonId": "l-sql-index"
+      "answer": 0,
+      "explanation": "WHERE 在 JOIN 之后执行，补 NULL 行过不了比较，LEFT JOIN 退化成 INNER；右表过滤条件放进 ON 才能保留「没文章」的行。换 COUNT 写法只影响计数值，不解决行消失。",
+      "lessonId": "l-sql-select"
     },
     {
       "id": "q-ch-sql-query-3",
-      "stem": "`WHERE DATE(created_at) = '2026-11-01'` 让索引失效，正确的改写是？",
+      "stem": "articles 表的 category 允许 NULL，另有一行 category 为 NULL。执行 SELECT title FROM articles WHERE category NOT IN (SELECT category FROM articles WHERE views >= 1000);（内层结果含 NULL），结果是？",
       "options": [
-        "给 created_at 再建一个索引",
-        "改用范围条件：`created_at >= '2026-11-01' AND created_at < '2026-11-02'`",
-        "把 DATE 换成 YEAR 函数",
-        "加 ORDER BY 强制优化器走索引"
+        "返回所有非 db/net 分类的文章",
+        "返回 0 行——内层含 NULL 使 NOT IN 对任何值都无法证明 TRUE",
+        "报错：子查询结果不允许包含 NULL",
+        "只返回 category 为 NULL 的那一行"
       ],
       "answer": 1,
-      "explanation": "对列套函数等于改变了参与比较的值，B+ 树里排好序的是原始值，优化器无法使用。把「函数包列」改写成等价的范围条件，索引就能正常工作。",
+      "explanation": "x NOT IN (a, b, NULL) 因三值逻辑全变 UNKNOWN，查询返回 0 行且不报错。判「不在集合里」一律改用 NOT EXISTS，它不受 NULL 影响。",
+      "lessonId": "l-sql-subquery"
+    },
+    {
+      "id": "q-ch-sql-query-4",
+      "stem": "SELECT title, ROW_NUMBER() OVER (PARTITION BY category ORDER BY views DESC) AS rn FROM articles WHERE rn <= 2; 报错。原因与正确做法是？",
+      "options": [
+        "ROW_NUMBER 必须和 SUM 一起使用",
+        "PARTITION BY 不能与 ORDER BY 同时出现",
+        "把 AS rn 删掉就能跑",
+        "WHERE 里不能用窗口函数——它在 SELECT 阶段才计算，应包成子查询/CTE 后在外层过滤 rn"
+      ],
+      "answer": 3,
+      "explanation": "窗口函数在执行顺序第⑤步（SELECT）才诞生，WHERE 是第②步，执行时 rn 还不存在。标准套路：子查询里算 rn，外层 WHERE rn <= 2。",
+      "lessonId": "l-sql-subquery"
+    },
+    {
+      "id": "q-ch-sql-query-5",
+      "stem": "已建联合索引 (author_id, views)，下列哪个查询走不了这条索引？",
+      "options": [
+        "WHERE author_id = 7",
+        "WHERE author_id = 7 AND views > 3000",
+        "WHERE views = 3000",
+        "WHERE author_id = 7 AND views = 100"
+      ],
+      "answer": 2,
+      "explanation": "联合索引先按 author_id 排、同值区内再按 views 排，缺最左列时 views 在树里全局无序，帮不上定位。前两个选项分别用第一列、两列都吃到索引。",
       "lessonId": "l-sql-index"
     }
   ]

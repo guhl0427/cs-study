@@ -3,7 +3,7 @@
   "domainSlug": "frontend",
   "slug": "framework-overview",
   "title": "前端框架概览：Vue 3 与 React",
-  "summary": "框架解决的是同一个问题——「状态变了，页面怎么跟着变」。本课程用两个概览帮你完成二选一。",
+  "summary": "在写第一个框架项目之前：框架到底解决了什么问题、Vue 与 React 各自怎么想、如何选择——4 篇建立框架世界观，避免「语法背了一堆、思维没建立」。",
   "difficulty": 2,
   "audience": "已掌握 JS 基础与 DOM 操作的学习者",
   "prereqs": "「Web 前端入门：三件套」的 JavaScript 部分",
@@ -11,7 +11,12 @@
     {
       "id": "ch-framework-intro",
       "title": "框架解决什么问题",
-      "lessons": ["l-vue-intro", "l-react-intro"]
+      "lessons": [
+        "l-framework-why",
+        "l-vue-intro",
+        "l-react-intro",
+        "l-framework-choice"
+      ]
     }
   ]
 }

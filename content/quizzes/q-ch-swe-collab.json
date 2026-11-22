@@ -8,40 +8,66 @@
       "id": "q-ch-swe-collab-1",
       "stem": "同事的 PR 改了 47 个文件：修了两个 bug、顺带升级了依赖、还重构了三个模块。按「好 PR 三标准」，最该给他的建议是？",
       "options": [
-        "拆成多个单一目的的小 PR（修 bug、升级依赖、重构各一个），逐个评审合并",
         "在描述里把所有改动列清楚就够了，体量大不是问题",
+        "拆成多个单一目的的小 PR（修 bug、升级依赖、重构各一个），逐个评审合并",
         "让评审人一次看完，省得来回切换",
         "直接合并，反正 CI 是绿的"
       ],
-      "answer": 0,
-      "explanation": "好 PR 要小、单一目的、描述清楚；巨型 PR 评审质量骤降，只能秒批。CI 绿只代表自动化检查通过，不代表逻辑被人认真看过。",
+      "answer": 1,
+      "explanation": "好 PR 要小、单一目的、描述清楚；巨型 PR 评审质量骤降只剩秒批，出问题也无法单独回滚。CI 绿只代表机器检查过了，不代表有人认真看过。",
       "lessonId": "l-swe-collab"
     },
     {
       "id": "q-ch-swe-collab-2",
-      "stem": "看这个 GitHub Actions 片段：steps 里有 actions/setup-node@v4、npm ci、npm test，npm ci 一步报错「no such file or directory, open package.json」。最可能的原因是？",
+      "stem": "GitHub Actions 跑挂了：steps 里只有 setup-node、npm ci、npm test，npm ci 一步报错「no such file or directory, open package.json」。按「看第一个红 step」诊断，根因是？",
       "options": [
-        "node-version 20 太新了",
-        "npm ci 的拼写有误",
-        "GitHub 不支持 Node 项目，要换成 Python",
-        "少了 actions/checkout 这一步——虚拟机是全新的空机器，仓库代码根本没拉下来"
+        "node-version 20 太新，和项目不兼容",
+        "npm ci 拼写有误，应该写成 npm install",
+        "GitHub 不支持 Node 项目，要换成 Python 镜像",
+        "少了 actions/checkout——job 跑在一台全新空机器上，仓库代码根本没拉下来"
       ],
       "answer": 3,
-      "explanation": "每个 job 都跑在一台全新虚拟机上，第一步必须 checkout 拉代码；找不到 package.json 正是代码不在的证据。Node 版本和拼写都不是这个报错的成因。",
+      "explanation": "虚拟机是全新空机器，第一步必须 checkout 拉代码，找不到 package.json 正是代码不在的证据。看第一个红 step 的日志，报错已经写明文件不存在。",
       "lessonId": "l-swe-cicd"
     },
     {
       "id": "q-ch-swe-collab-3",
-      "stem": "评审时你发现同事代码逻辑正确，但 API key 明文写在配置文件里提交了。最合适的处理是？",
+      "stem": "评审时你发现同事一段代码逻辑正确但难以看懂：三层嵌套加单字母变量名。按评论礼仪，最合适的评论是？",
       "options": [
-        "功能没问题就通过，别耽误上线",
-        "只发个表情包暗示一下",
-        "评论指出必须改用 secrets 管理，并提醒立刻作废这个 key——泄露的密钥就算删掉提交记录也可能已被爬走",
-        "自己悄悄改掉再合并，不惊动作者"
+        "「这段嵌套读起来吃力，要不要提取个函数？比如 calculateDiscount(line)？」——提问式建议，指向具体改法",
+        "「写的什么玩意，重写。」",
+        "自己默默 approve——逻辑是对的，可读性不值得提",
+        "在群里 @他，让他当众解释这段代码"
+      ],
+      "answer": 0,
+      "explanation": "可读性是三层清单的第二层，该提；但用提问式并给出具体改法，对事不对人。沉默放行和当众施压都偏离了评审的目的。",
+      "lessonId": "l-swe-collab"
+    },
+    {
+      "id": "q-ch-swe-collab-4",
+      "stem": "团队规矩是「PR 必须过 CI + 1 个 approve 才能进 main」，但总有人绕过规矩直接 push main。技术上最一劳永逸的治理是？",
+      "options": [
+        "在群里再发一遍通知，强调纪律",
+        "把违规者的提交权限收回一周",
+        "给 main 配分支保护规则：要求指定检查（CI）通过 + 至少 1 个 approve，禁止绕过",
+        "每天安排专人盯着 main 的提交记录"
       ],
       "answer": 2,
-      "explanation": "密钥泄露是安全问题，不能因「功能正常」放行；也不能只默默改掉——作者必须知道 key 已泄露、需要作废。评论对事不对人，但该拦就要拦。",
+      "explanation": "分支保护规则让「直接 push main」在技术上不可能，靠机器而不是靠自觉；口头提醒和人工盯梢都是贴在墙上的规矩，管不住绕过的人。",
       "lessonId": "l-swe-cicd"
+    },
+    {
+      "id": "q-ch-swe-collab-5",
+      "stem": "你收到一个待评审的 PR，页面上 CI 显示红叉（npm test 失败）。评审人此刻最合理的动作是？",
+      "options": [
+        "先 approve，代码看着没问题，CI 可能是机器抖了",
+        "直接合并，回头再补测试",
+        "关闭这个 PR，让作者重开一个新的",
+        "点开红叉那次运行，找第一个红 step 的日志定位问题，绿了再进入人工评审"
+      ],
+      "answer": 3,
+      "explanation": "质量门有两道锁：CI（机器锁）和人工评审（人锁），红着就 approve 等于把门拆了。排查动作遵循 CI 课的「看第一个红 step」，而不是猜或重跑。",
+      "lessonId": "l-swe-collab"
     }
   ]
 }

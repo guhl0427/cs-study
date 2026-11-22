@@ -6,41 +6,54 @@
   "questions": [
     {
       "id": "q-ch-sql-design-1",
-      "stem": "转账事务里第一条 UPDATE（A 扣款）成功后程序崩溃，第二条（B 入账）没执行。如果没有包 BEGIN/COMMIT，结果是？",
+      "stem": "双窗口实验：A 窗口执行 BEGIN; UPDATE accounts SET balance = balance - 100 WHERE id = 1;（未提交）。B 窗口接着执行 UPDATE accounts SET balance = balance - 100 WHERE id = 1; 会发生什么？",
       "options": [
-        "数据库自动补完第二条",
-        "A 的钱扣了、B 没收到——账目凭空少了 100 元",
-        "两条都自动回滚",
-        "程序崩溃前 COMMIT 会自动执行"
+        "B 立即执行成功，余额变成 800",
+        "B 先读到 900 再立即扣成 800",
+        "B 阻塞等待，直到 A COMMIT 或 ROLLBACK 释放该行的排他锁",
+        "B 直接报错：数据库不允许并发修改同一行"
       ],
-      "answer": 1,
-      "explanation": "MySQL 默认每条语句独立提交，两条 UPDATE 是两个独立事务。事务的意义就是把它们包成一个「要么全成功要么全回滚」的单元，中间崩溃则 ROLLBACK 回到 BEGIN 之前。",
+      "answer": 2,
+      "explanation": "A 未提交即持有该行的排他锁，写与写互斥，B 只能等待。普通 SELECT 走快照不阻塞，但 UPDATE 必须拿到锁——这正是「事务多长、锁攥多久」的现场版。",
       "lessonId": "l-db-transaction"
     },
     {
       "id": "q-ch-sql-design-2",
-      "stem": "事务里什么时候应该 COMMIT？哪段代码不该出现在 BEGIN 和 COMMIT 之间？",
+      "stem": "线上偶发「转账接口把全库相关写操作卡死数秒」。排查发现代码是：BEGIN → UPDATE 扣款 → 调第三方支付 HTTP（约 3 秒）→ UPDATE 入账 → COMMIT。根因是？",
       "options": [
-        "立即 COMMIT，所有查询都该包进事务",
-        "外部 HTTP 调用不该包进去——事务要短，慢操作会长时间攥着锁拖垮并发",
-        "SELECT 也必须写进同一个事务，否则数据不一致",
-        "只有写三条以上语句才需要 COMMIT，两条以内数据库自动处理"
+        "外部调用在事务内——锁被攥住 3 秒，其他事务全部排队",
+        "数据库连接池太小",
+        "HTTP 超时设置过长",
+        "隔离级别太高，应改成 READ UNCOMMITTED"
       ],
-      "answer": 1,
-      "explanation": "事务持有的锁在 COMMIT 前不释放，把 3 秒的网络调用包进事务，其他所有要改这些行的事务都得排队。通用原则：先在外部完成慢操作，再开一个短事务写库。",
+      "answer": 0,
+      "explanation": "事务多长，锁就攥多久：把 3 秒的网络调用包进事务，相关行的锁全程悬着。对策是先在外部完成慢操作，再开短事务写库；降隔离级别改变不了锁持有时长。",
       "lessonId": "l-db-transaction"
     },
     {
       "id": "q-ch-sql-design-3",
-      "stem": "订单表冗余了一份 `product_name` 快照列，这种「反范式」设计什么时候是合理的？",
+      "stem": "需求：「文章可以有多个标签，且要能按标签统计文章数」。以下哪种表结构正确？",
       "options": [
-        "永远不合理，范式必须严格遵守",
-        "只在需要省一次 JOIN 时合理",
-        "历史快照场景合理——商品改名的瞬间，历史订单还该显示下单时的名字",
-        "只在表很小时合理"
+        "articles 表加一列 tags VARCHAR(500)，存 'css,js' 这样的逗号串",
+        "在 tags 列上加 UNIQUE 约束防重复",
+        "把标签存进 Redis，数据库不用管",
+        "独立 tags 表 + article_tags 关联表，联合主键 (article_id, tag_id)"
       ],
-      "answer": 2,
-      "explanation": "反范式不是偷懒而是业务语义：订单里的商品名是「下单那一刻的事实」，商品表改名不该追溯改掉历史订单。范式管一致与省心，反范式管读取性能与快照，有意识的选择才叫设计。",
+      "answer": 3,
+      "explanation": "多对多关系用中间表落表：按标签查询与计数走 JOIN 索引，联合主键天然防重复。逗号串违反第一范式，无法高效查询也无法约束；UNIQUE 加在多值字符串上没有意义。",
+      "lessonId": "l-db-schema-design"
+    },
+    {
+      "id": "q-ch-sql-design-4",
+      "stem": "order_items 表冗余了 unit_price（下单时价格）。今天商品从 299 涨到 399，历史订单页面上该显示多少？为什么？",
+      "options": [
+        "399——冗余列必须与商品表保持实时一致",
+        "299——unit_price 是下单时的快照，冗余的语义就是「那一刻的事实」",
+        "报错——商品改价后两边数据不一致，系统应禁止改价",
+        "0——价格失效，需要人工重新核算"
+      ],
+      "answer": 1,
+      "explanation": "快照型冗余回答「下单那一刻的价格」，商品表的当前价回答的是另一个时间的问题，两个数字都正确。有意识冗余的前提是写清「归谁更新、何时更新」。",
       "lessonId": "l-db-schema-design"
     }
   ]

@@ -6,19 +6,32 @@
   "questions": [
     {
       "id": "q-ch-backend-web-1",
-      "stem": "`GET /api/like?id=42` 用 GET 做点赞，违反了什么？为什么危险？",
+      "stem": "设计文章模块的接口，下列哪组最符合 REST 约定？",
       "options": [
-        "GET 不能带查询参数",
-        "GET 应该只读、无副作用——预取、爬虫、浏览器刷新都会触发它，点赞被意外执行；改数据必须用 POST/PUT/DELETE",
-        "URL 太短了，应该更详细",
-        "GET 请求速度太慢"
+        "GET /api/addArticle 和 GET /api/deleteArticle?id=42",
+        "POST /api/articles（201 返回新资源）和 DELETE /api/articles/42（204 无内容）——URL 名词定位资源、方法表达动作、状态码表达结果",
+        "POST /api/articles/delete/42",
+        "GET /api/articles?action=delete&id=42"
       ],
       "answer": 1,
-      "explanation": "HTTP 方法有语义：GET 读、POST 建、PUT/PATCH 改、DELETE 删。搜索引擎 prefetch、爬虫都会「顺手」发 GET，把改数据的动作挂在 GET 上会被意外触发。",
+      "explanation": "REST 的表达方式 = 资源（URL 名词）+ 方法（动作语义）+ 状态码（结果）。URL 里塞动词是把 RPC 习惯带进 REST；创建返回 201、删除返回 204 让状态码回归本位。",
       "lessonId": "l-backend-rest"
     },
     {
       "id": "q-ch-backend-web-2",
+      "stem": "产品要求「管理员封禁用户后立即踢下线」。Cookie+Session 和 JWT 应该选哪个？",
+      "options": [
+        "JWT——签发后服务端随时可作废",
+        "Cookie+Session——删掉服务端 session 立即生效；JWT 签发后只能等过期，无法主动作废（补救要配黑名单或短有效期+refresh）",
+        "两个都做不到",
+        "选哪个都一样，没有区别"
+      ],
+      "answer": 1,
+      "explanation": "Session 在服务端，删了就认不了人；JWT 是「客户端持有、服务端验签」，签发后在有效期内无法撤回。需要即时踢人就选服务端有状态的方案。",
+      "lessonId": "l-backend-auth"
+    },
+    {
+      "id": "q-ch-backend-web-3",
       "stem": "JWT 的 payload 部分只是 Base64 编码，不是加密。这意味着？",
       "options": [
         "JWT 不安全，应该全面弃用",
@@ -31,17 +44,30 @@
       "lessonId": "l-backend-auth"
     },
     {
-      "id": "q-ch-backend-web-3",
+      "id": "q-ch-backend-web-4",
       "stem": "前端把「管理面板」入口隐藏了，普通用户看不到按钮。这算完成权限控制了吗？",
       "options": [
         "算，用户看不到了就安全了",
-        "不算——直接 curl 接口的人绕过前端，后端接口必须再做权限校验；前端隐藏只是体验优化",
+        "不算——直接 curl 接口的人绕过前端，后端接口必须再做权限校验（403）；前端隐藏只是体验优化",
         "算，只要按钮用 display:none 就行",
         "算，前提是用了 HTTPS"
       ],
       "answer": 1,
       "explanation": "认证（你是谁）与授权（你能干什么）都在服务端把关。前端隐藏入口只防「手滑」不防「坏人」：攻击者直接调 API 时根本没有你的前端代码。",
       "lessonId": "l-backend-auth"
+    },
+    {
+      "id": "q-ch-backend-web-5",
+      "stem": "接口约定里「PATCH /api/articles/42」和「PUT /api/articles/42」的语义差别是？",
+      "options": [
+        "没差别，两个都能全量更新",
+        "PUT 全量替换（缺的字段等于被清空的风险），PATCH 局部更新（只传变化字段）——语义用错会静默丢字段",
+        "PUT 用于创建，PATCH 用于删除",
+        "PUT 幂等但 PATCH 永远不幂等"
+      ],
+      "answer": 1,
+      "explanation": "PUT 的语义是「用这份内容整体替换资源」，没传的字段会丢；PATCH 只改传了的字段。实践中 PATCH 更常用，但两者都应设计为幂等。",
+      "lessonId": "l-backend-rest"
     }
   ]
 }

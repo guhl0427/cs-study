@@ -3,7 +3,7 @@
   "domainSlug": "database",
   "slug": "sql-basics",
   "title": "SQL 入门：从查询到设计",
-  "summary": "一套 SQL 语法贯穿始终：先把查询写清楚，再理解索引为什么快，最后学会事务与表结构设计的权衡。",
+  "summary": "从「会把查询写清楚」到「能设计一套表结构」：查询、子查询与窗口函数、索引、事务、设计——5 篇跟做教程，一套 SQL 通吃 MySQL 与 PostgreSQL。",
   "difficulty": 1,
   "audience": "所有需要与数据打交道的学习者（后端必修，前端了解亦有价值）",
   "prereqs": "无（与后端方向并行最佳）",
@@ -11,12 +11,19 @@
     {
       "id": "ch-sql-query",
       "title": "SQL 查询",
-      "lessons": ["l-sql-select", "l-sql-index"]
+      "lessons": [
+        "l-sql-select",
+        "l-sql-subquery",
+        "l-sql-index"
+      ]
     },
     {
       "id": "ch-sql-design",
       "title": "设计与事务",
-      "lessons": ["l-db-transaction", "l-db-schema-design"]
+      "lessons": [
+        "l-db-transaction",
+        "l-db-schema-design"
+      ]
     }
   ]
 }
