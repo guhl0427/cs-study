@@ -6,41 +6,54 @@
   "questions": [
     {
       "id": "q-ch-spring-boot-1",
-      "stem": "ArticleService 的构造函数接收 ArticleRepository 参数但不自己 new，运行时仓库实例从哪来？",
+      "stem": "代码推演：`ArticleController(ArticleService service) { this.service = service; }` 构造函数里没有任何 new，启动后 Controller 却能正常干活。service 实例是谁给的？这个设计换来了什么？",
       "options": [
-        "Java 反射自动创建",
-        "Spring 容器统一创建并注入——你声明「需要什么」，容器在启动时把 Bean 装配进来；换实现、塞测试假实现都只改注册处",
-        "Repository 是单例常量",
-        "需要手动 new 后塞进构造函数"
+        "JVM 反射自动创建——Java 运行时的魔法",
+        "Spring 容器统一创建 Bean 并构造注入——业务类不绑死具体实现：换实现只改注册处，单测可以 new ArticleService(假仓库) 不启动 Spring",
+        "需要手动在 main 里 new 再塞进构造函数",
+        "@Service 注解让字段自动静态化"
       ],
       "answer": 1,
-      "explanation": "依赖注入的核心：对象的创建与装配交给容器。业务类不绑定具体实现——单元测试时传一个假 Repository 即可隔离数据库（呼应测试金字塔）。",
+      "explanation": "依赖注入的核心：你只声明「需要什么」（构造参数），容器启动时扫描注解类、创建并装配 Bean。因为走构造注入，测试不需要 Spring 也能直接 new——这就是「换实现/塞假实现」两大收益。",
       "lessonId": "l-spring-boot"
     },
     {
       "id": "q-ch-spring-boot-2",
-      "stem": "Controller 上的 @GetMapping(\"/articles/{id}\") 与 FastAPI 的 @app.get(\"/articles/{id}\") 对应关系，错误的一项是？",
+      "stem": "场景排查：你把新建的 HelloController 从 com.example.demo 挪到了 com.example.web（启动类在 com.example.demo），应用启动正常，访问 /hello 却 404 且日志毫无报错。最可能的原因是？",
       "options": [
-        "@PathVariable 对应 FastAPI 的路径参数（类型自动转换）",
-        "@RequestBody 对应请求体绑定",
-        "@RestController 对应「这个类是接口集」的声明",
-        "@GetMapping 的返回值必须手动转成 JSON 字符串"
+        "8080 端口被占用——换 server.port 重启",
+        "忘了写 @RestController 注解",
+        "@SpringBootApplication 的组件扫描只覆盖启动类所在包及子包，com.example.web 在扫描范围外，Controller 根本没注册成 Bean——把包挪回启动类包树下",
+        "URL 大小写不对——把 /hello 改成 /Hello"
       ],
-      "answer": 3,
-      "explanation": "返回对象由 Spring 自动序列化为 JSON（借助 Jackson，正是 Maven 课里加的依赖）。两个框架的注解路由思想一致：URL+方法+参数绑定声明式表达。",
+      "answer": 2,
+      "explanation": "@ComponentScan 只扫启动类同包及子包：类放包树外等于不存在，且这种 404 没有任何报错，是 Spring Boot 新手第一大坑。端口占用会启动失败、缺注解会有明确现象，都与「启动正常但 404」不符。",
       "lessonId": "l-spring-boot"
     },
     {
       "id": "q-ch-spring-boot-3",
-      "stem": "`List<Article> findByAuthorOrderByTitleAsc(String author)` 零实现就能用，它是怎么变成 SQL 的？",
+      "stem": "代码推演：想查「某作者、标题包含 java 的文章」。下面哪个仓库方法名 Spring Data 能在启动期解析成功并生成正确的参数化 SQL？",
       "options": [
-        "编译器把方法名直接当 SQL 执行",
-        "Spring Data JPA 解析方法名生成查询（WHERE author = ? ORDER BY title ASC）——「方法名即查询」是派生查询机制",
-        "运行时人工补写 SQL",
-        "Hibernate 全表扫描后内存过滤"
+        "findByAuthorAndTitleContaining(String author, String title)——And 连接两个条件，Containing 翻译成 LIKE '%..%'",
+        "getAuthorTitleJava(String author)——方法名随意，框架会按语义猜",
+        "findFromAuthorWhereTitleLike(String author, String title)——用 SQL 关键词拼方法名更直观",
+        "findByAuthorAndTitleContainingOrThrow(String author)——加 OrThrow 表示查不到抛异常"
       ],
-      "answer": 1,
-      "explanation": "Spring Data 按关键词（findBy/OrderBy/Asc/And…）解析方法名生成参数化查询。拼错字段名会在启动期报错——错误暴露得越早越好（对照代码规范课的「机器管规矩」）。",
+      "answer": 0,
+      "explanation": "派生查询的解析规则是 findBy 开头 + 属性名 + 关键词（And/Or/Containing/OrderBy…），拼错属性启动期直接抛 PropertyReferenceException——错误左移是它的优点。OrThrow 不是派生关键词。",
+      "lessonId": "l-spring-data"
+    },
+    {
+      "id": "q-ch-spring-boot-4",
+      "stem": "场景排查：列表接口随数据量线性变慢，show-sql 日志显示先查 1 次文章列表，随后对每篇文章各发 1 次评论查询。诊断与修复是？",
+      "options": [
+        "数据库连接池太小——把 Hikari 池参数调大",
+        "缓存未命中——给接口加一层 Redis",
+        "数据库索引缺失——给 comment 表加索引",
+        "经典 N+1：懒加载关联在循环里逐条触发——列表查询加 @EntityGraph(attributePaths=\"comments\") 或 JOIN FETCH 一次预加载（SQLAlchemy 的 selectinload 同题同解）"
+      ],
+      "answer": 3,
+      "explanation": "查询次数 = 1 + N 是 N+1 的签名特征，调池、加缓存、加索引都不改变「发 N 条 SQL」的事实。所有 ORM 都提供预加载机制，名字不同（EntityGraph/selectinload）思路相同。",
       "lessonId": "l-spring-data"
     }
   ]

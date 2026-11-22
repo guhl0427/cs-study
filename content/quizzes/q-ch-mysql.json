@@ -6,41 +6,67 @@
   "questions": [
     {
       "id": "q-ch-mysql-1",
-      "stem": "用 email 的二级索引查 `SELECT name FROM users WHERE email=?`，InnoDB 在拿到 email 索引的叶子后还要做什么？",
+      "stem": "articles 表上有联合索引 (status, created_at)，执行 `SELECT id, status, created_at FROM articles WHERE status='published' AND created_at >= '2026-06-01'`。这条查询需要回表吗？",
       "options": [
-        "什么都不做，叶子里有整行数据",
-        "回表：拿叶子里的主键值回聚簇索引再查一次，取整行（SELECT * 时必需；只查 id 则覆盖索引免回表）",
-        "全表扫描补齐 name 列",
-        "重新建一个 name 索引"
+        "需要——只要用了二级索引就一定要回表",
+        "需要——created_at 是范围条件，范围查询必须回表",
+        "不需要——id 是主键、本来就藏在二级索引叶子层，status 和 created_at 是索引列本身，SELECT 的列全在叶子里，覆盖索引直接返回",
+        "不需要——因为 status 是等值条件，等值查询免回表"
       ],
-      "answer": 1,
-      "explanation": "二级索引叶子只存「索引列+主键」，聚簇索引（主键树）的叶子才存整行。回表是二级索引取完整行的代价；覆盖索引（SELECT 的列全在索引里）可以省掉这一步。",
+      "answer": 2,
+      "explanation": "二级索引叶子存「索引列 + 主键」：status、created_at、id 三列全在叶子里，Extra 会显示 Using index。判断回表只看「SELECT 的列是否全部落在索引里」，与等值还是范围无关。",
       "lessonId": "l-mysql-index"
     },
     {
       "id": "q-ch-mysql-2",
-      "stem": "为什么 InnoDB 表的主键推荐自增整数而不是随机 UUID？",
+      "stem": "orders 表有联合索引 (user_id, status)，以下哪条查询能高效利用这棵树定位？",
       "options": [
-        "UUID 太长，存储成本高一点点",
-        "自增保证新行总插到 B+ 树最右侧（顺序写）；UUID 插入位置随机导致页频繁分裂、写放大——索引结构决定了主键设计",
-        "UUID 无法唯一",
-        "MySQL 不支持 UUID 类型"
+        "WHERE user_id = 42 AND status = 'paid'——先按 user_id 等值定位到 42 的段，段内再按 status 有序过滤，两列的有序性都吃到了",
+        "WHERE status = 'paid'——直接按第二列查",
+        "WHERE status = 'paid' ORDER BY user_id",
+        "WHERE amount > 100——用索引里没有的列过滤"
       ],
-      "answer": 1,
-      "explanation": "聚簇索引按主键组织整张表：递增主键=追加写（页满才分裂），随机主键=到处插（每次都可能分裂+碎片化）。这是「索引结构反推工程选型」的典型案例。",
+      "answer": 0,
+      "explanation": "B+ 树先按 user_id 排、同 user_id 内再按 status 排：带上前导列等值条件才能定位；跳过 user_id 时 status 只是「分段有序」，树帮不上忙——这就是最左前缀原则的树上解释。",
       "lessonId": "l-mysql-index"
     },
     {
       "id": "q-ch-mysql-3",
-      "stem": "REPEATABLE READ 下，事务 A 先读余额 100，事务 B 提交了扣款到 50，A 再读同一行看到多少、为什么？",
+      "stem": "REPEATABLE READ 下：T2 事务 A 读 balance=100；T4 事务 B 把它改成 50 并提交；T6 事务 A 执行 `SELECT balance FROM accounts WHERE id=1 FOR UPDATE`（注意不是普通 SELECT）。A 读到多少？",
       "options": [
-        "50——读到的永远是最新值",
-        "100——A 用事务开始时的 MVCC 快照读，B 的提交对 A 不可见；这就是「不可重复读」被防住的机制",
-        "0——事务冲突自动回滚",
-        "随机，取决于锁竞争"
+        "100——FOR UPDATE 也是快照读，读事务开始时的版本",
+        "0——行锁冲突导致返回空",
+        "随机值——取决于锁竞争的结果",
+        "50——FOR UPDATE 是当前读，读版本链最新已提交版本，不受开头快照约束"
       ],
-      "answer": 1,
-      "explanation": "MVCC：每个事务持有一张开始时的读视图，普通 SELECT 沿版本链找「对它可见」的版本——读不阻塞写，代价是读到的是历史快照。「读最新值」要用 FOR UPDATE 当前读。",
+      "answer": 3,
+      "explanation": "快照读走 Read View，当前读（FOR UPDATE/UPDATE/DELETE）读最新已提交版本并加行锁。同一事务里混用两种读可能读到不同的值——这正是「先读后改」必须用当前读的原因。",
+      "lessonId": "l-mysql-txn"
+    },
+    {
+      "id": "q-ch-mysql-4",
+      "stem": "生产库磁盘持续上涨，SHOW ENGINE INNODB STATUS 里 History list length 从几百涨到十几万还不回落。最可能的原因？",
+      "options": [
+        "磁盘硬件故障",
+        "索引太多拖慢了写入",
+        "buffer pool 配得太小",
+        "某个事务长时间未提交——它的 Read View 把 undo 版本链钉住不能清理，全库 undo 越积越多"
+      ],
+      "answer": 3,
+      "explanation": "版本链要保留到「再没有 Read View 需要它」才能清理，长事务就是那颗钉子。用 information_schema.INNODB_TRX 找最老的事务；事务纪律四个字：短平快。",
+      "lessonId": "l-mysql-txn"
+    },
+    {
+      "id": "q-ch-mysql-5",
+      "stem": "秒杀扣库存用原子 UPDATE：`UPDATE stock SET n=n-1 WHERE id=1 AND n>0`。除了「条件原子化」这笔事务账，为什么 id 上必须有主键索引才扛得住高并发？",
+      "options": [
+        "没有主键，这条 SQL 会报语法错误",
+        "主键能让返回结果更漂亮",
+        "主键索引可以让 stock 字段自动校验正负",
+        "UPDATE 是当前读 + 行锁：WHERE 必须靠索引精确定位那一行，锁才收敛到单行；没有索引 InnoDB 会扫到大量行并加锁，并发全部堵死"
+      ],
+      "answer": 3,
+      "explanation": "跨章联动：UPDATE 的当前读加锁依赖索引定位（第 1 篇的 B+ 树），锁粒度才收敛到单行（第 2 篇的并发模型）。没有索引的 UPDATE 是并发事故的标配配方。",
       "lessonId": "l-mysql-txn"
     }
   ]
