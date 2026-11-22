@@ -34,7 +34,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKey))
     <!-- 存储不可用 / 隐私模式：全局警示（原则 5「隐私可见」） -->
     <StorageBanner v-if="mounted && ud.showStorageWarning" />
     <main class="flex-1">
-      <router-view />
+      <!-- 以 path 为 key：同一路由记录间跳转（如 上一篇/下一篇）也强制重建页面组件；
+           不用 fullPath——SearchPage 依赖 query 实时更新，key 变化会重挂载丢输入焦点 -->
+      <router-view :key="$route.path" />
     </main>
     <AppFooter />
     <ToastHost />
