@@ -119,15 +119,26 @@ const result = computed<Recommendation | null>(() => {
       note: interest === 'unsure' ? '方向未定时先打基础，是最稳的起点。' : undefined,
     }
   }
-  // backend / ai：方向内容筹备中，共同起点都是基础
+  if (interest === 'backend') {
+    return {
+      domainName: '后端开发',
+      pathSlug: 'backend-path',
+      pathName: contentApi.getPath('backend-path')?.name ?? '后端开发路线',
+      startLabel: 'RESTful API 设计',
+      startTo: startOf('rest'),
+      timeAdvice,
+      note: '零基础先修「Python 入门」或「计算机基础」，再进入本路线。',
+    }
+  }
+  // ai：AI 与数据方向内容筹备中，共同起点是 Python 与计算机基础
   return {
-    domainName: '计算机基础',
-    pathSlug: 'cs-fundamentals-path',
-    pathName: contentApi.getPath('cs-fundamentals-path')?.name ?? '计算机基础路线',
-    startLabel: '分层模型：OSI 与 TCP/IP',
-    startTo: startOf('layered-model'),
+    domainName: 'AI 与数据',
+    pathSlug: 'languages-path',
+    pathName: contentApi.getPath('languages-path')?.name ?? '编程语言路线',
+    startLabel: 'Python 语法速览：变量、控制流与函数',
+    startTo: startOf('py-syntax'),
     timeAdvice,
-    note: `${interest === 'backend' ? '后端' : 'AI 与数据'}方向的内容筹备中——两个方向的共同起点都是基础，先从这里开始。`,
+    note: 'AI 与数据方向的内容筹备中——它的前置是 Python，先从这里起步。',
   }
 })
 
