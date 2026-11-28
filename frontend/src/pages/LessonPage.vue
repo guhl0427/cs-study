@@ -12,6 +12,7 @@ import MarkDoneButton from '@/components/progress/MarkDoneButton.vue'
 import { contentApi } from '@/api'
 import { useUserDataStore } from '@/stores/userData'
 import { usePageTitle, SITE_URL } from '@/composables/usePageTitle'
+import { useStudyTimer } from '@/composables/useStudyTimer'
 import { openFeedback } from '@/lib/feedback'
 import { lessonState } from '@/lib/progress'
 import { formatDate } from '@/lib/format'
@@ -53,6 +54,9 @@ watch(
 )
 
 const pagePath = `/course/${courseSlug}/lesson/${lessonSlug}`
+
+// 真实学习时长计时（30s 粒度、仅页面可见时累计；store 装载完成后启用）
+useStudyTimer(view?.meta.id ?? '', () => ud.loaded && Boolean(view))
 
 const stateOf = (id: string) =>
   lessonState(id, ud.progress) === 'done' ? '✓' : lessonState(id, ud.progress) === 'learning' ? '◐' : '○'

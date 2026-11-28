@@ -13,7 +13,10 @@ import { useUiStore } from '@/stores/ui'
 import { useClientMounted } from '@/composables/useClientMounted'
 import { usePageTitle } from '@/composables/usePageTitle'
 import { domainProgress } from '@/lib/progress'
-import { formatDate } from '@/lib/format'
+import { formatDate, formatMinutes } from '@/lib/format'
+import { secondsInLastDays } from '@/lib/time'
+import { defaultWeeklyMinutes } from '@/lib/plan'
+import ShareCardDialog from '@/components/progress/ShareCardDialog.vue'
 
 usePageTitle('个人中心')
 
@@ -101,6 +104,13 @@ const noteEntries = computed(() =>
     : [],
 )
 
+/* ---- 学习卡 + 本周实际时长对照（回访留存层） ---- */
+const showShareCard = ref(false)
+const weekSeconds = computed(() => (mounted.value ? secondsInLastDays(ud.timeLog, 7) : 0))
+const planBudgetMinutes = computed(
+  () => ud.profile.weeklyMinutes ?? defaultWeeklyMinutes(ud.guide?.answers.time),
+)
+
 /* ---- 当前路线 ---- */
 const activePath = computed(() => {
   const slug = ud.profile.activePathId
@@ -182,6 +192,17 @@ const guideMeta = computed(() => {
               </div>
             </div>
             <p v-else class="mt-5 text-caption text-ink-2">统计在页面加载后从本机进度推导。</p>
+
+            <!-- 本周实际 vs 预算 + 学习卡入口（回访留存层） -->
+            <div
+              v-if="mounted"
+              class="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-dashed border-line pt-4"
+            >
+              <p class="meta-mono">
+                本周实际学习 {{ formatMinutes(Math.round(weekSeconds / 60)) }} · 预算 {{ formatMinutes(planBudgetMinutes) }}
+              </p>
+              <button class="btn btn-ghost btn-sm" type="button" @click="showShareCard = true">生成学习卡</button>
+            </div>
           </div>
         </section>
 
@@ -357,6 +378,8 @@ const guideMeta = computed(() => {
         </div>
       </div>
     </div>
+
+    <ShareCardDialog :open="showShareCard" @close="showShareCard = false" />
 
     <div class="h-6"></div>
   </div>
