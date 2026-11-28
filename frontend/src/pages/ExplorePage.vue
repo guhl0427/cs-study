@@ -10,11 +10,12 @@ usePageTitle('全部领域')
 
 const domains = contentApi.listDomains()
 const site = contentApi.getSite()
+const subtitle = `${domains.length} 个方向，每个都是一张学习地图。先看看三种典型起点，再进入具体领域。`
 </script>
 
 <template>
   <div class="container-wide pt-8">
-    <PageHeader title="全部领域" subtitle="九个方向，每个都是一张学习地图。先看看三种典型起点，再进入具体领域。" />
+    <PageHeader title="全部领域" :subtitle="subtitle" />
 
     <!-- 典型学习起点（需求 §3.2）：图类容器 -->
     <section class="grid-zone rounded-card border border-line-strong p-5">

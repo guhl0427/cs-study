@@ -152,6 +152,6 @@ resources: []
   )
   console.log(`✓ 已生成 paths/${id}.json（stages[].items 里填节点）`)
 } else {
-  console.error('未知类型：lesson | course | path')
+  console.error('未知类型：lesson | course | path | quiz')
   process.exit(1)
 }

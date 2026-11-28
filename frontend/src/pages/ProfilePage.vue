@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -72,11 +72,18 @@ const nickname = ref('')
 const avatarId = ref('')
 const startDate = ref('')
 
-onMounted(() => {
-  nickname.value = ud.profile.nickname
-  avatarId.value = ud.profile.avatarId
-  startDate.value = ud.profile.startDate
-})
+// 表单回填必须等 store 装载完成：子组件 onMounted 先于 App 的 init() 执行，
+// 抢跑会读到空档案，保存时把真实档案清空（与 LessonPage 的 ensureLearning 同款修复）
+watch(
+  () => ud.loaded,
+  (loaded) => {
+    if (!loaded) return
+    nickname.value = ud.profile.nickname
+    avatarId.value = ud.profile.avatarId
+    startDate.value = ud.profile.startDate
+  },
+  { immediate: true },
+)
 
 function saveProfile() {
   ud.setProfile({ nickname: nickname.value.trim(), avatarId: avatarId.value, startDate: startDate.value })

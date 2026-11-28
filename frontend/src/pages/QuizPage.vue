@@ -55,6 +55,9 @@ const accuracy = computed(() => {
 })
 const wrongOnes = computed(() => session.value.filter((r) => !r.isCorrect))
 
+/* 选项字母随下标生成（构建期校验 options ≤ 6，这里按需扩展到 26，避免硬编码数组越界显示 undefined） */
+const optionLetter = (i: number) => String.fromCharCode(65 + i)
+
 const optionCls = (i: number) => {
   if (!submitted.value) {
     return selected.value === i ? 'border-accent bg-accent-subtle text-accent font-semibold' : 'border-line text-ink hover:border-line-strong'
@@ -138,7 +141,7 @@ const lessonLink = (lessonId?: string) => {
             :disabled="submitted"
             @click="selected = i"
           >
-            <span class="meta-mono shrink-0 font-bold">{{ ['A', 'B', 'C', 'D', 'E'][i] }}</span>
+            <span class="meta-mono shrink-0 font-bold">{{ optionLetter(i) }}</span>
             <span class="text-body-ui">{{ opt }}</span>
           </button>
         </div>
@@ -150,7 +153,7 @@ const lessonLink = (lessonId?: string) => {
         <!-- 判分 + 解析（提交后展开） -->
         <div v-else class="mt-5 border-t border-dashed border-line pt-4">
           <p class="text-card font-bold" :class="session.at(-1)?.isCorrect ? 'text-ok' : 'text-danger-text'">
-            {{ session.at(-1)?.isCorrect ? '✓ 回答正确' : `✕ 回答错误，正确答案：${['A', 'B', 'C', 'D', 'E'][question.answer]}` }}
+            {{ session.at(-1)?.isCorrect ? '✓ 回答正确' : `✕ 回答错误，正确答案：${optionLetter(question.answer)}` }}
           </p>
           <div class="mt-2 rounded-node border-l-4 border-accent bg-accent-subtle px-4 py-3 text-body-ui text-ink">
             <b class="mr-1">解析</b>{{ question.explanation }}

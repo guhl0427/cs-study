@@ -11,10 +11,15 @@ const ud = useUserDataStore()
 const mounted = useClientMounted()
 const drawerOpen = ref(false)
 const theme = ref<Theme>('light')
+/** 快捷键文案分平台（aria-label 统一写 Ctrl+K）：SSR 与非 Mac 显示 Ctrl K，Mac 客户端挂载后切 ⌘K */
+const isMac = ref(false)
 
 onMounted(() => {
   theme.value = currentTheme()
+  isMac.value = /Mac|iPhone|iPad/i.test(navigator.platform ?? '')
 })
+
+const kbdLabel = computed(() => (mounted.value && isMac.value ? '⌘K' : 'Ctrl K'))
 
 function onToggleTheme() {
   theme.value = toggleTheme()
@@ -71,7 +76,7 @@ const ctaLabel = computed(() => (mounted.value && ud.lastVisit ? '继续学习' 
       >
         <IconSearch size="14" stroke-width="1.5" />
         搜索课程 / 知识点…
-        <span class="meta-mono ml-1 opacity-80">⌘K</span>
+        <span class="meta-mono ml-1 opacity-80">{{ kbdLabel }}</span>
       </RouterLink>
       <RouterLink
         to="/search"

@@ -4,7 +4,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import { IconCode } from '@tabler/icons-vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
-import DomainCard from '@/components/home/CourseCard.vue'
+import CourseCard from '@/components/home/CourseCard.vue'
 import { contentApi } from '@/api'
 import { domainIcons } from '@/lib/icons'
 import { usePageTitle } from '@/composables/usePageTitle'
@@ -29,6 +29,8 @@ const spanLabel = computed(() => {
   const s = domain?.difficultySpan
   return s ? `L${s[0]}–L${s[1]}` : '—'
 })
+
+const version = `v${__APP_VERSION__}`
 </script>
 
 <template>
@@ -41,7 +43,7 @@ const spanLabel = computed(() => {
           { label: '图别', value: '领域学习地图' },
           { label: '课程', value: `${courses.length} 门` },
           { label: '难度跨度', value: spanLabel },
-          { label: '版本 / 日期', value: 'v0.1 · 2026-11' },
+          { label: '版本', value: version },
         ]"
       >
         <template #actions>
@@ -90,7 +92,7 @@ const spanLabel = computed(() => {
         </div>
 
         <div v-if="filtered.length" class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <DomainCard v-for="c in filtered" :key="c.id" :course="c" />
+          <CourseCard v-for="c in filtered" :key="c.id" :course="c" />
         </div>
         <EmptyState
           v-else-if="courses.length === 0"

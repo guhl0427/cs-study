@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import { openFeedback } from '@/lib/feedback'
+
+const version = `v${__APP_VERSION__}`
 </script>
 
 <template>
@@ -13,7 +15,7 @@ import { openFeedback } from '@/lib/feedback'
       </nav>
       <p>
         本站不收集任何数据 · 学习记录仅存于本设备
-        <span class="meta-mono ml-2">v0.1 · 纯前端版</span>
+        <span class="meta-mono ml-2">{{ version }} · 纯前端版</span>
       </p>
     </div>
   </footer>

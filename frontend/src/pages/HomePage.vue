@@ -11,15 +11,17 @@ import { useUserDataStore } from '@/stores/userData'
 import { useClientMounted } from '@/composables/useClientMounted'
 import { usePageTitle } from '@/composables/usePageTitle'
 
-usePageTitle(
-  '打开就能学，进度随身存',
-  '九大技术领域、完整学习路线、原创知识点讲解。无需注册——你的所有学习记录只保存在自己的浏览器里。',
-)
-
 const domains = contentApi.listDomains()
 const site = contentApi.getSite()
+
+/** 领域数量动态取自内容数据——文案不再硬编码「九大」 */
+const heroIntro = `${domains.length} 大技术领域、完整学习路线、原创知识点讲解。无需注册——你的所有学习记录只保存在自己的浏览器里。`
+
+usePageTitle('打开就能学，进度随身存', heroIntro)
+
 const ud = useUserDataStore()
 const mounted = useClientMounted()
+const version = `v${__APP_VERSION__}`
 
 /** 回访形态（F1.5）：由 lastVisit 解析出「上次学到」的课程与知识点 */
 const continueView = computed(() => {
@@ -43,7 +45,7 @@ const continueView = computed(() => {
         <div class="flex flex-col justify-center">
           <h1 class="text-display font-extrabold text-ink">打开就能学，进度随身存</h1>
           <p class="mt-3 max-w-[34em] text-body-ui text-ink-2">
-            九大技术领域、完整学习路线、原创知识点讲解。无需注册——你的所有学习记录只保存在自己的浏览器里。
+            {{ heroIntro }}
           </p>
           <div class="mt-5 flex flex-wrap gap-3">
             <RouterLink to="/guide" class="btn btn-primary">3 分钟找到方向</RouterLink>
@@ -74,8 +76,8 @@ const continueView = computed(() => {
           <b class="mt-0.5 block font-mono text-[13px] font-medium text-ink">{{ domains.length }} 个方向</b>
         </div>
         <div class="bg-surface px-3.5 py-2">
-          <span class="block text-[11px] text-ink-2">版本 / 日期</span>
-          <b class="mt-0.5 block font-mono text-[13px] font-medium text-ink">v0.3.0 · 2026-11</b>
+          <span class="block text-[11px] text-ink-2">版本</span>
+          <b class="mt-0.5 block font-mono text-[13px] font-medium text-ink">{{ version }}</b>
         </div>
       </div>
     </section>
@@ -83,7 +85,7 @@ const continueView = computed(() => {
     <!-- ② 领域卡片墙（F1.1） -->
     <section class="mt-12">
       <div class="mb-4 flex items-baseline justify-between">
-        <h2 class="text-section font-bold text-ink">九大技术领域</h2>
+        <h2 class="text-section font-bold text-ink">{{ domains.length }} 大技术领域</h2>
         <RouterLink to="/explore" class="btn btn-text btn-sm">全部领域 →</RouterLink>
       </div>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

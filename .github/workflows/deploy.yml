@@ -11,7 +11,7 @@ permissions:
   pages: write
   id-token: write
 
-# 不同 ref 之间互不取消（PR 预览与 main 部署并行）
+# group 按 ref 划分：PR 预览与 main 部署互不影响；同 ref 连续推送时取消旧的构建
 concurrency:
   group: pages-${{ github.ref }}
   cancel-in-progress: true
