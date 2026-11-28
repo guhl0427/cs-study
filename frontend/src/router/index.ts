@@ -26,6 +26,7 @@ export const routes: RouteRecordRaw[] = [
   { path: '/profile', name: 'profile', component: () => import('@/pages/ProfilePage.vue') },
   { path: '/settings', name: 'settings', component: () => import('@/pages/SettingsPage.vue') },
   { path: '/plan', name: 'plan', component: () => import('@/pages/PlanPage.vue') },
+  { path: '/daily', name: 'daily', component: () => import('@/pages/DailyPage.vue') },
   { path: '/search', name: 'search', component: () => import('@/pages/SearchPage.vue') },
   { path: '/quiz/:id', name: 'quiz', component: () => import('@/pages/QuizPage.vue') },
   { path: '/mistakes', name: 'mistakes', component: () => import('@/pages/MistakesPage.vue') },

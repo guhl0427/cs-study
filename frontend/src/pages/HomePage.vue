@@ -11,6 +11,7 @@ import { useUserDataStore } from '@/stores/userData'
 import { useClientMounted } from '@/composables/useClientMounted'
 import { usePageTitle } from '@/composables/usePageTitle'
 import { buildWeeklyPlan, defaultWeeklyMinutes } from '@/lib/plan'
+import { isDailyAnswered, pickDailyQuestion } from '@/lib/daily'
 
 const domains = contentApi.listDomains()
 const site = contentApi.getSite()
@@ -46,6 +47,17 @@ const weeklyPlan = computed(() => {
   const budget = ud.profile.weeklyMinutes ?? defaultWeeklyMinutes(ud.guide?.answers.time)
   const plan = buildWeeklyPlan(path, ud.progress, budget)
   return { path, plan }
+})
+
+/** 每日一题摘要：确定性抽题（同一天同一题），到期错题优先 */
+const dailyView = computed(() => {
+  if (!mounted.value) return null
+  const daily = pickDailyQuestion(contentApi.listQuizzes(), ud.answers)
+  if (!daily) return null
+  return {
+    stem: daily.question.stem.slice(0, 48),
+    done: isDailyAnswered(daily, ud.answers),
+  }
 })
 </script>
 
@@ -130,7 +142,22 @@ const weeklyPlan = computed(() => {
       </RouterLink>
     </section>
 
-    <!-- ⑤ 编辑精选（F1.4） -->
+    <!-- ⑤ 每日一题（回访留存） -->
+    <section v-if="dailyView" class="mt-12">
+      <h2 class="text-section font-bold text-ink">每日一题</h2>
+      <RouterLink to="/daily" class="card-plate card-hover mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-4">
+        <span
+          class="rounded-node border px-1.5 py-0.5 font-mono text-[11px]"
+          :class="dailyView.done ? 'border-ok bg-ok-subtle text-ok' : 'border-line-strong text-ink-2'"
+        >
+          {{ dailyView.done ? '今日已完成 ✓' : '今日待作答' }}
+        </span>
+        <b class="min-w-0 flex-1 truncate text-card text-ink">{{ dailyView.stem }}</b>
+        <span class="btn btn-text btn-sm">{{ dailyView.done ? '再看解析 →' : '花 1 分钟 →' }}</span>
+      </RouterLink>
+    </section>
+
+    <!-- ⑥ 编辑精选（F1.4） -->
     <section v-if="site.featured.length" class="mt-12 space-y-3">
       <FeaturedStrip v-for="f in site.featured" :key="f.id" :item="f" />
     </section>
