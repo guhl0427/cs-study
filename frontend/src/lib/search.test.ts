@@ -53,22 +53,22 @@ describe('highlight（原文单遍匹配后分段转义 —— XSS 红线）', (
 })
 
 describe('search（内存索引，构建期文档）', () => {
-  it('中文查询命中知识点', () => {
-    const hits = search('异步')
+  it('中文查询命中知识点', async () => {
+    const hits = await search('异步')
     expect(hits.length).toBeGreaterThan(0)
     expect(hits[0].title).toContain('异步')
   })
 
-  it('西文查询不区分大小写（tags 命中即可）', () => {
-    const lower = search('promise')
-    const upper = search('PROMISE')
+  it('西文查询不区分大小写（tags 命中即可）', async () => {
+    const lower = await search('promise')
+    const upper = await search('PROMISE')
     expect(lower.length).toBeGreaterThan(0)
     // 大小写不同仅改变词元的大小写：命中集合与排序应完全一致
     expect(upper.map((h) => h.id)).toEqual(lower.map((h) => h.id))
     expect(lower.some((h) => h.summary.includes('Promise') || h.tags.includes('Promise'))).toBe(true)
   })
 
-  it('空查询返回空数组', () => {
-    expect(search('   ')).toEqual([])
+  it('空查询返回空数组', async () => {
+    expect(await search('   ')).toEqual([])
   })
 })

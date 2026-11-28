@@ -1,10 +1,10 @@
 /**
- * 全局搜索（F6.1）：构建期生成的检索文档 + MiniSearch 内存索引。
+ * 全局搜索（F6.1/F6.3）：构建期生成的检索文档 + MiniSearch 内存索引。
  * CJK 无空格分词：对中文串产出单字 + 相邻二元组，查询默认 prefix 匹配。
- * 索引为模块级单例，首次搜索时惰性构建（本地毫秒级，无网络请求）。
+ * 检索文档（含知识点正文，独立分片）仅在首次搜索时动态加载，不随主包分发；
+ * 索引为模块级单例，构建一次后为纯内存检索（无网络请求）。
  */
 import MiniSearch from 'minisearch'
-import searchDocsJson from '@/content/gen/search-docs.json'
 
 export interface SearchDoc {
   id: string
@@ -18,9 +18,11 @@ export interface SearchDoc {
   domainSlug: string
   difficulty: number | null
   estMinutes: number | null
+  /** 知识点文档的正文纯文本（构建期抽取并截断；领域/课程文档无此字段） */
+  body?: string
 }
 
-export const searchDocs = searchDocsJson as unknown as SearchDoc[]
+export type SearchHit = SearchDoc & { score: number }
 
 const CJK = /[\u4e00-\u9fff]/
 
@@ -40,25 +42,38 @@ export const cjkTokenizer = (raw: string): string[] => {
   return out
 }
 
-let mini: MiniSearch<SearchDoc> | null = null
+let docsPromise: Promise<SearchDoc[]> | null = null
+let searcherPromise: Promise<MiniSearch<SearchDoc>> | null = null
 
-export function getSearcher(): MiniSearch<SearchDoc> {
-  if (!mini) {
-    mini = new MiniSearch<SearchDoc>({
-      fields: ['title', 'summary', 'tags', 'extra'],
-      storeFields: ['type', 'title', 'summary', 'crumb', 'url', 'difficulty', 'estMinutes'],
-      tokenize: cjkTokenizer,
-      searchOptions: { prefix: true, boost: { title: 3, tags: 2 } },
-    })
-    mini.addAll(searchDocs)
-  }
-  return mini
+/** 懒加载检索文档（独立 chunk，仅进入搜索后拉取一次） */
+function loadDocs(): Promise<SearchDoc[]> {
+  docsPromise ??= import('@/content/gen/search-docs.json').then(
+    (m) => m.default as unknown as SearchDoc[],
+  )
+  return docsPromise
 }
 
-export function search(query: string): Array<SearchDoc & { score: number }> {
+function getSearcher(): Promise<MiniSearch<SearchDoc>> {
+  searcherPromise ??= (async () => {
+    const docs = await loadDocs()
+    const mini = new MiniSearch<SearchDoc>({
+      fields: ['title', 'summary', 'tags', 'extra', 'body'],
+      storeFields: ['type', 'title', 'summary', 'crumb', 'url', 'difficulty', 'estMinutes'],
+      tokenize: cjkTokenizer,
+      searchOptions: { prefix: true, boost: { title: 3, tags: 2, summary: 2, body: 1 } },
+    })
+    mini.addAll(docs)
+    return mini
+  })()
+  return searcherPromise
+}
+
+/** 全局搜索：首次调用加载文档分片并构建索引（百毫秒级），此后为纯内存检索 */
+export async function search(query: string): Promise<SearchHit[]> {
   const q = query.trim()
   if (!q) return []
-  return getSearcher().search(q, { prefix: true }) as unknown as Array<SearchDoc & { score: number }>
+  const searcher = await getSearcher()
+  return searcher.search(q, { prefix: true }) as unknown as SearchHit[]
 }
 
 const escapeHtml = (s: string) =>
@@ -85,4 +100,32 @@ export function highlight(text: string, query: string): string {
     last = start + m[0].length
   }
   return out + escapeHtml(text.slice(last))
+}
+
+const SNIPPET_BEFORE = 40
+const SNIPPET_AFTER = 60
+
+/**
+ * 正文命中片段（F6.3）：查询词未出现在摘要中时（摘要本身解释不了命中），
+ * 从知识点正文截取首处命中前后的上下文并高亮返回；无正文/无命中返回空串。
+ */
+export function bodySnippet(doc: SearchDoc, query: string): string {
+  const tokens = [...new Set(cjkTokenizer(query).filter((t) => t.length > 1 || CJK.test(t)))]
+  const body = doc.body ?? ''
+  if (!body || !tokens.length) return ''
+  if (tokens.some((t) => doc.summary.toLowerCase().includes(t.toLowerCase()))) return ''
+  const lowerBody = body.toLowerCase()
+  let at = -1
+  let len = 1
+  for (const t of [...tokens].sort((a, b) => b.length - a.length)) {
+    const i = lowerBody.indexOf(t.toLowerCase())
+    if (i >= 0 && (at < 0 || i < at)) {
+      at = i
+      len = t.length
+    }
+  }
+  if (at < 0) return ''
+  const start = Math.max(0, at - SNIPPET_BEFORE)
+  const end = Math.min(body.length, at + len + SNIPPET_AFTER)
+  return `${start > 0 ? '…' : ''}${highlight(body.slice(start, end), query)}${end < body.length ? '…' : ''}`
 }
