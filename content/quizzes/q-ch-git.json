@@ -68,6 +68,30 @@
       "answer": 1,
       "explanation": "reflog 是本地的操作日记：被 reset「抹掉」的提交对象仍在，90 天内可从 reflog 找回哈希。注意它是本地日记，clone 的新仓库没有完整记录。",
       "lessonId": "l-git-undo"
+    },
+    {
+      "id": "q-ch-git-6",
+      "stem": "补全：把工作区的改动加入暂存区的命令是 git ___。",
+      "blank": {
+        "answer": "add",
+        "alts": [
+          "add ."
+        ]
+      },
+      "explanation": "git add 选择「这次要提交什么」，git commit 才真正记录快照；两步分离让你可以分批提交。配套 .gitignore 让 add 默认忽略日志与构建产物。",
+      "lessonId": "l-git-basic"
+    },
+    {
+      "id": "q-ch-git-7",
+      "stem": "补全：把暂存区的内容写入版本历史（生成一次提交）的命令是 git ___。",
+      "blank": {
+        "answer": "commit",
+        "alts": [
+          "commit -m"
+        ]
+      },
+      "explanation": "commit 把暂存区快照连同作者/时间写进本地仓库，-m 直接带提交信息。提交只在本地，push 才同步远端——撤销与救急手段都围绕这条链路展开。",
+      "lessonId": "l-git-basic"
     }
   ]
 }

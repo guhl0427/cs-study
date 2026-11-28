@@ -55,6 +55,28 @@
       "answer": 1,
       "explanation": "Dockerfile 的每条指令是一层：改动源码只触发「COPY 源码」之后的重建，装依赖的层直接 CACHED。指令排序 = 按「变化频率」从低到高。",
       "lessonId": "l-cli-docker"
+    },
+    {
+      "id": "q-ch-cli-5",
+      "stem": "补全：把前一个命令的标准输出接到后一个命令的标准输入的符号是 ___。",
+      "blank": {
+        "answer": "|",
+        "alts": [
+          "管道",
+          "pipe"
+        ]
+      },
+      "explanation": "管道 | 是 shell 组合小工具的核心：cat log | grep error | wc -l 逐段过滤。它连接的是数据流本身，不产生中间文件。",
+      "lessonId": "l-cli-shell"
+    },
+    {
+      "id": "q-ch-cli-6",
+      "stem": "补全：统计一个文件有多少行的命令是 wc ___（不带参数的 wc 会同时给出行 / 词 / 字节三列）。",
+      "blank": {
+        "answer": "-l"
+      },
+      "explanation": "wc -l 数换行符行数，常与管道组合：grep error app.log | wc -l。",
+      "lessonId": "l-cli-shell"
     }
   ]
 }

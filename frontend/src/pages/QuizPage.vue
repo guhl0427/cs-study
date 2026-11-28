@@ -7,6 +7,8 @@ import ProgressTier from '@/components/progress/ProgressTier.vue'
 import { contentApi } from '@/api'
 import { useUserDataStore } from '@/stores/userData'
 import { usePageTitle } from '@/composables/usePageTitle'
+import { useQuizKeys } from '@/composables/useQuizKeys'
+import { isBlankCorrect } from '@/lib/quiz'
 import type { QuizQuestion } from '@/types/content'
 
 const route = useRoute()
@@ -30,21 +32,23 @@ const crumb = computed(() => {
 })
 const courseLink = computed(() => (quiz?.courseSlug ? `/course/${quiz.courseSlug}` : ''))
 
-/* ---- 作答状态机（F5.1：单题逐题，即时判分与解析） ---- */
+/* ---- 作答状态机（F5.1/F5.4：单题逐题，选择题 + 填空题两种形态） ---- */
 interface SessionResult {
   question: QuizQuestion
-  answer: number
+  answer: number | string
   isCorrect: boolean
 }
 const session = ref<SessionResult[]>([])
 const idx = ref(0)
 const selected = ref<number | null>(null)
+const blankInput = ref('')
 const submitted = ref(false)
 
 const pool = computed<QuizQuestion[]>(() => (quiz ? poolOverride.value ?? quiz.questions : []))
 const poolOverride = ref<QuizQuestion[] | null>(null) // 「重做本组」= 仅错题
 const finished = computed(() => pool.value.length > 0 && idx.value >= pool.value.length)
 const question = computed(() => pool.value[idx.value])
+const isBlankQ = computed(() => Boolean(question.value?.blank))
 
 const progress = computed(() =>
   pool.value.length === 0 ? 0 : Math.round((idx.value / pool.value.length) * 100),
@@ -68,15 +72,25 @@ const optionCls = (i: number) => {
 }
 
 function submit() {
-  if (selected.value === null || !question.value || submitted.value) return
-  const isCorrect = selected.value === question.value.answer
+  if (!question.value || submitted.value) return
+  let answer: number | string
+  let isCorrect: boolean
+  if (question.value.blank) {
+    if (!blankInput.value.trim()) return
+    answer = blankInput.value
+    isCorrect = isBlankCorrect(blankInput.value, question.value.blank)
+  } else {
+    if (selected.value === null) return
+    answer = selected.value
+    isCorrect = selected.value === question.value.answer
+  }
   submitted.value = true
-  session.value.push({ question: question.value, answer: selected.value, isCorrect })
+  session.value.push({ question: question.value, answer, isCorrect })
   // 作答记录本地持久化（F5 说明 3；错题本数据源）
   ud.recordAnswer({
     questionId: question.value.id,
     quizId: quiz?.id,
-    answer: selected.value,
+    answer,
     isCorrect,
     answeredAt: new Date().toISOString(),
   })
@@ -85,6 +99,7 @@ function submit() {
 function next() {
   idx.value += 1
   selected.value = null
+  blankInput.value = ''
   submitted.value = false
 }
 
@@ -103,8 +118,23 @@ function restart() {
   session.value = []
   idx.value = 0
   selected.value = null
+  blankInput.value = ''
   submitted.value = false
 }
+
+/* ---- 键盘作答（1–N 选择、Enter 提交/下一题；填空题输入框聚焦时不拦截） ---- */
+useQuizKeys({
+  enabled: () => Boolean(quiz) && !finished.value,
+  optionsCount: () => (isBlankQ.value ? 0 : question.value?.options?.length ?? 0),
+  onSelect: (i) => {
+    if (!submitted.value) selected.value = i
+  },
+  canSubmit: () =>
+    !submitted.value && (isBlankQ.value ? blankInput.value.trim() !== '' : selected.value !== null),
+  onSubmit: () => submit(),
+  canNext: () => submitted.value,
+  onNext: () => next(),
+})
 
 const lessonLink = (lessonId?: string) => {
   if (!lessonId) return null
@@ -129,7 +159,8 @@ const lessonLink = (lessonId?: string) => {
       <section v-if="question && !finished" class="card-plate p-5 sm:p-6" :key="question.id">
         <h2 class="text-section font-bold text-ink">{{ question.stem }}</h2>
 
-        <div class="mt-4 flex flex-col gap-2.5" role="radiogroup" :aria-label="`第 ${idx + 1} 题选项`">
+        <!-- 选择题选项（填空题走下方输入分支） -->
+        <div v-if="!isBlankQ" class="mt-4 flex flex-col gap-2.5" role="radiogroup" :aria-label="`第 ${idx + 1} 题选项`">
           <button
             v-for="(opt, i) in question.options"
             :key="i"
@@ -144,16 +175,45 @@ const lessonLink = (lessonId?: string) => {
             <span class="meta-mono shrink-0 font-bold">{{ optionLetter(i) }}</span>
             <span class="text-body-ui">{{ opt }}</span>
           </button>
+          <p class="meta-mono mt-1">快捷键：1–{{ question.options?.length }} 选择 · Enter 提交 / 下一题</p>
+        </div>
+
+        <!-- 填空题（F5.4）：题干 ___ 占位，本地判分 -->
+        <div v-else class="mt-4">
+          <input
+            v-model="blankInput"
+            type="text"
+            class="w-full rounded-card border border-line-strong bg-inset px-3 py-2.5 font-mono text-[15px] text-ink focus:border-accent"
+            :class="submitted ? (session.at(-1)?.isCorrect ? 'border-ok' : 'border-danger') : ''"
+            placeholder="把答案填在 ___ 处"
+            :disabled="submitted"
+            aria-label="填空作答"
+            @keydown.enter.prevent="submit"
+          />
+          <p class="meta-mono mt-2">填空作答 · 判分忽略空格差异 · 回车或点「提交答案」</p>
         </div>
 
         <div v-if="!submitted" class="mt-5">
-          <button class="btn btn-primary" type="button" :disabled="selected === null" @click="submit">提交答案</button>
+          <button
+            class="btn btn-primary"
+            type="button"
+            :disabled="isBlankQ ? !blankInput.trim() : selected === null"
+            @click="submit"
+          >
+            提交答案
+          </button>
         </div>
 
         <!-- 判分 + 解析（提交后展开） -->
         <div v-else class="mt-5 border-t border-dashed border-line pt-4">
           <p class="text-card font-bold" :class="session.at(-1)?.isCorrect ? 'text-ok' : 'text-danger-text'">
-            {{ session.at(-1)?.isCorrect ? '✓ 回答正确' : `✕ 回答错误，正确答案：${optionLetter(question.answer)}` }}
+            {{
+              session.at(-1)?.isCorrect
+                ? '✓ 回答正确'
+                : isBlankQ
+                  ? `✕ 回答错误，正确答案：${question.blank?.answer ?? ''}`
+                  : `✕ 回答错误，正确答案：${optionLetter(question.answer)}`
+            }}
           </p>
           <div class="mt-2 rounded-node border-l-4 border-accent bg-accent-subtle px-4 py-3 text-body-ui text-ink">
             <b class="mr-1">解析</b>{{ question.explanation }}

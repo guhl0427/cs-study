@@ -68,6 +68,30 @@
       "answer": 0,
       "explanation": "对 dict 直接 sorted 只迭代键、返回键列表。想按次数排 TopN 得写 sorted(counts.items(), key=lambda kv: kv[1], reverse=True)。",
       "lessonId": "l-py-collections"
+    },
+    {
+      "id": "q-ch-py-start-6",
+      "stem": "补全：Python 内置函数 ___ 可以返回列表 / 字符串 / 字典的元素个数。",
+      "blank": {
+        "answer": "len",
+        "alts": [
+          "len()"
+        ]
+      },
+      "explanation": "len(x) 是通用内置函数，容器与字符串都能取长度。课程里把 range(len(x)) 列为「不 Python」的遍历写法，优先直接 for x in 列表。",
+      "lessonId": "l-py-collections"
+    },
+    {
+      "id": "q-ch-py-start-7",
+      "stem": "补全：向列表末尾追加一个元素，调用列表的 ___ 方法。",
+      "blank": {
+        "answer": "append",
+        "alts": [
+          "append()"
+        ]
+      },
+      "explanation": "lst.append(x) 原地追加并返回 None——新手高频坑：写成 lst = lst.append(x) 会把列表变成 None。",
+      "lessonId": "l-py-collections"
     }
   ]
 }

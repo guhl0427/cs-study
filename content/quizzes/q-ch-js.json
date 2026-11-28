@@ -55,6 +55,29 @@
       "answer": 1,
       "explanation": "闭包记住的是「变量本身」：var 的 i 是函数级的一个变量，let 在每轮循环创建新绑定。这是作用域与闭包课的经典案例，也是「别用 var」的原理级理由。",
       "lessonId": "l-js-scope"
+    },
+    {
+      "id": "q-ch-js-5",
+      "stem": "补全：声明一个「绑定后不再重新赋值」的变量，应该使用 ___ 关键字（团队规范：默认用它，需要重赋值才用 let）。",
+      "blank": {
+        "answer": "const"
+      },
+      "explanation": "const 锁住「变量名到值的绑定」：禁止重新赋值（arr = x 报 TypeError），不禁对象内部的方法调用。默认 const 的意图是向读者表达「这个绑定不会换新值」。",
+      "lessonId": "l-js-basics"
+    },
+    {
+      "id": "q-ch-js-6",
+      "stem": "补全：数组的 ___ 方法默认把元素转成字符串按字典序比较，所以 [10, 2, 1] 会得到 [1, 10, 2]——数字排序必须传入比较函数。",
+      "blank": {
+        "answer": "sort",
+        "alts": [
+          "sort()",
+          ".sort()",
+          ".sort"
+        ]
+      },
+      "explanation": "sort 默认按字典序且原地修改数组；数字要用 sort((a, b) => a - b)。填空判分忽略空格差异，带不带括号都算对。",
+      "lessonId": "l-js-basics"
     }
   ]
 }

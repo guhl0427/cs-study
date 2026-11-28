@@ -66,13 +66,22 @@ export interface Chapter {
   quizId?: string
 }
 
+/** 填空题答案（F5.4）：判分忽略空白差异，alts 为等价答案变体 */
+export interface QuizBlank {
+  answer: string
+  alts?: string[]
+}
+
 export interface QuizQuestion {
   id: string
   stem: string
-  options: string[]
-  /** 正确选项下标（答案随包下发是既定妥协，F5 说明） */
+  /** 选择题选项（填空题为 undefined） */
+  options?: string[]
+  /** 正确选项下标（仅选择题；答案随包下发是既定妥协，F5 说明） */
   answer: number
   explanation: string
+  /** 填空题（F5.4）：提供 blank 时为填空题，题干以 ___ 占位 */
+  blank?: QuizBlank
   /** 薄弱知识点提示用（完成页「去复习」链接） */
   lessonId?: string
 }

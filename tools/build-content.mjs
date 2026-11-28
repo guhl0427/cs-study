@@ -403,12 +403,26 @@ for (const file of quizFiles) {
 
   const qIds = new Set()
   for (const question of q.questions ?? []) {
-    err(question.id && question.stem && Array.isArray(question.options) && question.options.length >= 2,
-      `quizzes/${file}: 题目缺少 id/stem/options(≥2)：${question.id}`)
-    err((question.options?.length ?? 0) <= 6,
-      `quizzes/${file}: 题目 options 超过上限 6（可读性约束）：${question.id}`)
-    err(Number.isInteger(question.answer) && question.answer >= 0 && question.answer < (question.options?.length ?? 0),
-      `quizzes/${file}: 题目 answer 下标越界：${question.id}`)
+    const isBlank = Boolean(question.blank)
+    err(question.id && question.stem, `quizzes/${file}: 题目缺少 id/stem：${question.id}`)
+    if (isBlank) {
+      // 填空题（F5.4）：无 options / answer 下标，blank.answer 必填，题干以 ___ 占位
+      err(typeof question.blank.answer === 'string' && question.blank.answer,
+        `quizzes/${file}: 填空题缺少 blank.answer：${question.id}`)
+      err(typeof question.stem === 'string' && question.stem.includes('___'),
+        `quizzes/${file}: 填空题题干必须含 ___ 占位：${question.id}`)
+      err(!Array.isArray(question.options), `quizzes/${file}: 填空题不应携带 options：${question.id}`)
+      for (const alt of question.blank.alts ?? []) {
+        err(typeof alt === 'string' && alt !== '', `quizzes/${file}: 填空题 blank.alts 含非字符串：${question.id}`)
+      }
+    } else {
+      err(Array.isArray(question.options) && question.options.length >= 2,
+        `quizzes/${file}: 题目缺少 options(≥2)：${question.id}`)
+      err((question.options?.length ?? 0) <= 6,
+        `quizzes/${file}: 题目 options 超过上限 6（可读性约束）：${question.id}`)
+      err(Number.isInteger(question.answer) && question.answer >= 0 && question.answer < (question.options?.length ?? 0),
+        `quizzes/${file}: 题目 answer 下标越界：${question.id}`)
+    }
     err(typeof question.explanation === 'string' && question.explanation, `quizzes/${file}: 题目缺少解析：${question.id}`)
     err(!qIds.has(question.id), `quizzes/${file}: 题目 id 重复：${question.id}`)
     qIds.add(question.id)
