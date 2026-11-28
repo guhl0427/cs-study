@@ -4,6 +4,7 @@ dist/
 frontend/src/content/gen/
 frontend/.lighthouse/
 frontend/public/sitemap.xml
+frontend/public/404.html
 .zcode/
 *.log
 .DS_Store

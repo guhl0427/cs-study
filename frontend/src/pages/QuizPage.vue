@@ -108,7 +108,7 @@ function restart() {
 
 const lessonLink = (lessonId?: string) => {
   if (!lessonId) return null
-  const meta = contentApi.getLessonById(lessonId)?.meta
+  const meta = contentApi.getLessonById(lessonId)
   if (!meta?.courseSlug) return null
   return { title: meta.title, to: { name: 'lesson', params: { courseSlug: meta.courseSlug, lessonSlug: meta.slug } } }
 }

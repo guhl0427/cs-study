@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
+import { contentApi } from '@/api'
 
 // 静态路由 + 内容动态路由。动态路由的具体路径由
 // tools/build-content.mjs 产出的 routes-manifest.json 在 vite.config.ts
@@ -14,6 +15,13 @@ export const routes: RouteRecordRaw[] = [
     path: '/course/:courseSlug/lesson/:lessonSlug',
     name: 'lesson',
     component: () => import('@/pages/LessonPage.vue'),
+    // 知识点正文按课程分片懒加载：进入页面前先载入所属课程分片，getLesson 才能同步可得
+    //（vite-ssg 在 SSG 构建与客户端首帧都会先 await 路由就绪，预渲染/水合均不受影响）
+    beforeEnter: [
+      async (to) => {
+        await contentApi.ensureCourseLessons(String(to.params.courseSlug))
+      },
+    ],
   },
   { path: '/profile', name: 'profile', component: () => import('@/pages/ProfilePage.vue') },
   { path: '/settings', name: 'settings', component: () => import('@/pages/SettingsPage.vue') },

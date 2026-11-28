@@ -73,7 +73,7 @@ const groups = computed(() => {
   for (const e of filtered.value) {
     const title = contentApi.getLessonById(
       questionIndex.value.get(e.questionId)?.question.lessonId ?? '',
-    )?.meta.title
+    )?.title
     const key = title ?? '未关联知识点'
     if (!byLesson.has(key)) byLesson.set(key, [])
     byLesson.get(key)!.push(e)

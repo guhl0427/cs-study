@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -21,6 +21,11 @@ usePageTitle(course?.title ?? '课程', course?.summary)
 
 const ud = useUserDataStore()
 const mounted = useClientMounted()
+
+// 进入课程页即后台预载本课程正文分片（正文按课程懒加载），首击知识点零等待
+onMounted(() => {
+  void contentApi.ensureCourseLessons(slug)
+})
 
 const prog = computed(() => (course ? courseProgress(course, ud.progress) : null))
 const nextLesson = computed(() =>

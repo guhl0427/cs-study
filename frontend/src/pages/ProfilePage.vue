@@ -60,7 +60,7 @@ const favLessons = computed(() =>
   mounted.value
     ? Object.values(ud.favorites)
         .filter((f) => f.targetType === 'lesson')
-        .map((f) => ({ entry: f, lesson: contentApi.getLessonById(f.targetId)?.meta }))
+        .map((f) => ({ entry: f, lesson: contentApi.getLessonById(f.targetId) }))
         .filter((x) => x.lesson)
     : [],
 )

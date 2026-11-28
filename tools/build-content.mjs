@@ -7,8 +7,10 @@
  * 2. 把知识点 Markdown 构建期编译为 HTML（markdown-it + Shiki
  *    自定义主题 blueprint-draft，对齐 design/tokens.md §9）
  * 3. 产出 frontend/src/content/gen/：
- *    domains.json / site.json / paths.json / courses.json / lessons.json
+ *    domains.json / site.json / paths.json / courses.json
+ *    lessons/{courseId}.json（正文按课程分片，客户端按需动态加载）
  *    routes-manifest.json（vite-ssg includedRoutes 预渲染清单）
+ * 4. 生成 frontend/public/404.html（GitHub Pages 项目页的 404 桥页，base 随 --site 注入）
  *
  * 校验不通过 → 进程退出码 1，构建失败（发布即拦截）。
  *
@@ -363,11 +365,23 @@ function findCourseSlugOf(lessonId) {
   return ''
 }
 
-// 知识点：正文编译（meta 用课程装配后的完整版，含 courseSlug/domainName/prev/next/index）
-const lessonsOut = {}
+// 知识点：正文编译（meta 用课程装配后的完整版，含 courseSlug/domainName/prev/next/index）。
+// 正文按课程分片输出（gen/lessons/{courseId}.json）——客户端按需动态加载，
+// 全量正文（数 MB）不再进主 bundle。孤儿知识点（未被任何课程引用）直接判错：
+// 路线节点与搜索结果都需要 courseSlug 定位，无归属即断链。
+const lessonsByCourse = new Map() // courseId -> Record<lessonId, { html, toc }>
+const compiledLessons = new Map() // lessonId -> { html, toc }（搜索文档用）
 for (const [id, lesson] of lessons) {
+  const em = enrichedMeta.get(id)
+  if (!em?.courseId) {
+    errors.push(`lessons/${lesson.file}: 未被任何课程引用（孤儿知识点）——请挂到某门课程的章节`)
+    continue
+  }
   const { html, toc } = renderLesson(lesson.raw)
-  lessonsOut[id] = { meta: enrichedMeta.get(id) ?? lesson.meta, html, toc }
+  const bucket = lessonsByCourse.get(em.courseId) ?? {}
+  bucket[id] = { html, toc }
+  lessonsByCourse.set(em.courseId, bucket)
+  compiledLessons.set(id, { html, toc })
 }
 
 // ---------------------------------------------------------------- 校验：测验（F5 / F8.2）
@@ -391,6 +405,8 @@ for (const file of quizFiles) {
   for (const question of q.questions ?? []) {
     err(question.id && question.stem && Array.isArray(question.options) && question.options.length >= 2,
       `quizzes/${file}: 题目缺少 id/stem/options(≥2)：${question.id}`)
+    err((question.options?.length ?? 0) <= 6,
+      `quizzes/${file}: 题目 options 超过上限 6（可读性约束）：${question.id}`)
     err(Number.isInteger(question.answer) && question.answer >= 0 && question.answer < (question.options?.length ?? 0),
       `quizzes/${file}: 题目 answer 下标越界：${question.id}`)
     err(typeof question.explanation === 'string' && question.explanation, `quizzes/${file}: 题目缺少解析：${question.id}`)
@@ -447,7 +463,19 @@ const routesManifest = {
   quiz: Object.keys(quizzesOut).map((id) => `/quiz/${id}`),
 }
 
-// ---------------------------------------------------------------- 搜索文档（F6.1：构建期生成，前端内存检索）
+// ---------------------------------------------------------------- 搜索文档（F6.1/F6.3：标题+摘要+正文，前端内存检索）
+// 正文检索（F6.3 P2 扩展落地）：编译后的 HTML 抽取纯文本（剥代码块/脚本/标签），
+// 截断到 3000 字符控制索引体积；命中片段由前端在原始 body 上现场截取。
+const ENTITIES = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'", '&nbsp;': ' ' }
+const htmlToSearchBody = (html) =>
+  html
+    .replace(/<figure class="code-?block[\s\S]*?<\/figure>/g, ' ')
+    .replace(/<pre[\s\S]*?<\/pre>/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&(amp|lt|gt|quot|#39|nbsp);/g, (m) => ENTITIES[m] ?? ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 3000)
 const searchDocs = [
   ...domainsOut.map((d) => ({
     id: `domain:${d.slug}`,
@@ -475,35 +503,109 @@ const searchDocs = [
     difficulty: c.difficulty,
     estMinutes: c.estMinutesTotal,
   })),
-  ...Object.values(lessonsOut).map((l) => ({
-    id: `lesson:${l.meta.id}`,
-    type: '知识点',
-    title: l.meta.title,
-    summary: l.meta.summary,
-    tags: l.meta.tags.join(' '),
-    extra: `${l.meta.domainName ?? ''} ${l.meta.courseTitle ?? ''} ${l.meta.chapterTitle ?? ''}`,
-    crumb: `${l.meta.domainName ?? ''} › ${l.meta.courseTitle ?? ''} › ${l.meta.chapterTitle ?? ''}`,
-    url: `/course/${l.meta.courseSlug}/lesson/${l.meta.slug}`,
-    domainSlug: l.meta.domainSlug ?? '',
-    difficulty: l.meta.difficulty,
-    estMinutes: l.meta.estMinutes,
-  })),
+  ...[...compiledLessons.keys()].flatMap((id) => {
+    const l = compiledLessons.get(id)
+    const meta = enrichedMeta.get(id)
+    if (!l || !meta) return [] // 孤儿知识点：已在上方判错，不产出搜索文档
+    return [{
+      id: `lesson:${meta.id}`,
+      type: '知识点',
+      title: meta.title,
+      summary: meta.summary,
+      tags: meta.tags.join(' '),
+      extra: `${meta.domainName ?? ''} ${meta.courseTitle ?? ''} ${meta.chapterTitle ?? ''}`,
+      crumb: `${meta.domainName ?? ''} › ${meta.courseTitle ?? ''} › ${meta.chapterTitle ?? ''}`,
+      url: `/course/${meta.courseSlug}/lesson/${meta.slug}`,
+      domainSlug: meta.domainSlug ?? '',
+      difficulty: meta.difficulty,
+      estMinutes: meta.estMinutes,
+      body: htmlToSearchBody(l.html),
+    }]
+  }),
 ]
 
 // ---------------------------------------------------------------- 输出
+// gen/ 全部为构建产物（gitignore）且直接进前端 bundle：一律 minify，不留缩进白字。
 fs.mkdirSync(outDir, { recursive: true })
-const write = (name, data) => fs.writeFileSync(path.join(outDir, name), JSON.stringify(data, null, 2) + '\n')
+const write = (name, data) => fs.writeFileSync(path.join(outDir, name), JSON.stringify(data) + '\n')
 write('domains.json', domainsOut)
 write('site.json', site)
 write('paths.json', pathsOut)
 write('courses.json', coursesOut)
-write('lessons.json', lessonsOut)
 write('quizzes.json', quizzesOut)
 write('search-docs.json', searchDocs)
 write('routes-manifest.json', routesManifest)
 
-// ---------------------------------------------------------------- sitemap.xml（传入 --site 时生成，F6/SEO）
+// 正文按课程分片（客户端 import.meta.glob 动态加载）
+const lessonsDir = path.join(outDir, 'lessons')
+fs.mkdirSync(lessonsDir, { recursive: true })
+for (const [courseId, bucket] of lessonsByCourse) {
+  fs.writeFileSync(path.join(lessonsDir, `${courseId}.json`), JSON.stringify(bucket) + '\n')
+}
+
+// ---------------------------------------------------------------- 404.html（GitHub Pages 项目页桥页）
+// catch-all 路由不参与预渲染，未匹配路径由托管方回退到此页；base 从 --site 注入，
+// 保证项目页子路径（/cs-study/）下链接正确。文件属构建产物（gitignore）。
 const siteUrl = argOf('--site', '')
+const publicDir = path.resolve(outDir, '../../../public')
+fs.mkdirSync(publicDir, { recursive: true })
+// base 优先取 VITE_BASE（前端构建步骤都会注入，覆盖根目录先跑的 --site 生成），
+// 其次取 --site 的路径部分；本地裸构建回退 '/'。与 sitemap「后写不降级」的行为对齐。
+const rawBase = process.env.VITE_BASE || (siteUrl ? new URL(siteUrl).pathname : '')
+const siteBase = !rawBase || rawBase === '/' ? '/' : `/${rawBase.replace(/^\/+|\/+$/g, '')}/`
+fs.writeFileSync(
+  path.join(publicDir, '404.html'),
+  `<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>404 · 页面不存在 · cs-study</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: #f1f6fa; color: #14293d;
+  font-family: 'PingFang SC','HarmonyOS Sans SC','MiSans','Source Han Sans SC','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif; }
+body::before { content: ''; position: fixed; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(127,162,188,.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(127,162,188,.14) 1px, transparent 1px);
+  background-size: 24px 24px; }
+main { position: relative; max-width: 34em; padding: 48px 20px; text-align: center; }
+.code { font-size: 72px; font-weight: 800; letter-spacing: .08em; color: #1b62a6; margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.plate { display: inline-block; margin-top: 18px; padding: 26px 32px; background: #fff;
+  border: 1px solid #7fa2bc; border-radius: 3px; box-shadow: 2px 2px 0 0 rgba(127,162,188,.4); }
+h1 { font-size: 18px; margin: 0 0 6px; }
+p { font-size: 13px; color: #52677c; margin: 0; line-height: 1.7; }
+nav { margin-top: 22px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { display: inline-block; padding: 8px 16px; font-size: 13px; text-decoration: none;
+  border-radius: 3px; border: 1px solid #7fa2bc; background: #fff; color: #14293d; }
+.btn.primary { background: #1b62a6; border-color: #1b62a6; color: #fff; }
+.btn:hover { text-decoration: underline; }
+footer { margin-top: 26px; font-size: 12px; color: #7e93a6; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+</style>
+</head>
+<body>
+<main>
+  <p class="code">404</p>
+  <div class="plate">
+    <h1>这张图纸上没有这一格</h1>
+    <p>地址可能拼写有误，或内容已调整。回首页继续，或者去领域列表找要学的东西。</p>
+    <nav>
+      <a class="btn primary" href="${siteBase}">回首页</a>
+      <a class="btn" href="${siteBase}explore">浏览全部领域</a>
+      <a class="btn" href="${siteBase}search">搜索</a>
+    </nav>
+  </div>
+  <footer>cs-study · 学习地图（纯前端版）</footer>
+</main>
+</body>
+</html>
+`,
+)
+
+// ---------------------------------------------------------------- sitemap.xml（传入 --site 时生成，F6/SEO）
 if (siteUrl) {
   const base = siteUrl.replace(/\/$/, '')
   const staticPaths = ['/', '/explore', '/guide', '/profile', '/settings', '/search', '/mistakes']
@@ -512,14 +614,12 @@ if (siteUrl) {
     (p) => `  <url><loc>${base}${p === '/' ? '/' : p}</loc></url>`,
   )
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlLines.join('\n')}\n</urlset>\n`
-  const publicDir = path.resolve(outDir, '../../../public')
-  fs.mkdirSync(publicDir, { recursive: true })
   fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), sitemap)
   console.log(`[content] sitemap.xml → ${urlLines.length} 条 URL（${siteUrl}）`)
 }
 
 // ---------------------------------------------------------------- 汇总
-console.log(`[content] 领域 ${domains.length} · 路线 ${paths.length} · 课程 ${courses.length} · 知识点 ${lessons.size} · 测验 ${quizFiles.length}`)
+console.log(`[content] 领域 ${domains.length} · 路线 ${paths.length} · 课程 ${courses.length} · 知识点 ${lessons.size}（正文分片 ${lessonsByCourse.size} 门课程）· 测验 ${quizFiles.length}`)
 console.log(`[content] 产出 → ${path.relative(repoRoot, outDir)}`)
 for (const w of warnings) console.warn(`[content] ⚠ ${w}`)
 for (const e of errors) console.error(`[content] ✕ ${e}`)
