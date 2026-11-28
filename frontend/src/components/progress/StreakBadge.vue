@@ -2,7 +2,7 @@
 import { IconFlame } from '@tabler/icons-vue'
 
 /** 连续学习天数（F4.4）：≥3 天才展示；7 的倍数给里程碑高亮（components.md） */
-const props = defineProps<{ streak: number }>()
+defineProps<{ streak: number }>()
 </script>
 
 <template>
