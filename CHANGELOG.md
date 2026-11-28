@@ -7,6 +7,32 @@
 
 ---
 
+## [Unreleased]
+
+### 修复
+
+- **个人中心「编辑档案」会清空已有档案**：表单回填在用户数据装载完成前执行（子组件 onMounted 先于 App 的 init() 抢跑），保存时把昵称/起始日覆盖为空。改用与知识点页相同的 `watch(loaded)` 模式
+- **搜索高亮可产生嵌套/畸形 `<mark>`**：改为在原文上单遍匹配全部词元（最长优先）后分段转义，查询词含 mark/amp 等字面量时不再命中已插入的标签；二元组命中改为整体包裹
+- 测验选项字母硬编码 A–E，选项多于 5 个会显示 undefined：改为按下标生成；构建期新增 `options ≤ 6` 上限校验
+- 首页 / 领域页 / 页脚三处版本号硬编码且全部过期（v0.1、v0.3.0）：单一来源改为 `frontend/package.json` 的 `version`，构建期注入 `__APP_VERSION__`
+- **GitHub Pages 上站内 404 页永不生效**：catch-all 路由不参与预渲染且无 404 桥页。现构建期生成 `public/404.html`（蓝图制图风格、自包含样式，base 随 `--site`/`VITE_BASE` 注入，构建产物 gitignore）
+- Header 快捷键可见文案不分平台（Windows 也显示 ⌘K）：Mac 客户端挂载后显示 ⌘K，其余显示 Ctrl K
+- 杂项：`scaffold.mjs` 用法提示补上已支持的 quiz；`deploy.yml` concurrency 注释与语义相反；DomainPage 用 CourseCard 当 DomainCard 使用的命名错位；删除全站零引用的 `StatusChip.vue`；「九大技术领域/九个方向」文案改为按内容数据动态生成
+
+### 新增
+
+- **正文级搜索（F6.3，P2 扩展落地）**：构建期从编译后的 HTML 抽取正文纯文本（剥代码块，截断 3000 字符）纳入 MiniSearch 索引（title 3 / tags 2 / summary 2 / body 1 权重）；摘要解释不了命中的结果展示正文上下文片段（带高亮），搜索页说明同步更新
+- **内容纠错反馈闭环（F3.6 收尾）**：`site.json` 配置 feedbackUrl，反馈入口跳转 GitHub Issue 并预填页面路径与内容版本（此前 pagePath 丢失）；新增 Issue 模板 `content-feedback.md` 并关闭空白 Issue
+- **ESLint 接入**：flat config（vue flat/recommended + vue-ts recommended，纯排版规则按项目现状关闭）；CI 新增 lint 步；三处 `eslint-disable` 死注释自本版起真实生效（v-html 均为受控白名单：构建期 Shiki 输出与本地转义高亮）
+- 单元测试 30 → 44 例：新增 `lib/progress.ts`（章节/课程/领域三级聚合、继续学习定位）、`lib/feedback.ts`（Issue 预填链接）、高亮回归（畸形 mark、多词元单遍替换）
+
+### 变更
+
+- **主包瘦身约 5MB**：知识点正文按课程分片（`gen/lessons/{courseId}.json`，20 片约 61–928KB）经 `import.meta.glob` 懒加载，路由 `beforeEnter` 在进入知识点页前预载所属课程分片，课程页挂载时后台预热；元数据索引改由 courses.json 摊平，契约 `getLessonById` 收窄为「仅元数据」（错题本/收藏/测验页调用点同步迁移）。实测 app 入口 chunk 464KB，不再包含任何正文 HTML
+- gen/ 构建产物全部 minify（原 2 空格缩进）；5.1MB 的整本 `lessons.json` 移除
+- 检索文档（search-docs 88KB → 756KB，含正文）改为独立懒加载分片，仅进入搜索后拉取；快速连续输入时丢弃过期检索结果（防竞态）
+- 构建期校验新增「孤儿知识点」（未被任何课程引用）判错——路线节点与搜索结果依赖 courseSlug 定位，无归属即断链
+
 ## [0.4.0] – 2026-11-23 · M3 内容建设收官：全站交付级深度
 
 > 实测核对：本章各批次合计后的最终规模以「最终规模」条目为准；历史上个别中间计数有出入，已按 `content/` 实际文件数修正（测验文件演变 7 → 49 → 66 → 67）。
