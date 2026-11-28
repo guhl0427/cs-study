@@ -434,6 +434,48 @@
   .md-body .code-block .code-copy:hover {
     color: var(--color-accent);
   }
+
+  /* playground（runnable 代码块）：运行按钮 + 输出区 */
+  .md-body .code-block .code-head-actions {
+    display: inline-flex;
+    gap: 10px;
+  }
+  .md-body .code-block .code-run {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-accent);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+  .md-body .code-block .code-run:hover {
+    color: var(--color-accent-strong);
+  }
+  [data-theme='dark'] .md-body .code-block .code-run:hover {
+    color: var(--color-teal);
+  }
+  .md-body .code-block .code-out {
+    border-top: 1px dashed var(--color-line);
+    padding: 10px 16px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--color-ink);
+    background: var(--color-surface-muted);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .md-body .code-block .code-out-line + .code-out-line {
+    margin-top: 4px;
+  }
+  .md-body .code-block .code-out-warn {
+    color: var(--color-warn);
+  }
+  .md-body .code-block .code-out-error {
+    color: var(--color-danger-text);
+  }
   .md-body .code-block pre {
     margin: 0;
     padding: 14px 16px;

@@ -243,11 +243,18 @@ try {
 }
 
 const md = new MarkdownIt({ html: false, linkify: false, typographer: false })
+// fence 渲染期间用于 warn 定位（renderLesson 按知识点调用前设置）
+let currentLessonFile = ''
 md.renderer.rules.fence = (tokens, idx) => {
   const token = tokens[idx]
-  const info = token.info.trim().split(/\s+/)[0] ?? ''
+  const infoParts = token.info.trim().split(/\s+/)
+  const info = infoParts[0] ?? ''
   const lang = LANG_MAP[info] ?? ''
   const label = lang ? (LANG_LABEL[lang] ?? lang) : 'text'
+  // runnable 标记（playground）：仅 js 代码块可运行，其余语言标记给警告
+  const wantsRun = infoParts.includes('runnable')
+  const runnable = lang === 'javascript' && wantsRun
+  warn(!wantsRun || lang === 'javascript', `lessons/${currentLessonFile}: runnable 标记仅支持 js 代码块`)
   let body
   let blockClass = 'code-block'
   if (lang && highlighter) {
@@ -267,10 +274,11 @@ md.renderer.rules.fence = (tokens, idx) => {
   } else {
     body = `<pre class="code-plain"><code>${escapeHtml(token.content)}</code></pre>`
   }
+  const runBtn = runnable ? `<button class="code-run" type="button" aria-label="运行这段代码">运行 ▶</button>` : ''
   return `<figure class="${blockClass}" data-lang="${label}">` +
     `<figcaption class="code-head"><span class="code-lang">${label}</span>` +
-    `<button class="code-copy" type="button">复制</button></figcaption>` +
-    body + `</figure>\n`
+    `<span class="code-head-actions">${runBtn}<button class="code-copy" type="button">复制</button></span></figcaption>` +
+    body + (runnable ? `<div class="code-out" hidden></div>` : '') + `</figure>\n`
 }
 
 const renderLesson = (raw) => {
@@ -377,6 +385,7 @@ for (const [id, lesson] of lessons) {
     errors.push(`lessons/${lesson.file}: 未被任何课程引用（孤儿知识点）——请挂到某门课程的章节`)
     continue
   }
+  currentLessonFile = lesson.file
   const { html, toc } = renderLesson(lesson.raw)
   const bucket = lessonsByCourse.get(em.courseId) ?? {}
   bucket[id] = { html, toc }

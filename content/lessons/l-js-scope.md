@@ -28,7 +28,7 @@ resources:
 
 **函数的三种写法**，语义有差别：
 
-```js
+```js runnable
 function add(a, b) { return a + b }        // ① 函数声明：可提升，先调用后定义不报错
 const sub = function (a, b) { return a - b }  // ② 函数表达式：像赋值一个变量
 const mul = (a, b) => a * b                // ③ 箭头函数：现代默认写法
@@ -38,7 +38,7 @@ const mul = (a, b) => a * b                // ③ 箭头函数：现代默认写
 
 **作用域：变量能被谁看见。** JS 有三层，查找变量时由内向外（作用域链）：
 
-```js
+```js runnable
 const global = "全局"
 
 function outer() {
@@ -54,7 +54,7 @@ function outer() {
 
 块级作用域（`{}` 内的 let/const）是 let 时代的重要改进；`var` 声明的变量会「提升」到函数顶部且无视块——这就是「永远别用 var」的原理级理由：
 
-```js
+```js runnable
 console.log(x)   // undefined —— var 提升了（声明被搬到顶上，赋值没有）
 var x = 5
 
@@ -64,7 +64,7 @@ let y = 5
 
 **闭包：函数记住出生地。** 内层函数被「带出去」后，依然能访问出生时的外层变量——这个组合就叫闭包。最小例子：
 
-```js
+```js runnable
 function makeCounter() {
   let count = 0                    // 私有变量：外面摸不到
   return function () {
@@ -86,7 +86,7 @@ c2()  // 1 —— 另一次调用产生独立的闭包，互不影响
 
 **递归初见：函数调用自己。** 「问题能缩小成同类小问题」时递归是最自然的表达（呼应 DSA 课的递归专题）：
 
-```js
+```js runnable
 function countdown(n) {
   if (n <= 0) { console.log("发射！"); return }   // 基线条件：刹车
   console.log(n)
@@ -99,7 +99,7 @@ countdown(3)    // 3, 2, 1, 发射！
 
 **提升的完整规则**，一次说清三件事：
 
-```js
+```js runnable
 console.log(hoisted())     // ① 函数声明整体提升——先调用后定义不报错
 function hoisted() { return "我在" }
 
@@ -116,7 +116,7 @@ let l = 5
 
 主线：用闭包写一个「购物车函数库」——对外只暴露四个方法，内部状态外人改不了：
 
-```js
+```js runnable
 // cart.js —— 一个最小模块（后续可拆成独立文件）
 export function createCart() {
   let items = []                              // 闭包私有状态
@@ -156,7 +156,7 @@ export function createCart() {
 
 再体会一次「每次调用独立闭包」——两辆购物车互不干扰：
 
-```js
+```js runnable
 const cartA = createCart(), cartB = createCart()
 cartA.add("A 车商品", 10)
 console.log(cartB.total())                    // 0
@@ -178,7 +178,7 @@ api("/todos")                                  // 实际请求 https://api.examp
 
 **用法二：一次性初始化。** 昂贵的结果算一次、后续调用直接用缓存——「记忆化」的最小雏形（呼应 DSA 课的 lru_cache）：
 
-```js
+```js runnable
 function createLazyConfig() {
   let cache = null                             // 算过一次就记住
   return function getConfig() {

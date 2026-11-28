@@ -28,7 +28,7 @@ resources:
 
 **对象：属性的名值对**。三种读法里最常用前两种：
 
-```js
+```js runnable
 const book = {
   title: "深入浅出 CSS",        // 属性名: 值（名可不加引号）
   price: 79,
@@ -47,7 +47,7 @@ book.pages ?? 0            // ?? 空值合并：undefined/null 时用默认值
 
 **数组：有序列表 + 一大批现成方法**。索引从 0 开始，`length` 是属性不是方法：
 
-```js
+```js runnable
 const nums = [3, 1, 4, 1, 5]
 nums[0]          // 3
 nums.length      // 5
@@ -76,7 +76,7 @@ nums.indexOf(4)  // 2；找不到返回 -1
 
 **解构与展开**是现代 JS 的语法糖，读别人代码一定会遇到：
 
-```js
+```js runnable
 const { title, price } = book            // 解构对象：按名取
 const [first, second] = nums             // 解构数组：按位取
 const newer = [...nums, 6]               // 展开数组：不可变更新（呼应 React 课）
@@ -87,7 +87,7 @@ const { tags, ...rest } = book           // rest 收集剩余属性
 
 **对象里的方法与简写**——属性值是函数时叫「方法」，这是最常见的数据+行为组合：
 
-```js
+```js runnable
 const cart = {
   items: [],                       // 数据
   add(name, price) {               // 方法（简写，等价于 add: function(...)）
@@ -105,7 +105,7 @@ cart.total()                        // 199
 
 **深拷贝的正规军**：浅拷贝 `[...arr]` 只复制一层；要连嵌套对象一起复制，现代浏览器内置了 `structuredClone`：
 
-```js
+```js runnable
 const copy = structuredClone(books)   // 深拷贝：嵌套对象也是独立副本
 copy[0].author.city = "北京"           // 不影响原数据
 ```
@@ -116,7 +116,7 @@ copy[0].author.city = "北京"           // 不影响原数据
 
 主线：一个「图书清单」的数据层——真实项目里任何列表页的内核都是它：
 
-```js
+```js runnable
 const books = [
   { id: 1, title: "深入浅出 CSS", price: 79, category: "前端" },
   { id: 2, title: "JS 权威指南", price: 129, category: "前端" },
@@ -156,7 +156,7 @@ const updated = books.map(b => b.id === 2 ? { ...b, price: 99 } : b)
 
 三个方法都返回数组，所以可以**直接接着调下一个**——真实项目里最常见的形态就是一条链解决「筛选+变换+排序」：
 
-```js
+```js runnable
 const result = books
   .filter(b => b.category === "前端")          // 只留前端书
   .sort((a, b) => b.price - a.price)           // 按价格降序（改的是 filter 产出的新数组，原数据无恙）
@@ -169,7 +169,7 @@ console.log(result)                             // ['JS 权威指南 ¥129', '�
 
 分组（reduce 的进阶形态）值得单独记一次——统计类需求的通用骨架：
 
-```js
+```js runnable
 const byCategory = books.reduce((acc, b) => {
   ;(acc[b.category] ??= []).push(b)            // 没有这个分类就先建空数组
   return acc

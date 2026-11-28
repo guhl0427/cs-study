@@ -45,7 +45,7 @@ resources:
 
 **变量：三个声明关键字，只用两个。** `let` 声明可变变量，`const` 声明常量（引用不可重新赋值）；`var` 是历史遗留——它无视块级作用域、允许重复声明，是无数诡异 bug 的来源，现代代码里见到它就该改成 let/const：
 
-```js
+```js runnable
 let score = 92          // 会变的量
 score = 95              // OK
 const NAME = "小明"      // 不会重新赋值的量
@@ -67,7 +67,7 @@ NAME = "小红"            // TypeError: Assignment to constant variable
 
 **类型转换与 `===` 纪律**是 JS 第一坑区。`==` 会先隐式转换再比较，产生一堆反直觉结果；`===` 不转换，类型不同直接 false：
 
-```js
+```js runnable
 1 == "1"      // true  —— 字符串被悄悄转成了数字！
 1 === "1"     // false —— 纪律：永远用 === 和 !==
 null == undefined   // true
@@ -76,7 +76,7 @@ NaN === NaN         // false —— NaN 连自己都不等于自己，判断用 
 
 **模板字符串**是拼接文本的现代标准——反引号 + `${}` 嵌变量，多行直接写：
 
-```js
+```js runnable
 const name = "小明", score = 92
 console.log(`${name} 考了 ${score} 分`)     // 小明 考了 92 分
 console.log(score >= 60 ? "及格" : "不及格") // 三元表达式：一行 if
@@ -84,7 +84,7 @@ console.log(score >= 60 ? "及格" : "不及格") // 三元表达式：一行 if
 
 **控制流**与 Python/C 高度相似，语法是 C 系的大括号风：
 
-```js
+```js runnable
 if (score >= 90) {
   console.log("A")
 } else if (score >= 60) {
@@ -106,7 +106,7 @@ for (const ch of "abc") {          // for...of 逐个取值（数组、字符串
 
 **块级作用域的可视化**——let/const 的可见范围是它所在的 `{}` 内部，出了大括号就消失：
 
-```js
+```js runnable
 {
   const secret = "块内可见"
   console.log(secret)      // OK
@@ -125,7 +125,7 @@ console.log(tmp)           // 同样 ReferenceError
 
 **三个实用的 Console 技巧**（学 JS 的前两周你就住在 Console 里）：
 
-```js
+```js runnable
 console.table(scores)            // 数组/对象打印成表格，一眼看全
 console.log({ name, score })     // 传对象（带属性名）而不是拼接串，调试更清晰
 console.time("循环")             // 计时器：测一段代码耗时
@@ -134,7 +134,7 @@ console.timeEnd("循环")          // → 循环: 12.3ms
 
 **字符串与数字的随身工具箱**——处理输入和展示时每天都要用：
 
-```js
+```js runnable
 // 字符串
 const s = "  Hello, JS  "
 s.trim()                    // "Hello, JS"——去掉首尾空白（表单输入必做）
@@ -158,7 +158,7 @@ Number.isNaN(NaN)           // true——判断 NaN 的唯一正确姿势
 
 **第 1 步：在 Console 里把逻辑跑通**（F12 → Console，逐行粘贴）：
 
-```js
+```js runnable
 const scores = [92, 75, 58, 83]
 
 function judge(score) {
