@@ -65,13 +65,24 @@ const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-/** 命中高亮：先转义再按查询词包裹 <mark>（防 XSS：内容与查询都经过转义） */
+/**
+ * 命中高亮：在「原文」上单遍匹配所有查询词元（最长优先），命中段与剩余段各自转义后包裹 <mark>。
+ * 防 XSS：最终输出的每一段文本都经过 escapeHtml；
+ * 防畸形标签：不在已插入 <mark>/实体 的字符串上二次替换，词元（如 mark/amp）不可能命中标签本身。
+ */
 export function highlight(text: string, query: string): string {
   const tokens = [...new Set(cjkTokenizer(query).filter((t) => t.length > 1 || CJK.test(t)))]
-  let out = escapeHtml(text)
-  if (!tokens.length) return out
-  for (const t of tokens) {
-    out = out.replace(new RegExp(escapeRegExp(escapeHtml(t)), 'gi'), (m) => `<mark>${m}</mark>`)
+  if (!tokens.length) return escapeHtml(text)
+  const re = new RegExp(
+    tokens.sort((a, b) => b.length - a.length).map(escapeRegExp).join('|'),
+    'gi',
+  )
+  let out = ''
+  let last = 0
+  for (const m of text.matchAll(re)) {
+    const start = m.index ?? 0
+    out += escapeHtml(text.slice(last, start)) + `<mark>${escapeHtml(m[0])}</mark>`
+    last = start + m[0].length
   }
-  return out
+  return out + escapeHtml(text.slice(last))
 }

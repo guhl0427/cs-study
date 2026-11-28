@@ -26,9 +26,9 @@ describe('cjkTokenizer（中文单字 + 二元组）', () => {
   })
 })
 
-describe('highlight（先转义再包 mark —— XSS 红线）', () => {
-  it('命中词被 <mark> 包裹', () => {
-    expect(highlight('Promise 与异步', '异步')).toBe('Promise 与<mark>异</mark><mark>步</mark>')
+describe('highlight（原文单遍匹配后分段转义 —— XSS 红线）', () => {
+  it('命中词被 <mark> 包裹（二元组整体命中优先于拆字）', () => {
+    expect(highlight('Promise 与异步', '异步')).toBe('Promise 与<mark>异步</mark>')
   })
 
   it('HTML 字符被转义，绝不注入裸标签', () => {
@@ -36,6 +36,15 @@ describe('highlight（先转义再包 mark —— XSS 红线）', () => {
     expect(out).not.toContain('<script>')
     expect(out).toContain('&lt;')
     expect(out).toContain('<mark>alert</mark>')
+  })
+
+  it('查询词含 mark/amp 等标签字面量时不命中已插入的标签（畸形 mark 回归）', () => {
+    expect(highlight('mark 语法与 & 符号', 'mark')).toBe('<mark>mark</mark> 语法与 &amp; 符号')
+    expect(highlight('camp & amp 工地', 'amp')).toBe('c<mark>amp</mark> &amp; <mark>amp</mark> 工地')
+  })
+
+  it('多词元查询单遍替换，长词元优先', () => {
+    expect(highlight('异步编程指南', '异步 编程')).toBe('<mark>异步</mark><mark>编程</mark>指南')
   })
 
   it('查询词中的正则特殊字符不导致异常', () => {
