@@ -9,11 +9,14 @@ import type {
   FavoritesMap,
   GuideResult,
   LastVisit,
+  NotesMap,
   Profile,
   ProgressMap,
+  TimeLog,
 } from '@/types/user'
 
-export const SCHEMA_VERSION = 1
+/** v2（2026-11-28）：新增 notes / timeLog 两键，Profile 加 weeklyMinutes；v1 数据按默认值兜底即完成迁移 */
+export const SCHEMA_VERSION = 2
 const PREFIX = 'cs-study:'
 
 export const KEY = {
@@ -24,6 +27,8 @@ export const KEY = {
   answers: `${PREFIX}answers`,
   guide: `${PREFIX}guide`,
   lastVisit: `${PREFIX}lastVisit`,
+  notes: `${PREFIX}notes`,
+  timeLog: `${PREFIX}timeLog`,
   meta: `${PREFIX}meta`,
 } as const
 
@@ -87,6 +92,10 @@ export const loadGuide = () => readJson<GuideResult>(KEY.guide)
 export const saveGuide = (v: GuideResult) => writeJson(KEY.guide, v)
 export const loadLastVisit = () => readJson<LastVisit>(KEY.lastVisit)
 export const saveLastVisit = (v: LastVisit) => writeJson(KEY.lastVisit, v)
+export const loadNotes = () => readJson<NotesMap>(KEY.notes)
+export const saveNotes = (v: NotesMap) => writeJson(KEY.notes, v)
+export const loadTimeLog = () => readJson<TimeLog>(KEY.timeLog)
+export const saveTimeLog = (v: TimeLog) => writeJson(KEY.timeLog, v)
 
 export interface MetaInfo {
   lastExportAt: string

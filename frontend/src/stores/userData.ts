@@ -22,6 +22,8 @@ import {
   saveAnswers,
   saveGuide,
   saveLastVisit,
+  saveNotes,
+  saveTimeLog,
 } from '@/storage/repository'
 import {
   ANSWERS_LIMIT,
@@ -37,6 +39,7 @@ import {
   type Profile,
 } from '@/types/user'
 import type { LessonMeta } from '@/types/content'
+import { todayKey, pruneTimeLog } from '@/lib/time'
 import { useUiStore } from '@/stores/ui'
 
 export const favKey = (type: FavTargetType, id: string) => `${type}_${id}`
@@ -105,6 +108,8 @@ export const useUserDataStore = defineStore('userData', {
       this.answers = bundle.answers
       this.guide = bundle.guide
       this.lastVisit = bundle.lastVisit
+      this.notes = bundle.notes
+      this.timeLog = bundle.timeLog
       this.meta = loadBundleMeta()
       this.loaded = true
     },
@@ -227,6 +232,8 @@ export const useUserDataStore = defineStore('userData', {
       this.answers = bundle.answers
       this.guide = bundle.guide
       this.lastVisit = bundle.lastVisit
+      this.notes = bundle.notes
+      this.timeLog = bundle.timeLog
       return summary
     },
 
@@ -239,7 +246,33 @@ export const useUserDataStore = defineStore('userData', {
       this.answers = fresh.answers
       this.guide = null
       this.lastVisit = null
+      this.notes = fresh.notes
+      this.timeLog = fresh.timeLog
       this.meta = { lastExportAt: '' }
+    },
+
+    /** 保存知识点笔记；content 为空白时视为删除该条 */
+    saveNote(lessonId: string, content: string) {
+      if (content.trim()) {
+        this.notes[lessonId] = { content, updatedAt: new Date().toISOString() }
+      } else {
+        delete this.notes[lessonId]
+      }
+      if (this.storageOk && !saveNotes(this.notes)) this.privateWarnWriteFailure()
+    },
+
+    setWeeklyMinutes(minutes: number) {
+      this.setProfile({ weeklyMinutes: minutes })
+    },
+
+    /** 累计学习时长（30s 粒度调用）；写入即裁剪超过 365 天的日期 */
+    addStudyTime(lessonId: string, seconds: number) {
+      if (seconds <= 0) return
+      const day = todayKey()
+      ;(this.timeLog[day] ??= {})
+      this.timeLog[day][lessonId] = (this.timeLog[day][lessonId] ?? 0) + seconds
+      this.timeLog = pruneTimeLog(this.timeLog)
+      if (this.storageOk && !saveTimeLog(this.timeLog)) this.privateWarnWriteFailure()
     },
   },
 })

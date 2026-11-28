@@ -4,8 +4,9 @@
  */
 import { beforeEach, describe, expect, it } from 'vitest'
 import { applyImport, buildExportFile, clearAll, parseImportFile } from './repository'
-import { loadAnswers, loadGuide, loadProgress, saveAnswers, saveGuide, saveProgress, saveProfile, loadProfile, loadFavorites, saveFavorites, loadLastVisit, saveLastVisit } from './storage'
+import { loadAnswers, loadGuide, loadProgress, saveAnswers, saveGuide, saveProgress, saveProfile, loadProfile, loadFavorites, saveFavorites, loadLastVisit, saveLastVisit, loadNotes, loadTimeLog } from './storage'
 import { ANSWERS_LIMIT, emptyBundle, type ExportFile, type FavoriteEntry, type AnswerRecord } from '@/types/user'
+import { SCHEMA_VERSION } from './storage'
 
 beforeEach(() => {
   localStorage.clear()
@@ -157,6 +158,66 @@ describe('applyImport · merge 策略（同名取较新，不删除现有数据�
     expect(loadGuide()!.recommendedPathSlug).toBe('frontend-path') // 较新
     expect(loadLastVisit()!.lessonSlug).toBe('a') // 本地较新，保留
   })
+
+  it('notes：同知识点取较新 updatedAt，新增计数正确', () => {
+    // 播种本地：l1 旧版笔记
+    applyImport(
+      {
+        app: 'cs-study', schemaVersion: 1, exportedAt: '',
+        data: { ...emptyBundle(), notes: { l1: { content: '本地旧版', updatedAt: '2026-01-01T00:00:00Z' } } },
+      },
+      'merge',
+    )
+    // 导入：l1 较新（覆盖）+ l2 新增
+    const s = applyImport(
+      {
+        app: 'cs-study', schemaVersion: 1, exportedAt: '',
+        data: {
+          ...emptyBundle(),
+          notes: {
+            l1: { content: '导入新版', updatedAt: '2026-05-01T00:00:00Z' },
+            l2: { content: '新增笔记', updatedAt: '2026-04-01T00:00:00Z' },
+          },
+        },
+      },
+      'merge',
+    )
+    const n = loadNotes()!
+    expect(n.l1.content).toBe('导入新版') // 较新覆盖
+    expect(n.l2.content).toBe('新增笔记')
+    expect(s.notes).toBe(2) // l1 更新 + l2 新增
+
+    // 再导入更旧的 l1 → 本地保留，计数 0
+    const s2 = applyImport(
+      {
+        app: 'cs-study', schemaVersion: 1, exportedAt: '',
+        data: { ...emptyBundle(), notes: { l1: { content: '更旧版本', updatedAt: '2025-01-01T00:00:00Z' } } },
+      },
+      'merge',
+    )
+    expect(loadNotes()!.l1.content).toBe('导入新版')
+    expect(s2.notes).toBe(0)
+  })
+
+  it('timeLog：按日期与知识点累加（时长是可加量）', () => {
+    applyImport(
+      {
+        app: 'cs-study', schemaVersion: 1, exportedAt: '',
+        data: { ...emptyBundle(), timeLog: { '2026-06-01': { l1: 600, l2: 300 } } },
+      },
+      'merge',
+    )
+    const file: ExportFile = {
+      app: 'cs-study', schemaVersion: 1, exportedAt: '',
+      data: { ...emptyBundle(), timeLog: { '2026-06-01': { l1: 120 }, '2026-06-02': { l1: 900 } } },
+    }
+    const s = applyImport(file, 'merge')
+    const t = loadTimeLog()!
+    expect(t['2026-06-01']!.l1).toBe(720) // 600 + 120
+    expect(t['2026-06-01']!.l2).toBe(300)
+    expect(t['2026-06-02']!.l1).toBe(900)
+    expect(s.progress).toBe(0)
+  })
 })
 
 describe('applyImport · overwrite 策略（完全替换，需调用方二次确认）', () => {
@@ -193,9 +254,11 @@ describe('buildExportFile / clearAll（F7.4 / F7.6）', () => {
     saveProgress({ l1: { status: 'learning', updatedAt: '2026-01-01T00:00:00Z' } })
     const file = buildExportFile()
     expect(file.app).toBe('cs-study')
-    expect(file.schemaVersion).toBe(1)
+    expect(file.schemaVersion).toBe(SCHEMA_VERSION)
     expect(file.exportedAt).toBeTruthy()
     expect(file.data.progress.l1).toBeDefined()
+    expect(file.data.notes).toEqual({})
+    expect(file.data.timeLog).toEqual({})
   })
 
   it('清空删除所有 cs-study 键', () => {

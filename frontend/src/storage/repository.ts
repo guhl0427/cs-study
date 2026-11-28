@@ -1,12 +1,14 @@
 /**
  * 用户数据仓库：装载、导出/导入（含合并策略）、清空（F7.4–7.6）
- * 版本化：schemaVersion + 迁移链（当前 v1，迁移为恒等操作）。
+ * 版本化：schemaVersion + 迁移链。当前 v2：新增 notes/timeLog 两键——
+ * v1 备份导入时字段缺失，由 ?? 默认值兜底完成恒等迁移（无需数据变换）。
  * 孤儿记录策略：读取时不清洗，UI 按「内容存在才渲染」处理；
  * 导出/导入过程中顺带清理指向已删除内容的记录（需求 §7.2 设计要点 3）。
  */
 import { SCHEMA_VERSION, KEY, readJson, writeJson, removeKey, keySize } from './storage'
 import { loadProfile, saveProfile, loadProgress, saveProgress } from './storage'
 import { loadFavorites, saveFavorites, loadAnswers, saveAnswers } from './storage'
+import { loadNotes, saveNotes, loadTimeLog, saveTimeLog } from './storage'
 import { loadGuide, saveGuide, loadLastVisit, saveLastVisit, loadMeta, saveMeta } from './storage'
 import {
   ANSWERS_LIMIT,
@@ -17,7 +19,9 @@ import {
   type ImportStrategy,
   type ImportSummary,
   type LastVisit,
+  type NotesMap,
   type ProgressMap,
+  type TimeLog,
   type UserDataBundle,
 } from '@/types/user'
 
@@ -36,6 +40,8 @@ export function loadBundle(): UserDataBundle {
     answers: loadAnswers() ?? [],
     guide: loadGuide(),
     lastVisit: loadLastVisit(),
+    notes: loadNotes() ?? {},
+    timeLog: loadTimeLog() ?? {},
   }
 }
 
@@ -98,6 +104,8 @@ export function applyImport(file: ExportFile, strategy: ImportStrategy): ImportS
     saveProgress(incoming.progress ?? {})
     saveFavorites(incoming.favorites ?? {})
     saveAnswers((incoming.answers ?? []).slice(-ANSWERS_LIMIT))
+    saveNotes(incoming.notes ?? {})
+    saveTimeLog(incoming.timeLog ?? {})
     if (incoming.guide) saveGuide(incoming.guide)
     if (incoming.lastVisit) saveLastVisit(incoming.lastVisit)
     persistSchemaVersion()
@@ -105,6 +113,7 @@ export function applyImport(file: ExportFile, strategy: ImportStrategy): ImportS
       progress: Object.keys(incoming.progress ?? {}).length,
       favorites: Object.keys(incoming.favorites ?? {}).length,
       answers: (incoming.answers ?? []).length,
+      notes: Object.keys(incoming.notes ?? {}).length,
     }
   }
 
@@ -154,12 +163,16 @@ export function applyImport(file: ExportFile, strategy: ImportStrategy): ImportS
 
   const inc = incoming.profile
   const localProfile = loadProfile()
-  if (inc && (inc.nickname || inc.avatarId || inc.startDate || inc.activePathId)) {
+  if (
+    inc &&
+    (inc.nickname || inc.avatarId || inc.startDate || inc.activePathId || inc.weeklyMinutes !== undefined)
+  ) {
     saveProfile({
       nickname: inc.nickname || localProfile?.nickname || '',
       avatarId: inc.avatarId || localProfile?.avatarId || '',
       startDate: inc.startDate || localProfile?.startDate || '',
       activePathId: inc.activePathId ?? localProfile?.activePathId,
+      weeklyMinutes: inc.weeklyMinutes ?? localProfile?.weeklyMinutes,
     })
   }
 
@@ -174,8 +187,29 @@ export function applyImport(file: ExportFile, strategy: ImportStrategy): ImportS
     saveLastVisit(incVisit)
   }
 
+  let notesCount = 0
+  const localNotes: NotesMap = loadNotes() ?? {}
+  for (const [lessonId, entry] of Object.entries(incoming.notes ?? {})) {
+    const local = localNotes[lessonId]
+    if (!local || (entry.updatedAt ?? '') > (local.updatedAt ?? '')) {
+      localNotes[lessonId] = entry
+      notesCount += 1
+    }
+  }
+  saveNotes(localNotes)
+
+  // 学习时长：按日期/知识点累加（时长是可加量，不做「较新覆盖」）
+  const localTime: TimeLog = loadTimeLog() ?? {}
+  for (const [day, lessons] of Object.entries(incoming.timeLog ?? {})) {
+    const target = (localTime[day] ??= {})
+    for (const [lessonId, seconds] of Object.entries(lessons)) {
+      target[lessonId] = (target[lessonId] ?? 0) + (seconds ?? 0)
+    }
+  }
+  saveTimeLog(localTime)
+
   persistSchemaVersion()
-  return { progress: progressCount, favorites: favoritesCount, answers: answersCount }
+  return { progress: progressCount, favorites: favoritesCount, answers: answersCount, notes: notesCount }
 }
 
 /* ---------------- 清空（F7.6） ---------------- */
@@ -204,4 +238,4 @@ export function usageStats(): UsageStats {
   }
 }
 
-export { saveProfile, saveProgress, saveFavorites, saveAnswers, saveGuide, saveLastVisit, loadMeta, saveMeta }
+export { saveProfile, saveProgress, saveFavorites, saveAnswers, saveGuide, saveLastVisit, saveNotes, saveTimeLog, loadMeta, saveMeta }

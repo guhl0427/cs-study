@@ -87,3 +87,41 @@ describe('favorites 辅助', () => {
     expect(ud.isFavorite('course', 'c-web-frontend-basics')).toBe(false)
   })
 })
+
+describe('notes（v2 本地笔记）', () => {
+  it('saveNote 写入/更新；空白内容视为删除', () => {
+    const ud = useUserDataStore()
+    ud.saveNote('l1', '第一版笔记')
+    expect(ud.notes.l1?.content).toBe('第一版笔记')
+    ud.saveNote('l1', '第二版笔记')
+    expect(ud.notes.l1?.content).toBe('第二版笔记')
+    ud.saveNote('l1', '   ')
+    expect(ud.notes.l1).toBeUndefined()
+  })
+
+  it('saveNote 落盘，重新 init 可恢复', () => {
+    const ud = useUserDataStore()
+    ud.saveNote('l1', '持久化检查')
+    const again = useUserDataStore()
+    again.init()
+    expect(again.notes.l1?.content).toBe('持久化检查')
+  })
+})
+
+describe('timeLog（v2 学习时长）', () => {
+  it('addStudyTime 按日期/知识点累加', () => {
+    const ud = useUserDataStore()
+    ud.addStudyTime('l1', 30)
+    ud.addStudyTime('l1', 30)
+    ud.addStudyTime('l2', 15)
+    const today = dayKey(0)
+    expect(ud.timeLog[today]!.l1).toBe(60)
+    expect(ud.timeLog[today]!.l2).toBe(15)
+  })
+
+  it('非正秒数不写入', () => {
+    const ud = useUserDataStore()
+    ud.addStudyTime('l1', 0)
+    expect(Object.keys(ud.timeLog)).toHaveLength(0)
+  })
+})

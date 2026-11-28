@@ -64,7 +64,7 @@ function confirmOverwrite() {
 
 function applyImport(file: ExportFile, mode: ImportStrategy) {
   const s = ud.importData(file, mode)
-  ui.toast('ok', `导入完成：进度 ${s.progress} 条 · 收藏 ${s.favorites} 条 · 作答 ${s.answers} 条`)
+  ui.toast('ok', `导入完成：进度 ${s.progress} 条 · 收藏 ${s.favorites} 条 · 作答 ${s.answers} 条 · 笔记 ${s.notes} 条`)
   stats.value = usageStats()
 }
 
@@ -112,7 +112,7 @@ function confirmClear() {
     <section class="card-plate mt-6 p-5">
       <h2 class="text-section font-bold text-ink">导出数据</h2>
       <p class="mt-1.5 text-[13px] text-ink-2">
-        导出为 JSON 文件（含 schema 版本号），包含档案、进度、打卡、收藏、作答与找方向结果。可随时导回。
+        导出为 JSON 文件（含 schema 版本号），包含档案、进度、打卡、收藏、作答、找方向结果、笔记与学习时长。可随时导回。
       </p>
       <button class="btn btn-primary mt-4" type="button" @click="doExport">导出数据</button>
     </section>

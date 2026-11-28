@@ -15,6 +15,8 @@ export interface Profile {
   avatarId: string
   startDate: string
   activePathId?: string
+  /** 周计划每周预算（分钟）；未设置时由找方向的 time 答案推导（lib/plan） */
+  weeklyMinutes?: number
 }
 
 export type FavTargetType = 'course' | 'lesson'
@@ -30,7 +32,8 @@ export type FavoritesMap = Record<string, FavoriteEntry>
 export interface AnswerRecord {
   questionId: string
   quizId?: string
-  answer: number
+  /** 选择题为选项下标；填空题为作答文本（F5.4） */
+  answer: number | string
   isCorrect: boolean
   answeredAt: string
 }
@@ -54,6 +57,16 @@ export interface LastVisit {
   at: string
 }
 
+/** 知识点本地笔记（v2）：lessonId → 笔记内容 */
+export interface NoteEntry {
+  content: string
+  updatedAt: string
+}
+export type NotesMap = Record<string, NoteEntry>
+
+/** 学习时长（v2）：dateKey(YYYY-MM-DD) → lessonId → 累计秒；保存时裁剪超过 365 天的日期 */
+export type TimeLog = Record<string, Record<string, number>>
+
 export interface UserDataBundle {
   profile: Profile
   progress: ProgressMap
@@ -61,6 +74,9 @@ export interface UserDataBundle {
   answers: AnswerRecord[]
   guide: GuideResult | null
   lastVisit: LastVisit | null
+  /** v2 新增；导入 v1 备份时由默认值兜底 */
+  notes: NotesMap
+  timeLog: TimeLog
 }
 
 export interface ExportFile {
@@ -76,6 +92,7 @@ export interface ImportSummary {
   progress: number
   favorites: number
   answers: number
+  notes: number
 }
 
 export const ANSWERS_LIMIT = 500
@@ -88,5 +105,7 @@ export function emptyBundle(): UserDataBundle {
     answers: [],
     guide: null,
     lastVisit: null,
+    notes: {},
+    timeLog: {},
   }
 }
