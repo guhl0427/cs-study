@@ -8,6 +8,7 @@ import { useUserDataStore } from '@/stores/userData'
 import { useClientMounted } from '@/composables/useClientMounted'
 import { usePageTitle } from '@/composables/usePageTitle'
 import { formatDate } from '@/lib/format'
+import { isReviewDue } from '@/lib/review'
 import type { AnswerRecord } from '@/types/user'
 import type { QuizQuestion } from '@/types/content'
 
@@ -40,6 +41,8 @@ interface MistakeEntry {
   quizId: string
   answeredAt: string
   redone: boolean
+  /** 最新作答为答错且距今 ≥ 3 天（lib/review） */
+  due: boolean
 }
 
 const entries = computed<MistakeEntry[]>(() => {
@@ -54,18 +57,22 @@ const entries = computed<MistakeEntry[]>(() => {
       quizId: hit.quizId,
       answeredAt: rec.answeredAt,
       redone: rec.isCorrect,
+      due: isReviewDue(rec),
     })
   }
   return out.sort((a, b) => b.answeredAt.localeCompare(a.answeredAt))
 })
 
-/* ---- 过滤（全部 / 未重做 / 已重做） + 按知识点分组 ---- */
-const tab = ref<'all' | 'undone' | 'redone'>('all')
+/* ---- 过滤（全部 / 未重做 / 已到期 / 已重做） + 按知识点分组 ---- */
+const tab = ref<'all' | 'undone' | 'due' | 'redone'>('all')
 
 const filtered = computed(() =>
-  entries.value.filter((e) =>
-    tab.value === 'all' ? true : tab.value === 'undone' ? !e.redone : e.redone,
-  ),
+  entries.value.filter((e) => {
+    if (tab.value === 'all') return true
+    if (tab.value === 'undone') return !e.redone
+    if (tab.value === 'due') return !e.redone && e.due
+    return e.redone
+  }),
 )
 
 const groups = computed(() => {
@@ -84,6 +91,7 @@ const groups = computed(() => {
 const stats = computed(() => ({
   total: entries.value.length,
   undone: entries.value.filter((e) => !e.redone).length,
+  due: entries.value.filter((e) => !e.redone && e.due).length,
 }))
 </script>
 
@@ -95,17 +103,17 @@ const stats = computed(() => ({
     <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
       <div class="flex items-center gap-1 rounded-card border border-line bg-surface p-0.5" role="group" aria-label="按状态过滤">
         <button
-          v-for="t in ['all', 'undone', 'redone'] as const"
+          v-for="t in ['all', 'undone', 'due', 'redone'] as const"
           :key="t"
           class="rounded-node px-3 py-1 text-[12px] font-medium"
           :class="tab === t ? 'bg-accent-subtle text-accent' : 'text-ink-2'"
           type="button"
           @click="tab = t"
         >
-          {{ t === 'all' ? '全部' : t === 'undone' ? '未重做' : '已重做' }}
+          {{ t === 'all' ? '全部' : t === 'undone' ? '未重做' : t === 'due' ? '已到期' : '已重做' }}
         </button>
       </div>
-      <p class="meta-mono">共 {{ stats.total }} 题 · 未重做 {{ stats.undone }} 题</p>
+      <p class="meta-mono">共 {{ stats.total }} 题 · 未重做 {{ stats.undone }} 题 · 已到期 {{ stats.due }} 题</p>
       <p v-if="mounted && ud.answers.length >= 500" class="meta-mono text-warn">
         作答记录已达上限（500），最早的记录将被滚动清除
       </p>
@@ -124,9 +132,9 @@ const stats = computed(() => ({
             <span class="min-w-0 flex-1 truncate text-body-ui text-ink">{{ e.stem }}</span>
             <span
               class="rounded-node border px-2 py-0.5 text-[12px] leading-none"
-              :class="e.redone ? 'border-ok bg-ok-subtle text-ok' : 'border-dashed border-line text-ink-2'"
+              :class="e.redone ? 'border-ok bg-ok-subtle text-ok' : e.due ? 'border-warn bg-warn-subtle text-warn' : 'border-dashed border-line text-ink-2'"
             >
-              {{ e.redone ? '已重做' : '未重做' }}
+              {{ e.redone ? '已重做' : e.due ? '已到期 · 该重测了' : '未重做' }}
             </span>
             <span class="meta-mono">上次作答 {{ formatDate(e.answeredAt) }}</span>
             <RouterLink :to="`/quiz/${e.quizId}`" class="btn btn-text btn-sm shrink-0">重做</RouterLink>
