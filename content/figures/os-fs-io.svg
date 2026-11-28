@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 230" role="presentation">
+<defs><marker id="arr-os-fs-io" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="60" y="26" font-size="13" >一次 write() 的下坠之旅</text>
+<rect x="120" y="40" width="300" height="26" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="270" y="58" font-size="11" text-anchor="middle">应用程序（open/read/write）</text>
+<rect x="120" y="74" width="300" height="26" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="270" y="92" font-size="11" text-anchor="middle">系统调用层（陷入内核）</text>
+<rect x="120" y="108" width="300" height="26" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="270" y="126" font-size="11" text-anchor="middle">内核缓冲区 / VFS</text>
+<rect x="120" y="142" width="300" height="26" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="270" y="160" font-size="11" text-anchor="middle">文件系统（ext4/NTFS）</text>
+<rect x="120" y="176" width="300" height="26" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="270" y="194" font-size="11" text-anchor="middle">块设备驱动 → 磁盘</text>
+<line x1="430" y1="53" x2="470" y2="53" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-os-fs-io)"/>
+<text x="474" y="58" font-size="11" class="fig-note">用户态</text>
+<line x1="430" y1="87" x2="470" y2="87" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-os-fs-io)"/>
+<text x="474" y="92" font-size="11" class="fig-note">内核态</text>
+<line x1="100" y1="53" x2="60" y2="53" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-os-fs-io)"/>
+<text x="56" y="44" font-size="11" text-anchor="end" class="fig-note">中断</text>
+<text x="60" y="214" font-size="12" class="fig-note">write 返回 ≠ 数据落盘——先到内核缓冲，fsync 才强制刷盘（数据库关心的点）</text>
+</svg>

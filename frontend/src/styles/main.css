@@ -476,6 +476,40 @@
   .md-body .code-block .code-out-error {
     color: var(--color-danger-text);
   }
+
+  /* 内容配图（fig:id 内联 SVG，蓝图线稿随主题着色） */
+  .md-body .content-figure {
+    margin: 0 0 1.3em;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-node);
+    background: var(--color-surface);
+    padding: 16px 16px 10px;
+  }
+  .md-body .content-figure svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .md-body .content-figure figcaption {
+    margin-top: 8px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-ink-2);
+  }
+  .md-body .content-figure text {
+    fill: currentColor;
+    font-family: var(--font-mono);
+  }
+  .md-body .content-figure .fig-accent {
+    stroke: var(--color-accent);
+  }
+  .md-body .content-figure .fig-accent-text {
+    fill: var(--color-accent);
+  }
+  .md-body .content-figure .fig-note {
+    fill: var(--color-ink-2);
+  }
   .md-body .code-block pre {
     margin: 0;
     padding: 14px 16px;

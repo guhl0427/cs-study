@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 260" role="presentation">
+<defs><marker id="arr-dsa-big-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<line x1="50" y1="220" x2="520" y2="220" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-big-o)"/>
+<line x1="50" y1="220" x2="50" y2="30" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-big-o)"/>
+<text x="524" y="232" font-size="13" >n</text>
+<text x="34" y="34" font-size="12" text-anchor="end">步数</text>
+<line x1="50" y1="200" x2="520" y2="200" stroke="currentColor" fill="none" stroke-width="1.5" stroke-dasharray="2 4"/>
+<text x="524" y="204" font-size="12" class="fig-accent-text">O(1)</text>
+<polyline points="50,214 160,196 300,168 520,138" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="524" y="142" font-size="12" >log n</text>
+<polyline points="50,214 520,90" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="524" y="94" font-size="12" >n</text>
+<polyline points="50,214 200,180 360,130 520,60" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent"/>
+<text x="524" y="64" font-size="12" class="fig-accent-text">n log n</text>
+<polyline points="50,214 140,190 210,120 270,34" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" stroke-dasharray="4 3"/>
+<text x="524" y="38" font-size="12" class="fig-accent-text" font-weight="700">n²</text>
+<text x="70" y="60" font-size="12" class="fig-note">同一个问题，不同算法差几个数量级</text>
+</svg>

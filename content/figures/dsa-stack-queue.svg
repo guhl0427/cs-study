@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 210" role="presentation">
+<defs><marker id="arr-dsa-stack-queue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="120" y="26" font-size="13" >栈：后进先出（LIFO）</text>
+<text x="360" y="26" font-size="13" class="fig-accent-text" font-weight="600">队列：先进先出（FIFO）</text>
+<rect x="90" y="120" width="56" height="32" stroke="currentColor" fill="none" stroke-width="1.5" />
+<rect x="90" y="86" width="56" height="32" stroke="currentColor" fill="none" stroke-width="1.5" />
+<rect x="90" y="52" width="56" height="32" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="118" y="71" font-size="12" text-anchor="middle">3</text>
+<text x="118" y="105" font-size="12" text-anchor="middle">2</text>
+<text x="118" y="139" font-size="12" text-anchor="middle">1</text>
+<line x1="190" y1="46" x2="160" y2="46" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-stack-queue)"/>
+<text x="238" y="50" font-size="12" >入栈 push</text>
+<line x1="160" y1="168" x2="196" y2="168" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-stack-queue)"/>
+<text x="238" y="172" font-size="12" >出栈 pop（同口）</text>
+<rect x="340" y="96" width="48" height="32" stroke="currentColor" fill="none" stroke-width="1.5" />
+<rect x="398" y="96" width="48" height="32" stroke="currentColor" fill="none" stroke-width="1.5" />
+<rect x="456" y="96" width="48" height="32" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="364" y="117" font-size="12" text-anchor="middle">1</text>
+<text x="422" y="117" font-size="12" text-anchor="middle">2</text>
+<text x="480" y="117" font-size="12" text-anchor="middle">3</text>
+<line x1="300" y1="112" x2="340" y2="112" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-stack-queue)"/>
+<text x="300" y="100" font-size="11" text-anchor="middle">入队</text>
+<line x1="504" y1="112" x2="540" y2="112" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-stack-queue)"/>
+<text x="522" y="100" font-size="11" text-anchor="middle">出队</text>
+</svg>

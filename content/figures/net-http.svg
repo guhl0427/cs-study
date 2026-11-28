@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 200" role="presentation">
+<defs><marker id="arr-net-http" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="60" y="26" font-size="13" >一次 HTTP 请求的完整往返</text>
+<rect x="60" y="44" width="110" height="36" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="115" y="67" font-size="12" text-anchor="middle">浏览器</text>
+<rect x="390" y="44" width="110" height="36" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="445" y="67" font-size="12" text-anchor="middle">服务器</text>
+<line x1="170" y1="58" x2="390" y2="58" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-net-http)"/>
+<text x="280" y="52" font-size="12" text-anchor="middle" class="fig-note">GET /api/items HTTP/1.1（方法 + 路径 + 头）</text>
+<line x1="390" y1="100" x2="170" y2="100" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-net-http)"/>
+<text x="280" y="94" font-size="12" text-anchor="middle" class="fig-note">HTTP/1.1 200 OK（状态码 + 头 + 体）</text>
+<text x="60" y="140" font-size="12" class="fig-note">状态码段位：1xx 打招呼 · 2xx 成功 · 3xx 重定向 · 4xx 你错了 · 5xx 我错了</text>
+<text x="60" y="162" font-size="12" class="fig-note">无状态：每个请求互相独立，登录态靠 Cookie / Token 随身携带</text>
+</svg>

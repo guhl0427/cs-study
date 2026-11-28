@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 210" role="presentation">
+<text x="60" y="26" font-size="13" >排序怎么选：看规模、看值域、看稳定性</text>
+<text x="70" y="48" font-size="12" class="fig-accent-text">算法</text>
+<text x="190" y="48" font-size="12" class="fig-accent-text">平均</text>
+<text x="280" y="48" font-size="12" class="fig-accent-text">最坏</text>
+<text x="370" y="48" font-size="12" class="fig-accent-text">备注</text>
+<line x1="60" y1="56" x2="520" y2="56" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="70" y="86" font-size="12" >冒泡 / 插入</text>
+<text x="190" y="86" font-size="12" >O(n²)</text>
+<text x="280" y="86" font-size="12" class="fig-accent-text">O(n²)</text>
+<text x="370" y="86" font-size="12" >稳定，小数据够用</text>
+<line x1="60" y1="98" x2="520" y2="98" stroke="currentColor" fill="none" stroke-width="1.5" stroke-dasharray="2 4"/>
+<text x="70" y="120" font-size="12" >归并</text>
+<text x="190" y="120" font-size="12" >O(n log n)</text>
+<text x="280" y="120" font-size="12" class="fig-accent-text">O(n log n)</text>
+<text x="370" y="120" font-size="12" >稳定，要额外空间</text>
+<line x1="60" y1="132" x2="520" y2="132" stroke="currentColor" fill="none" stroke-width="1.5" stroke-dasharray="2 4"/>
+<text x="70" y="154" font-size="12" >快排</text>
+<text x="190" y="154" font-size="12" >O(n log n)</text>
+<text x="280" y="154" font-size="12" class="fig-accent-text">O(n²)</text>
+<text x="370" y="154" font-size="12" >常量小，最坏靠随机化</text>
+<line x1="60" y1="166" x2="520" y2="166" stroke="currentColor" fill="none" stroke-width="1.5" stroke-dasharray="2 4"/>
+<text x="70" y="188" font-size="12" >计数 / 基数</text>
+<text x="190" y="188" font-size="12" >O(n + k)</text>
+<text x="280" y="188" font-size="12" class="fig-accent-text">O(n + k)</text>
+<text x="370" y="188" font-size="12" >值域有限时的降维打击</text>
+<line x1="60" y1="200" x2="520" y2="200" stroke="currentColor" fill="none" stroke-width="1.5" stroke-dasharray="2 4"/>
+</svg>

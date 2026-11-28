@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" role="presentation">
+<defs><marker id="arr-co-cache" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="60" y="26" font-size="13" >存储金字塔：越往上越快越贵越小</text>
+<rect x="220" y="44" width="120" height="30" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="280" y="63" font-size="12" text-anchor="middle">寄存器</text><text x="500" y="63" font-size="11" class="fig-note">< 1ns</text>
+<rect x="170" y="82" width="220" height="30" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="280" y="101" font-size="12" text-anchor="middle">L1/L2/L3 缓存</text><text x="500" y="101" font-size="11" class="fig-note">1–30ns</text>
+<rect x="115" y="120" width="330" height="30" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="280" y="139" font-size="12" text-anchor="middle">内存</text><text x="500" y="139" font-size="11" class="fig-note">~100ns</text>
+<rect x="60" y="158" width="440" height="30" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="280" y="177" font-size="12" text-anchor="middle">磁盘 / SSD</text><text x="500" y="177" font-size="11" class="fig-note">10–100µs</text>
+<text x="60" y="200" font-size="12" class="fig-note">缓存行 64B：相邻数据一起被加载——数组遍历快、链表慢的根因</text>
+<text x="60" y="214" font-size="12" class="fig-note">程序优化的第一性原理：让数据离 CPU 近一点</text>
+</svg>

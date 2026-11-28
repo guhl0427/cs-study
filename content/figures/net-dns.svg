@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 210" role="presentation">
+<defs><marker id="arr-net-dns" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="60" y="26" font-size="13" >DNS：把域名逐级问出 IP</text>
+<rect x="60" y="44" width="96" height="32" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="108" y="65" font-size="11" text-anchor="middle">浏览器缓存</text>
+<rect x="230" y="44" width="90" height="32" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="275" y="65" font-size="11" text-anchor="middle">本地解析器</text>
+<rect x="394" y="44" width="66" height="32" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="427" y="65" font-size="11" text-anchor="middle">根域</text>
+<text x="400" y="108" font-size="11" text-anchor="middle">.com TLD</text>
+<rect x="368" y="90" width="118" height="28" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="400" y="156" font-size="11" text-anchor="middle">example.com 权威服务器</text>
+<rect x="330" y="138" width="140" height="28" stroke="currentColor" fill="none" stroke-width="1.5" />
+<line x1="156" y1="60" x2="230" y2="60" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-net-dns)"/>
+<line x1="320" y1="60" x2="394" y2="60" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-net-dns)"/>
+<line x1="427" y1="76" x2="427" y2="90" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-net-dns)"/>
+<line x1="427" y1="118" x2="427" y2="138" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-net-dns)"/>
+<line x1="330" y1="152" x2="240" y2="152" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-net-dns)"/>
+<text x="286" y="146" font-size="11" text-anchor="middle" class="fig-note">IP 回传</text>
+<line x1="230" y1="76" x2="130" y2="76" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-net-dns)"/>
+<text x="60" y="190" font-size="12" class="fig-note">逐级有缓存（浏览器 → 系统 → 运营商）——改解析后等 TTL 过期</text>
+</svg>

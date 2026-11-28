@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 210" role="presentation">
+<defs><marker id="arr-dsa-array-list" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="70" y="24" font-size="13" >数组：连续内存，O(1) 随机访问</text>
+<rect x="70" y="50" width="58" height="36" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="99" y="72" font-size="12" text-anchor="middle">10</text>
+<rect x="132" y="50" width="58" height="36" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="161" y="72" font-size="12" text-anchor="middle">17</text>
+<rect x="194" y="50" width="58" height="36" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="223" y="72" font-size="12" text-anchor="middle">24</text>
+<rect x="256" y="50" width="58" height="36" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="285" y="72" font-size="12" text-anchor="middle">31</text>
+<rect x="318" y="50" width="58" height="36" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="347" y="72" font-size="12" text-anchor="middle">38</text>
+<rect x="380" y="50" width="58" height="36" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="409" y="72" font-size="12" text-anchor="middle">45</text>
+<text x="99" y="44" font-size="11" text-anchor="middle" class="fig-note">[0]</text>
+<text x="161" y="44" font-size="11" text-anchor="middle" class="fig-note">[1]</text>
+<text x="223" y="44" font-size="11" text-anchor="middle" class="fig-note">[2]</text>
+<text x="285" y="44" font-size="11" text-anchor="middle" class="fig-note">[3]</text>
+<text x="347" y="44" font-size="11" text-anchor="middle" class="fig-note">[4]</text>
+<text x="409" y="44" font-size="11" text-anchor="middle" class="fig-note">[5]</text>
+<text x="70" y="116" font-size="13" >链表：分散节点 + 指针，O(1) 插入删除</text>
+<text x="46" y="152" font-size="12" text-anchor="end">head</text>
+<line x1="50" y1="146" x2="80" y2="146" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-array-list)"/>
+<rect x="80" y="130" width="44" height="32" stroke="currentColor" fill="none" stroke-width="1.5" /><line x1="124" y1="146" x2="156" y2="146" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-array-list)"/><text x="102" y="151" font-size="11" text-anchor="middle">n1</text>
+<rect x="200" y="130" width="44" height="32" stroke="currentColor" fill="none" stroke-width="1.5" /><line x1="244" y1="146" x2="276" y2="146" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-array-list)"/><text x="222" y="151" font-size="11" text-anchor="middle">n2</text>
+<rect x="320" y="130" width="44" height="32" stroke="currentColor" fill="none" stroke-width="1.5" /><line x1="364" y1="146" x2="396" y2="146" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-array-list)"/><text x="342" y="151" font-size="11" text-anchor="middle">n3</text>
+<rect x="440" y="130" width="44" height="32" stroke="currentColor" fill="none" stroke-width="1.5" /><line x1="484" y1="146" x2="516" y2="146" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-array-list)"/><text x="462" y="151" font-size="11" text-anchor="middle">n4</text>
+<text x="390" y="178" font-size="12" class="fig-note">访问第 i 个：数组直达，链表要走到 i</text>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 260" role="presentation">
+<defs><marker id="arr-net-https" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="60" y="26" font-size="13" >TLS 握手：先对暗号，再加密传输</text>
+<rect x="60" y="44" width="100" height="32" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="110" y="65" font-size="12" text-anchor="middle">客户端</text>
+<rect x="400" y="44" width="100" height="32" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="450" y="65" font-size="12" text-anchor="middle">服务器</text>
+<line x1="160" y1="92" x2="400" y2="92" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-net-https)"/>
+<text x="280" y="86" font-size="12" text-anchor="middle" class="fig-note">① ClientHello（支持的套件 + 随机数）</text>
+<line x1="400" y1="120" x2="160" y2="120" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-net-https)"/>
+<text x="280" y="114" font-size="12" text-anchor="middle" class="fig-note">② 证书（公钥 + 身份，CA 签发）</text>
+<text x="280" y="146" font-size="12" text-anchor="middle" class="fig-note">③ 客户端验证证书 → 生成 pre-master 用公钥发出</text>
+<line x1="160" y1="170" x2="400" y2="170" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-net-https)"/>
+<text x="280" y="164" font-size="12" text-anchor="middle" class="fig-accent-text">④ 双方各自派生相同的会话密钥</text>
+<line x1="160" y1="200" x2="400" y2="200" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-net-https)"/>
+<text x="280" y="194" font-size="12" text-anchor="middle" class="fig-note">⑤ 之后全部用对称加密传输</text>
+<text x="60" y="232" font-size="12" class="fig-note">证书验证失败 = 浏览器的「不安全」警告（自签 / 域名不符 / 过期）</text>
+</svg>

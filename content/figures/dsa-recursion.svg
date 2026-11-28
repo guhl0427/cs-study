@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 230" role="presentation">
+<defs><marker id="arr-dsa-recursion" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="60" y="26" font-size="13" >fact(3) 的展开与返回</text>
+<line x1="90" y1="44" x2="90" y2="74" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-recursion)"/>
+<text x="60" y="68" font-size="12" >3 × fact(2)</text>
+<line x1="140" y1="84" x2="140" y2="114" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-recursion)"/>
+<text x="110" y="108" font-size="12" >2 × fact(1)</text>
+<text x="170" y="130" font-size="12" class="fig-note">fact(1) = 1（基准情形）</text>
+<line x1="140" y1="138" x2="140" y2="158" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-dsa-recursion)"/>
+<text x="160" y="158" font-size="12" class="fig-note">回传 1</text>
+<line x1="90" y1="118" x2="90" y2="178" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-dsa-recursion)"/>
+<text x="108" y="178" font-size="12" class="fig-note">回传 2</text>
+<line x1="60" y1="188" x2="60" y2="206" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-dsa-recursion)"/>
+<text x="80" y="206" font-size="12" class="fig-note">回传 6 = 答案</text>
+<text x="330" y="26" font-size="13" >调用栈（先进后出）</text>
+<rect x="340" y="40" width="130" height="30" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent"/>
+<text x="405" y="60" font-size="12" text-anchor="middle">fact(1)</text>
+<rect x="340" y="74" width="130" height="30" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="405" y="94" font-size="12" text-anchor="middle">fact(2)</text>
+<rect x="340" y="108" width="130" height="30" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="405" y="128" font-size="12" text-anchor="middle">fact(3)</text>
+<text x="340" y="170" font-size="12" class="fig-note">递归太深 = 栈溢出</text>
+<text x="340" y="190" font-size="12" class="fig-note">（Stack Overflow）</text>
+</svg>

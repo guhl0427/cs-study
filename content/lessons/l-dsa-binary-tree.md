@@ -32,6 +32,8 @@ resources:
 
 ## 概念讲解
 
+![二叉搜索树的左小右大结构](fig:dsa-binary-tree)
+
 ### 术语表：把「树话」说清楚
 
 ```text

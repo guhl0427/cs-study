@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 230" role="presentation">
+<defs><marker id="arr-net-tcp-udp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="60" y="26" font-size="13" >TCP 建立与拆除：先握手，再挥手</text>
+<line x1="100" y1="44" x2="100" y2="214" stroke="currentColor" fill="none" stroke-width="1.5" stroke-dasharray="2 4"/>
+<line x1="460" y1="44" x2="460" y2="214" stroke="currentColor" fill="none" stroke-width="1.5" stroke-dasharray="2 4"/>
+<text x="100" y="40" font-size="12" text-anchor="middle">客户端</text>
+<text x="460" y="40" font-size="12" text-anchor="middle">服务器</text>
+<line x1="100" y1="70" x2="460" y2="70" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-net-tcp-udp)"/>
+<text x="280" y="64" font-size="12" text-anchor="middle" class="fig-note">① SYN（seq=x）</text>
+<line x1="460" y1="96" x2="100" y2="96" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-net-tcp-udp)"/>
+<text x="280" y="90" font-size="12" text-anchor="middle" class="fig-note">② SYN+ACK（seq=y, ack=x+1）</text>
+<line x1="100" y1="122" x2="460" y2="122" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-net-tcp-udp)"/>
+<text x="280" y="116" font-size="12" text-anchor="middle" class="fig-note">③ ACK（ack=y+1）—— 连接建立</text>
+<line x1="100" y1="152" x2="460" y2="152" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-net-tcp-udp)"/>
+<text x="280" y="146" font-size="12" text-anchor="middle" class="fig-note">数据双向传输（可靠：确认 + 重传 + 排序）</text>
+<line x1="100" y1="186" x2="460" y2="186" stroke="currentColor" fill="none" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr-net-tcp-udp)"/>
+<text x="280" y="180" font-size="12" text-anchor="middle" class="fig-note">FIN / ACK 挥手四次拆除</text>
+<text x="60" y="224" font-size="12" class="fig-note">UDP 不握手：无连接、不保证送达，快但裸奔（DNS / 视频 / 游戏常用）</text>
+</svg>

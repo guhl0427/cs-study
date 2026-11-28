@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220" role="presentation">
+<defs><marker id="arr-os-memory" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="60" y="26" font-size="13" >虚拟内存：每个进程都以为自己独占内存</text>
+<rect x="60" y="44" width="150" height="120" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="135" y="66" font-size="12" text-anchor="middle">虚拟地址空间</text>
+<text x="70" y="90" font-size="11" >代码段</text>
+<text x="70" y="110" font-size="11" >堆（向上长）</text>
+<text x="70" y="130" font-size="11" >栈（向下长）</text>
+<text x="70" y="150" font-size="11" >…</text>
+<rect x="250" y="70" width="90" height="70" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="295" y="92" font-size="12" text-anchor="middle">页表</text>
+<text x="295" y="116" font-size="10" text-anchor="middle" class="fig-note">VA → PA</text>
+<rect x="400" y="44" width="110" height="120" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="455" y="66" font-size="12" text-anchor="middle">物理内存</text>
+<rect x="410" y="80" width="90" height="26" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent"/>
+<text x="455" y="97" font-size="11" text-anchor="middle" class="fig-accent-text">页帧</text>
+<line x1="210" y1="100" x2="250" y2="100" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-os-memory)"/>
+<line x1="340" y1="100" x2="400" y2="95" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-os-memory)"/>
+<text x="60" y="196" font-size="12" class="fig-note">访问不在内存的页 → 缺页中断 → 从磁盘换入（这就是 RSS 和 swap 的舞台）</text>
+</svg>

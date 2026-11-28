@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 200" role="presentation">
+<defs><marker id="arr-co-cpu" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="60" y="26" font-size="13" >指令周期：CPU 就是个循环机器</text>
+<rect x="200" y="60" width="90" height="34" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="245" y="82" font-size="12" text-anchor="middle">取指 Fetch</text>
+<rect x="330" y="110" width="90" height="34" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="375" y="132" font-size="12" text-anchor="middle">译码 Decode</text>
+<rect x="200" y="160" width="90" height="34" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="245" y="182" font-size="12" text-anchor="middle">执行 Execute</text>
+<rect x="70" y="110" width="90" height="34" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="115" y="132" font-size="12" text-anchor="middle">写回 Write</text>
+<line x1="290" y1="77" x2="355" y2="110" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-co-cpu)"/>
+<line x1="375" y1="144" x2="290" y2="170" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-co-cpu)"/>
+<line x1="200" y1="177" x2="135" y2="144" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-co-cpu)"/>
+<line x1="115" y1="110" x2="200" y2="85" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-co-cpu)"/>
+<text x="60" y="70" font-size="12" >PC 程序计数器</text>
+<text x="60" y="88" font-size="11" class="fig-note">指向下一条指令</text>
+<line x1="150" y1="66" x2="200" y2="72" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-co-cpu)"/>
+<text x="60" y="44" font-size="12" class="fig-note">GHz = 每秒几十亿圈</text>
+</svg>

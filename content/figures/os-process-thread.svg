@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 230" role="presentation">
+<defs><marker id="arr-os-process-thread" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="60" y="26" font-size="13" >进程状态机：三个主状态两条转换</text>
+<rect x="120" y="50" width="90" height="34" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="165" y="72" font-size="13" text-anchor="middle">就绪</text>
+<rect x="330" y="50" width="90" height="34" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent"/>
+<text x="375" y="72" font-size="13" text-anchor="middle" class="fig-accent-text">运行</text>
+<rect x="330" y="150" width="90" height="34" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="375" y="172" font-size="13" text-anchor="middle">阻塞</text>
+<line x1="210" y1="60" x2="330" y2="60" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-os-process-thread)"/>
+<text x="270" y="54" font-size="11" text-anchor="middle" class="fig-note">被调度选中</text>
+<line x1="330" y1="76" x2="210" y2="76" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-os-process-thread)"/>
+<text x="270" y="94" font-size="11" text-anchor="middle" class="fig-note">时间片用完</text>
+<line x1="375" y1="84" x2="375" y2="150" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-os-process-thread)"/>
+<text x="388" y="120" font-size="11" class="fig-note">等待 I/O</text>
+<line x1="330" y1="176" x2="165" y2="176" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-os-process-thread)"/>
+<text x="248" y="170" font-size="11" text-anchor="middle" class="fig-note">I/O 完成 → 回就绪排队</text>
+<text x="60" y="214" font-size="12" class="fig-note">阻塞的进程不占 CPU；线程 = 进程内的执行单位，共享内存但各自有栈</text>
+</svg>

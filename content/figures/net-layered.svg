@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 230" role="presentation">
+<defs><marker id="arr-net-layered" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="60" y="26" font-size="13" >分层模型：每层只管自己的事</text>
+<rect x="150" y="40" width="240" height="30" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="270" y="60" font-size="12" text-anchor="middle">应用层（HTTP）</text>
+<rect x="150" y="78" width="240" height="30" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="270" y="98" font-size="12" text-anchor="middle">传输层（TCP/UDP）</text>
+<rect x="150" y="116" width="240" height="30" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="270" y="136" font-size="12" text-anchor="middle">网络层（IP）</text>
+<rect x="150" y="154" width="240" height="30" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="270" y="174" font-size="12" text-anchor="middle">链路层（以太网）</text>
+<rect x="150" y="192" width="240" height="30" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="270" y="212" font-size="12" text-anchor="middle">物理层（比特）</text>
+<line x1="410" y1="55" x2="440" y2="55" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-net-layered)"/>
+<text x="446" y="60" font-size="11" class="fig-note">[HTTP]</text>
+<line x1="410" y1="93" x2="440" y2="93" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-net-layered)"/>
+<text x="446" y="98" font-size="11" class="fig-note">[TCP 头]</text>
+<line x1="410" y1="131" x2="440" y2="131" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-net-layered)"/>
+<text x="446" y="136" font-size="11" class="fig-note">[IP 头]</text>
+<line x1="410" y1="169" x2="440" y2="169" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-net-layered)"/>
+<text x="446" y="174" font-size="11" class="fig-note">[帧头]</text>
+<text x="60" y="214" font-size="12" class="fig-note">发送端自上而下封装，接收端自下而上解封；对端同层对话</text>
+</svg>

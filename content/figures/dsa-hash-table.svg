@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 240" role="presentation">
+<defs><marker id="arr-dsa-hash-table" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<rect x="60" y="40" width="110" height="34" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="115" y="62" font-size="12" text-anchor="middle">key: "tom"</text>
+<line x1="170" y1="57" x2="230" y2="57" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-hash-table)"/>
+<rect x="232" y="40" width="96" height="34" stroke="currentColor" fill="none" stroke-width="1.5" />
+<text x="280" y="62" font-size="12" text-anchor="middle">hash(key)</text>
+<line x1="280" y1="74" x2="280" y2="104" stroke="currentColor" fill="none" stroke-width="1.5"  marker-end="url(#arr-dsa-hash-table)"/>
+<text x="292" y="96" font-size="12" class="fig-note">index = hash % 5</text>
+<text x="70" y="132" font-size="12" >桶数组（长度 5）</text>
+<rect x="70" y="142" width="66" height="34" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="103" y="163" font-size="11" text-anchor="middle" class="fig-note">0</text>
+<rect x="146" y="142" width="66" height="34" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="179" y="163" font-size="11" text-anchor="middle" class="fig-note">1</text>
+<rect x="222" y="142" width="66" height="34" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="255" y="163" font-size="11" text-anchor="middle" class="fig-note">2</text>
+<rect x="298" y="142" width="66" height="34" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="331" y="163" font-size="11" text-anchor="middle" class="fig-note">3</text>
+<rect x="374" y="142" width="66" height="34" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="407" y="163" font-size="11" text-anchor="middle" class="fig-note">4</text>
+<rect x="222" y="142" width="66" height="34" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent"/>
+<text x="255" y="163" font-size="12" text-anchor="middle" class="fig-accent-text">2</text>
+<rect x="222" y="186" width="66" height="28" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" stroke-dasharray="4 3"/>
+<line x1="255" y1="176" x2="255" y2="186" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" stroke-dasharray="4 3" marker-end="url(#arr-dsa-hash-table)"/>
+<text x="304" y="204" font-size="12" class="fig-note">冲突：同槽位挂链表（链地址法）</text>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 180" role="presentation">
+<defs><marker id="arr-co-bits" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker></defs>
+<text x="60" y="26" font-size="13" >同一个数的三套皮：1010 = A = 10</text>
+<rect x="80" y="50" width="46" height="36" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="103" y="73" font-size="13" text-anchor="middle">1</text>
+<rect x="136" y="50" width="46" height="36" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="159" y="73" font-size="13" text-anchor="middle">0</text>
+<rect x="192" y="50" width="46" height="36" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="215" y="73" font-size="13" text-anchor="middle">1</text>
+<rect x="248" y="50" width="46" height="36" stroke="currentColor" fill="none" stroke-width="1.5" /><text x="271" y="73" font-size="13" text-anchor="middle">0</text>
+<text x="80" y="46" font-size="11" text-anchor="middle" class="fig-note">8</text>
+<text x="136" y="46" font-size="11" text-anchor="middle" class="fig-note">4</text>
+<text x="192" y="46" font-size="11" text-anchor="middle" class="fig-note">2</text>
+<text x="248" y="46" font-size="11" text-anchor="middle" class="fig-note">1</text>
+<text x="320" y="73" font-size="12" class="fig-note">← 每 4 位 = 1 个十六进制位</text>
+<line x1="60" y1="100" x2="280" y2="100" stroke="currentColor" fill="none" stroke-width="1.5" class="fig-accent" marker-end="url(#arr-co-bits)"/>
+<text x="300" y="104" font-size="12" class="fig-accent-text">0b1010 = 0xA = 10</text>
+<text x="60" y="140" font-size="12" class="fig-note">一个字节 8 位能表示 0–255；负数用补码：最高位是「负权重」，-1 = 11111111</text>
+<text x="60" y="160" font-size="12" class="fig-note">字符只是编码表里的编号：UTF-8 把编号翻译成 1–4 个字节</text>
+</svg>

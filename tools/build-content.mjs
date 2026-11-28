@@ -40,6 +40,18 @@ const warnings = []
 const err = (cond, msg) => { if (!cond) errors.push(msg) }
 const warn = (cond, msg) => { if (!cond) warnings.push(msg) }
 
+// ---------------------------------------------------------------- 配图（content/figures/{id}.svg，内联进正文）
+const figures = new Map() // id -> svg 文本
+const figuresDir = path.join(contentDir, 'figures')
+if (fs.existsSync(figuresDir)) {
+  for (const f of fs.readdirSync(figuresDir).filter((x) => x.endsWith('.svg')).sort()) {
+    const svg = fs.readFileSync(path.join(figuresDir, f), 'utf8').trim()
+    err(svg.startsWith('<svg'), `figures/${f}: 不是合法的 SVG 文件（应以 <svg 开头）`)
+    err(svg.includes('viewBox'), `figures/${f}: 缺少 viewBox（响应式缩放必需）`)
+    figures.set(path.basename(f, '.svg'), svg)
+  }
+}
+
 // ---------------------------------------------------------------- 读取
 const domains = readJSON(path.join(contentDir, 'domains.json'))
 const site = readJSON(path.join(contentDir, 'site.json'))
@@ -282,6 +294,25 @@ md.renderer.rules.fence = (tokens, idx) => {
 }
 
 const renderLesson = (raw) => {
+  // 图片语法约定：![替代文字](fig:id) → 内联 SVG 图版（蓝图线稿，随主题着色）；
+  // 其他 src 一律报错——正文不引入外域图片（构建期内容自产的纪律）
+  md.renderer.rules.image = (tokens, idx) => {
+    const token = tokens[idx]
+    const src = token.attrGet('src') ?? ''
+    const alt = (token.content ?? '').trim()
+    const m = /^fig:([a-z0-9-]+)$/.exec(src)
+    if (!m) {
+      errors.push(`lessons/${currentLessonFile}: 图片仅支持 fig:id 引用（不引入外域图片）：${src}`)
+      return ''
+    }
+    const svg = figures.get(m[1])
+    if (!svg) {
+      errors.push(`lessons/${currentLessonFile}: 配图不存在（figures/）：fig:${m[1]}`)
+      return ''
+    }
+    err(Boolean(alt), `lessons/${currentLessonFile}: 配图缺少替代文字：fig:${m[1]}`)
+    return `<figure class="content-figure" role="img" aria-label="${escapeHtml(alt)}">${svg}<figcaption>${escapeHtml(alt)}</figcaption></figure>`
+  }
   let html = md.render(raw)
   const toc = []
   let n = 0
@@ -493,6 +524,7 @@ const ENTITIES = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;
 const htmlToSearchBody = (html) =>
   html
     .replace(/<figure class="code-?block[\s\S]*?<\/figure>/g, ' ')
+    .replace(/<figure class="content-figure[\s\S]*?<\/figure>/g, ' ')
     .replace(/<pre[\s\S]*?<\/pre>/g, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&(amp|lt|gt|quot|#39|nbsp);/g, (m) => ENTITIES[m] ?? ' ')
