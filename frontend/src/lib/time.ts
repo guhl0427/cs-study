@@ -1,15 +1,10 @@
 /**
- * 学习时长（TimeLog）的纯函数工具：日期键、过期裁剪、区间合计。
+ * 学习时长（TimeLog）的纯函数工具：过期裁剪、区间合计。
  * TimeLog = Record<dateKey, Record<lessonId, 秒>>（v2 用户数据域）。
  * 打卡日历/streak 一律由 progress 推导（store 纪律），本文件只服务「真实学习时长」。
  */
 import type { TimeLog } from '@/types/user'
-
-/** 本地时区的 YYYY-MM-DD 日期键 */
-export function dateKey(d: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}
+import { dateKey } from '@/lib/format'
 
 export function todayKey(now = new Date()): string {
   return dateKey(now)

@@ -2,7 +2,8 @@
  * 学习时长（TimeLog）纯函数测试：日期键、裁剪、区间合计。
  */
 import { describe, expect, it } from 'vitest'
-import { dateKey, pruneTimeLog, secondsInLastDays, todayKey } from './time'
+import { dateKey } from '@/lib/format'
+import { pruneTimeLog, secondsInLastDays } from './time'
 import type { TimeLog } from '@/types/user'
 
 const day = (offset: number, now = new Date()): string => {
@@ -10,14 +11,6 @@ const day = (offset: number, now = new Date()): string => {
   d.setDate(d.getDate() - offset)
   return dateKey(d)
 }
-
-describe('dateKey / todayKey', () => {
-  it('产出本地时区 YYYY-MM-DD', () => {
-    expect(dateKey(new Date(2026, 10, 28))).toBe('2026-11-28')
-    expect(dateKey(new Date(2026, 0, 5))).toBe('2026-01-05')
-    expect(todayKey(new Date(2026, 10, 28, 23, 59))).toBe('2026-11-28')
-  })
-})
 
 describe('pruneTimeLog（超过 365 天的日期被裁剪）', () => {
   it('保留近期日期，丢弃旧日期', () => {
