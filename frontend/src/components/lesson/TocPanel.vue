@@ -27,7 +27,7 @@ onBeforeUnmount(() => observer?.disconnect())
 </script>
 
 <template>
-  <nav v-if="toc.length" class="sticky top-20 border-l border-line pl-4" aria-label="本页目录">
+  <nav v-if="toc.length" class="border-l border-line pl-4" aria-label="本页目录">
     <p class="meta-mono mb-2">本页目录</p>
     <ul class="space-y-1.5">
       <li v-for="item in toc" :key="item.id" :class="item.level === 3 ? 'pl-3' : ''">

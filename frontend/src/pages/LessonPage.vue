@@ -4,6 +4,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import { IconFlag } from '@tabler/icons-vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import LessonArticle from '@/components/lesson/LessonArticle.vue'
+import LessonNotesPanel from '@/components/lesson/LessonNotesPanel.vue'
 import TocPanel from '@/components/lesson/TocPanel.vue'
 import PrevNextNav from '@/components/lesson/PrevNextNav.vue'
 import ResourceList from '@/components/lesson/ResourceList.vue'
@@ -133,6 +134,12 @@ const isCurrentLesson = (id?: string) => id === view?.meta.id
 
         <LessonArticle :html="view.html" class="mt-6" />
 
+        <!-- 本地笔记（移动端折叠；桌面在右栏） -->
+        <details class="mt-6 lg:hidden">
+          <summary class="cursor-pointer text-[13px] font-bold text-ink">我的笔记</summary>
+          <LessonNotesPanel :lesson-id="view.meta.id" class="mt-3" />
+        </details>
+
         <!-- 精选外链（F3.4，frontmatter 驱动） -->
         <section class="mt-8">
           <h2 class="text-section font-bold text-ink">精选外链</h2>
@@ -163,9 +170,12 @@ const isCurrentLesson = (id?: string) => id === view?.meta.id
         </p>
       </article>
 
-      <!-- ③ 右辅助列 -->
+      <!-- ③ 右辅助列：目录 + 本地笔记（整列粘性，超高可滚动） -->
       <aside class="hidden lg:block">
-        <TocPanel :toc="view.toc" />
+        <div class="sticky top-20 max-h-[calc(100vh-6rem)] space-y-4 overflow-y-auto pr-1">
+          <TocPanel :toc="view.toc" />
+          <LessonNotesPanel :lesson-id="view.meta.id" />
+        </div>
       </aside>
     </div>
   </div>

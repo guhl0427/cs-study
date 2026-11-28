@@ -91,6 +91,16 @@ function saveProfile() {
   ui.toast('ok', '档案已保存（仅存本机）')
 }
 
+/* ---- 我的笔记（v2 用户数据域，按更新时间倒序） ---- */
+const noteEntries = computed(() =>
+  mounted.value
+    ? Object.entries(ud.notes)
+        .map(([lessonId, note]) => ({ lessonId, note, meta: contentApi.getLessonById(lessonId) }))
+        .filter((x) => x.meta)
+        .sort((a, b) => b.note.updatedAt.localeCompare(a.note.updatedAt))
+    : [],
+)
+
 /* ---- 当前路线 ---- */
 const activePath = computed(() => {
   const slug = ud.profile.activePathId
@@ -232,6 +242,27 @@ const guideMeta = computed(() => {
               <RouterLink to="/explore" class="btn btn-ghost btn-sm">去浏览</RouterLink>
             </EmptyState>
           </template>
+        </section>
+
+        <section>
+          <h2 class="text-section mb-3 font-bold text-ink">我的笔记</h2>
+          <div v-if="noteEntries.length" class="space-y-2">
+            <RouterLink
+              v-for="x in noteEntries"
+              :key="x.lessonId"
+              :to="{ name: 'lesson', params: { courseSlug: x.meta!.courseSlug!, lessonSlug: x.meta!.slug } }"
+              class="card-plate card-hover block px-4 py-3"
+            >
+              <span class="flex items-center justify-between gap-3">
+                <b class="text-card font-bold text-ink">{{ x.meta!.title }}</b>
+                <span class="meta-mono shrink-0">{{ formatDate(x.note.updatedAt) }}</span>
+              </span>
+              <span class="mt-1 block truncate text-[13px] text-ink-2">{{ x.note.content }}</span>
+            </RouterLink>
+          </div>
+          <EmptyState v-else title="还没有笔记" desc="在知识点页右侧「我的笔记」写下自己的理解，复习时更好找。">
+            <RouterLink to="/explore" class="btn btn-ghost btn-sm">去学习</RouterLink>
+          </EmptyState>
         </section>
       </div>
 
