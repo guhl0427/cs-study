@@ -10,6 +10,7 @@ import { contentApi } from '@/api'
 import { useUserDataStore } from '@/stores/userData'
 import { useClientMounted } from '@/composables/useClientMounted'
 import { usePageTitle } from '@/composables/usePageTitle'
+import { buildWeeklyPlan, defaultWeeklyMinutes } from '@/lib/plan'
 
 const domains = contentApi.listDomains()
 const site = contentApi.getSite()
@@ -34,6 +35,17 @@ const continueView = computed(() => {
     if (lesson) return { course, lesson }
   }
   return null
+})
+
+/** 本周计划摘要（回访留存层）：与 /plan 页同一推导逻辑，完成自动顺延 */
+const weeklyPlan = computed(() => {
+  if (!mounted.value) return null
+  const slug = ud.profile.activePathId ?? ud.guide?.recommendedPathSlug ?? 'cs-fundamentals-path'
+  const path = contentApi.getPath(slug)
+  if (!path) return null
+  const budget = ud.profile.weeklyMinutes ?? defaultWeeklyMinutes(ud.guide?.answers.time)
+  const plan = buildWeeklyPlan(path, ud.progress, budget)
+  return { path, plan }
 })
 </script>
 
@@ -101,7 +113,24 @@ const continueView = computed(() => {
       </div>
     </section>
 
-    <!-- ④ 编辑精选（F1.4） -->
+    <!-- ④ 本周计划摘要（回访留存） -->
+    <section v-if="weeklyPlan && weeklyPlan.plan.items.length" class="mt-12">
+      <h2 class="text-section font-bold text-ink">本周计划</h2>
+      <RouterLink to="/plan" class="card-plate card-hover mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-4">
+        <span class="rounded-node border border-line-strong px-1.5 py-0.5 font-mono text-[11px] text-ink-2">
+          {{ weeklyPlan.path.name }}
+        </span>
+        <b class="text-card text-ink">
+          {{ weeklyPlan.plan.items.length }} 篇 · 约 {{ Math.round((weeklyPlan.plan.plannedMinutes / 60) * 10) / 10 }} 小时
+        </b>
+        <span class="min-w-0 flex-1 truncate text-[13px] text-ink-2">
+          从「{{ weeklyPlan.plan.items[0]!.lesson.title }}」开始
+        </span>
+        <span class="btn btn-text btn-sm">查看完整计划 →</span>
+      </RouterLink>
+    </section>
+
+    <!-- ⑤ 编辑精选（F1.4） -->
     <section v-if="site.featured.length" class="mt-12 space-y-3">
       <FeaturedStrip v-for="f in site.featured" :key="f.id" :item="f" />
     </section>

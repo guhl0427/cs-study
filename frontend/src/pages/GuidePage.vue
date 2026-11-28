@@ -232,6 +232,7 @@ function restart() {
 
       <div class="mt-6 flex flex-wrap items-center gap-3">
         <button class="btn btn-primary" type="button" @click="startByPath">按此路线开始学习</button>
+        <RouterLink to="/plan" class="btn btn-ghost">查看本周计划</RouterLink>
         <RouterLink v-if="result.startTo" :to="result.startTo" class="btn btn-ghost">
           直达起点：{{ result.startLabel }}
         </RouterLink>

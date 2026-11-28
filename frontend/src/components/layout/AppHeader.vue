@@ -28,6 +28,7 @@ function onToggleTheme() {
 const navs = [
   { label: '首页', to: '/', name: 'home' },
   { label: '全部领域', to: '/explore', name: 'explore' },
+  { label: '本周计划', to: '/plan', name: 'plan' },
   { label: '找方向', to: '/guide', name: 'guide' },
   { label: '个人中心', to: '/profile', name: 'profile' },
 ]

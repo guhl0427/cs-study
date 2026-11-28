@@ -608,7 +608,7 @@ footer { margin-top: 26px; font-size: 12px; color: #7e93a6; font-family: ui-mono
 // ---------------------------------------------------------------- sitemap.xml（传入 --site 时生成，F6/SEO）
 if (siteUrl) {
   const base = siteUrl.replace(/\/$/, '')
-  const staticPaths = ['/', '/explore', '/guide', '/profile', '/settings', '/search', '/mistakes']
+  const staticPaths = ['/', '/explore', '/guide', '/profile', '/settings', '/plan', '/search', '/mistakes']
   const dynamicPaths = Object.values(routesManifest).flat()
   const urlLines = [...staticPaths, ...dynamicPaths].map(
     (p) => `  <url><loc>${base}${p === '/' ? '/' : p}</loc></url>`,
